@@ -3,6 +3,20 @@ import Foundation
 enum MACPreferences {
     nonisolated(unsafe) static let domain: CFString = "com.writronic.MaCursor" as CFString
 
+    struct Operations {
+        var readApp: (CFString, CFString) -> Any?
+        var read: (CFString, CFString, CFString, CFString) -> Any?
+        var write: (CFString, Any?, CFString, CFString, CFString) -> Void
+        var synchronize: (CFString, CFString, CFString) -> Void
+
+        static var live: Operations {
+            Operations(readApp: { CFPreferencesCopyAppValue($0, $1) },
+                       read: { CFPreferencesCopyValue($0, $1, $2, $3) },
+                       write: { CFPreferencesSetValue($0, $1 as CFPropertyList?, $2, $3, $4) },
+                       synchronize: { _ = CFPreferencesSynchronize($0, $1, $2) })
+        }
+    }
+
 
     static let appliedCursorKey          = "MACAppliedCursor"
     static let cursorScaleKey            = "MACCursorScale"
@@ -37,6 +51,7 @@ enum MACPreferences {
         appearanceModeKey,
         languageKey,
         hideTahoeCursorsKey,
+        advancedEditorLayoutKey,
         cursorShadowKey,
         autoSwitchRulesKey,
         appOverrideKey,
@@ -61,38 +76,29 @@ enum MACPreferences {
         return stored.boolValue
     }
 
-    static func value(forKey key: String) -> Any? {
-        let result = CFPreferencesCopyAppValue(key as CFString, domain)
-        return result as Any?
+    static func value(forKey key: String, operations: Operations = .live) -> Any? {
+        operations.readApp(key as CFString, domain)
     }
 
-    static func value(forKey key: String, user: CFString, host: CFString) -> Any? {
-        let result = CFPreferencesCopyValue(key as CFString, domain, user, host)
-        return result as Any?
+    static func value(forKey key: String, user: CFString, host: CFString, operations: Operations = .live) -> Any? {
+        operations.read(key as CFString, domain, user, host)
     }
 
-    static func flag(_ key: String) -> Bool {
-        return (value(forKey: key) as? NSNumber)?.boolValue ?? false
+    static func flag(_ key: String, operations: Operations = .live) -> Bool {
+        return (value(forKey: key, operations: operations) as? NSNumber)?.boolValue ?? false
     }
 
 
-    static func set(_ value: Any?, forKey key: String) {
-        CFPreferencesSetValue(
-            key as CFString,
-            value as CFPropertyList?,
-            domain,
-            kCFPreferencesCurrentUser,
-            kCFPreferencesCurrentHost
-        )
-        CFPreferencesSynchronize(domain, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)
+    static func set(_ value: Any?, forKey key: String, operations: Operations = .live) {
+        set(value, forKey: key, user: kCFPreferencesCurrentUser, host: kCFPreferencesCurrentHost, operations: operations)
     }
 
-    static func set(_ value: Any?, forKey key: String, user: CFString, host: CFString) {
-        CFPreferencesSetValue(key as CFString, value as CFPropertyList?, domain, user, host)
-        CFPreferencesSynchronize(domain, user, host)
+    static func set(_ value: Any?, forKey key: String, user: CFString, host: CFString, operations: Operations = .live) {
+        operations.write(key as CFString, value, domain, user, host)
+        operations.synchronize(domain, user, host)
     }
 
-    static func setFlag(_ value: Bool, forKey key: String) {
-        set(NSNumber(value: value), forKey: key)
+    static func setFlag(_ value: Bool, forKey key: String, operations: Operations = .live) {
+        set(NSNumber(value: value), forKey: key, operations: operations)
     }
 }

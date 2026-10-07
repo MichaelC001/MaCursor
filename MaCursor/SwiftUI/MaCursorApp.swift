@@ -124,7 +124,7 @@ struct MaCursorApp: App {
 
 private extension MaCursorApp {
     func openSettingsWindow() {
-        NSApp.windows.first(where: { $0.title.hasPrefix("About MaCursor") })?.close()
+        AboutWindowView.window?.close()
         SettingsWindowController.shared.configure(library: library,
                                                   appearanceManager: appearanceManager,
                                                   languageManager: languageManager,

@@ -43,7 +43,13 @@ struct LibraryView: View {
                         }
                     }
                     Divider()
-                    Button("Delete", role: .destructive) { library.remove(cursorTheme) }
+                    Button("Delete", role: .destructive) {
+                        do {
+                            try library.remove(cursorTheme)
+                        } catch {
+                            NSApp.presentError(error)
+                        }
+                    }
                 }
             } primaryAction: { selectedIds in
                 guard let themeId = selectedIds.first,
@@ -51,13 +57,13 @@ struct LibraryView: View {
                 handleDoubleClick(on: cursorTheme)
             }
             .listStyle(.sidebar)
-            .background(ListSelectionClearer())
+            .overlay(ListMenuOwner())
             .sidebarToggleRemoved()
             .toolbar {
                 ToolbarItem { Spacer() }
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button(action: {
-                        let newId = library.addNewTheme()
+                        guard let newId = library.addNewTheme() else { return }
                         selectedThemeId = newId
                         withAnimation {
                             proxy.scrollTo(newId, anchor: .center)
@@ -166,8 +172,12 @@ struct LibraryView: View {
         }
         .onDeleteCommand {
             if let themeId = selectedThemeId, let cursorTheme = library.theme(withId: themeId) {
-                library.remove(cursorTheme)
-                selectedThemeId = nil
+                do {
+                    try library.remove(cursorTheme)
+                    selectedThemeId = nil
+                } catch {
+                    NSApp.presentError(error)
+                }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .cursorLibraryIdentifierDidChange)) { note in
@@ -207,48 +217,65 @@ private struct ApplyBlockedHelp: ViewModifier {
     }
 }
 
-private struct ListSelectionClearer: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        DispatchQueue.main.async {
-            if let tableView = findTableView(in: view) {
-                tableView.selectionHighlightStyle = .none
-            }
-        }
-        return view
+struct ListMenuOwner: NSViewRepresentable {
+    func makeNSView(context: Context) -> Owner {
+        Owner()
     }
 
-    func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async {
-            if let tableView = findTableView(in: nsView) {
-                tableView.selectionHighlightStyle = .none
-            }
-        }
+    func updateNSView(_ view: Owner, context: Context) {
+        view.attach()
     }
 
-    private func findTableView(in view: NSView) -> NSTableView? {
-        var current: NSView? = view
-        while let parent = current?.superview {
-            if let tableView = parent as? NSTableView {
-                return tableView
-            }
-            current = parent
+    final class Owner: NSView {
+        private weak var table: NSTableView?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            attach()
         }
 
-        return searchSubviews(of: view.window?.contentView)
-    }
-
-    private func searchSubviews(of view: NSView?) -> NSTableView? {
-        guard let view else { return nil }
-        if let tableView = view as? NSTableView {
-            return tableView
+        func attach() {
+            guard window != nil else { return }
+            adopt()
+            DispatchQueue.main.async { [weak self] in self?.adopt() }
         }
-        for subview in view.subviews {
-            if let found = searchSubviews(of: subview) {
-                return found
+
+        private func adopt() {
+            var ancestor = superview
+            while let view = ancestor {
+                let found = Self.tables(in: view)
+                if found.count == 1 {
+                    table = found[0]
+                    if found[0].selectionHighlightStyle != .none {
+                        found[0].selectionHighlightStyle = .none
+                    }
+                    return
+                }
+                if found.count > 1 { return }
+                ancestor = view.superview
             }
         }
-        return nil
+
+        private static func tables(in view: NSView) -> [NSTableView] {
+            (view as? NSTableView).map { [$0] } ?? view.subviews.flatMap { tables(in: $0) }
+        }
+
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            guard let table, let superview, let event = NSApp.currentEvent, event.window === window,
+                  event.type == .rightMouseDown || event.type == .leftMouseDown && event.modifierFlags.contains(.control),
+                  superview.convert(event.locationInWindow, from: nil) == point
+            else { return nil }
+            let local = table.convert(point, from: superview)
+            return table.visibleRect.contains(local) && table.row(at: local) >= 0 ? self : nil
+        }
+
+        override func menu(for event: NSEvent) -> NSMenu? {
+            table?.menu(for: event)
+        }
+
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            true
+        }
     }
 }
 
@@ -274,7 +301,7 @@ struct CursorThemeRowView: View {
         _ = preferenceRevision
         if MACPreferences.hideTahoeCursors {
             return cursorTheme.cursors.filter {
-                !MACConstants.hiddenCursorAliases.contains($0.identifier)
+                !MACCursorDefinitions.hiddenCursorAliases.contains($0.identifier)
             }
         }
         return cursorTheme.cursors
@@ -320,6 +347,8 @@ struct CursorThemeRowView: View {
 
             if let hero = heroCursor {
                 CursorThumbnailView(cursor: hero, size: 40)
+            } else {
+                Color.clear.frame(width: 40, height: 40)
             }
 
             HStack(spacing: 6) {
@@ -383,7 +412,7 @@ struct CursorThemeDetailView: View {
         _ = preferenceRevision
         if MACPreferences.hideTahoeCursors {
             return cursorTheme.cursors.filter {
-                !MACConstants.hiddenCursorAliases.contains($0.identifier)
+                !MACCursorDefinitions.hiddenCursorAliases.contains($0.identifier)
             }
         }
         return cursorTheme.cursors

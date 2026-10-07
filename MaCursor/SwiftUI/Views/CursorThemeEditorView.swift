@@ -10,6 +10,7 @@ struct CursorThemeEditorView: View {
     @State private var showAllSlots = false
     @State private var sidebarSearchText = ""
     @State private var metadataFieldsEnabled = false
+    @State private var hasPendingFieldEdit = false
 
     init(cursorTheme: CursorThemeModel) {
         self._viewModel = StateObject(wrappedValue: CursorThemeEditorViewModel(cursorTheme: cursorTheme))
@@ -30,6 +31,11 @@ struct CursorThemeEditorView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .environment(\.numericFieldPendingEdit) { pending in
+            DispatchQueue.main.async {
+                hasPendingFieldEdit = pending
+            }
+        }
         .onAppear {
             DispatchQueue.main.async {
                 metadataFieldsEnabled = true
@@ -45,7 +51,7 @@ struct CursorThemeEditorView: View {
                         NSApp.presentError(error)
                     }
                 }
-                .disabled(!viewModel.isDirty)
+                .disabled(!viewModel.isDirty && !hasPendingFieldEdit)
             }
 
             ToolbarItem(placement: .cancellationAction) {
@@ -269,7 +275,7 @@ struct CursorThemeEditorView: View {
                 }
             }
             .frame(minHeight: 24)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 12)
             .padding(.vertical, 4)
             .background(.bar)
         }
@@ -285,9 +291,14 @@ struct CursorThemeEditorView: View {
                 return ext == "cur" || ext == "ani"
             }
             guard !cursorURLs.isEmpty else { return false }
-            viewModel.importWindowsCursors(from: cursorURLs)
+            let failures = viewModel.importWindowsCursors(from: cursorURLs)
+            if !failures.isEmpty {
+                CursorSourceAlert.reportUnusable(failures.map {
+                    CursorSourceAlert.unreadableMessage(fileName: $0.url.lastPathComponent, error: $0.error)
+                }.joined(separator: "\n\n"))
+            }
             sidebarSearchText = ""
-            return true
+            return failures.count < cursorURLs.count
         } isTargeted: {
             isListDropTargeted = $0
         }
@@ -349,8 +360,18 @@ struct CursorThemeEditorView: View {
             EmptySlotRowView(identifier: identifier, displayName: displayName)
                 .dropDestination(for: URL.self) { urls, _ in
                     guard let url = urls.first(where: { $0.isFileURL }) else { return false }
-                    return viewModel.assignSource(url, toIdentifier: identifier)
+                    return assignSource(url, toIdentifier: identifier)
                 }
+        }
+    }
+
+    private func assignSource(_ url: URL, toIdentifier identifier: String) -> Bool {
+        do {
+            try viewModel.assignSource(url, toIdentifier: identifier)
+            return true
+        } catch {
+            CursorSourceAlert.reportUnreadable(fileName: url.lastPathComponent, error: error)
+            return false
         }
     }
 
@@ -377,7 +398,7 @@ struct CursorThemeEditorView: View {
                                 guard let url = urls.first(where: { $0.isFileURL }) else {
                                     return false
                                 }
-                                return viewModel.assignSource(url, toIdentifier: identifier)
+                                return assignSource(url, toIdentifier: identifier)
                             }
                     }
                 }
@@ -394,7 +415,7 @@ struct CursorThemeEditorView: View {
                     cursor: cursor,
                     usedIdentifiers: viewModel.usedIdentifiers(excluding: cursor.id),
                     onReplaceSource: { url in
-                        viewModel.replaceSource(url, for: cursor)
+                        try viewModel.replaceSource(url, for: cursor)
                     },
                     onClearSlot: {
                         viewModel.clearSlot(cursor, selectEmptyRow: showAllSlots)
@@ -405,7 +426,7 @@ struct CursorThemeEditorView: View {
                 EmptySlotDetailView(
                     identifier: emptyIdentifier,
                     onAssign: { url in
-                        viewModel.assignSource(url, toIdentifier: emptyIdentifier)
+                        assignSource(url, toIdentifier: emptyIdentifier)
                     })
                     .id(emptyIdentifier)
             } else {
@@ -437,7 +458,7 @@ private struct EmptySlotRowView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
             }
-            .frame(width: 28, height: 28)
+            .frame(width: 24, height: 24)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(displayName)
@@ -562,8 +583,10 @@ private struct EmptySlotDetailView: View {
                 description: Text(NSLocalizedString(
                     "Choose a source file or drop one onto the cell.",
                     comment: "Empty slot inspector description")))
+                .frame(maxWidth: .infinity)
 
             HStack {
+                Spacer()
                 Button(NSLocalizedString("Choose Source…", comment: "Choose cursor source button")) {
                     let panel = NSOpenPanel()
                     panel.canChooseFiles = true

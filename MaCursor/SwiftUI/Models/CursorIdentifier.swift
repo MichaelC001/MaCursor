@@ -2,11 +2,11 @@ import Foundation
 
 enum CursorIdentifier {
     static func displayName(for identifier: String) -> String {
-        return MACConstants.nameForIdentifier(identifier)
+        return MACCursorDefinitions.nameForIdentifier(identifier)
     }
 
     static func identifier(for name: String) -> String? {
-        return MACConstants.identifierForName(name)
+        return MACCursorDefinitions.identifierForName(name)
     }
 
     static var allIdentifiers: [(identifier: String, name: String)] {
@@ -14,10 +14,10 @@ enum CursorIdentifier {
     }
 
     static func allIdentifiers(hideTahoeCursors: Bool) -> [(identifier: String, name: String)] {
-        var result = MACConstants.cursorMap
-            .filter { !MACConstants.redundantCursorAliases.contains($0.key) }
+        var result = MACCursorDefinitions.cursorMap
+            .filter { !MACCursorDefinitions.redundantCursorAliases.contains($0.key) }
         if hideTahoeCursors {
-            result = result.filter { !MACConstants.hiddenCursorAliases.contains($0.key) }
+            result = result.filter { !MACCursorDefinitions.hiddenCursorAliases.contains($0.key) }
         }
         return result
             .map { (identifier: $0.key, name: $0.value) }
@@ -25,7 +25,7 @@ enum CursorIdentifier {
     }
 
     static var allNames: [String] {
-        return MACConstants.cursorMap.values
+        return MACCursorDefinitions.cursorMap.values
             .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
     }
 }

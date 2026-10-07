@@ -1,9 +1,5 @@
 #import <Cocoa/Cocoa.h>
 
-#import "MACCursorDefs.h"
-#import "MACCursorActions.h"
-#import "MACCursorShadow.h"
-#import "MACAutoSwitch.h"
-#import "MACFocusFollowsMouse.h"
+#import "CGSPrivateCursor.h"
+#import "CGSPrivateAccessibility.h"
 #import "MACCursor.h"
-#import "MACMenuBarState.h"

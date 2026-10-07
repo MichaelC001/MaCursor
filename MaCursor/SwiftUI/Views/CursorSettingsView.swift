@@ -59,6 +59,7 @@ struct CursorSettingsView: View {
                             reapplyForCursorScale()
                         }
                     }
+                        .labelsHidden()
                         .onChangeCompat(of: cursorScaleValue) { newValue in
                             MACPreferences.set(NSNumber(value: newValue), forKey: MACPreferences.cursorScaleKey)
                             CursorService.setScale(Float(max(1.0, newValue)))
@@ -124,7 +125,7 @@ struct CursorSettingsView: View {
                                 Text(rule.displayName ?? rule.bundleIdentifier ?? "")
                                     .lineLimit(1)
                                     .truncationMode(.middle)
-                                    .frame(width: 122, alignment: .leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
 
                                 Spacer(minLength: 6)
 
@@ -138,7 +139,7 @@ struct CursorSettingsView: View {
                                     }
                                 }
                                 .labelsHidden()
-                                .frame(maxWidth: 170)
+                                .frame(maxWidth: 170, alignment: .trailing)
 
                                 Button {
                                     autoSwitch.removeAppRule(id: rule.id)
@@ -202,7 +203,7 @@ struct CursorSettingsView: View {
                             ForEach(AppearanceRole.allCases) { role in
                                 HStack(spacing: 10) {
                                     Label(role.label, systemImage: role.icon)
-                                        .frame(width: 150, alignment: .leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
 
                                     Spacer(minLength: 6)
 
@@ -216,7 +217,7 @@ struct CursorSettingsView: View {
                                         }
                                     }
                                     .labelsHidden()
-                                    .frame(maxWidth: 170)
+                                    .frame(maxWidth: 170, alignment: .trailing)
                                 }
                             }
                         } else {
@@ -232,7 +233,7 @@ struct CursorSettingsView: View {
                             ForEach(ScheduleRole.allCases) { role in
                                 HStack(spacing: 10) {
                                     Label(role.label, systemImage: role.icon)
-                                        .frame(width: 118, alignment: .leading)
+                                        .frame(width: 150, alignment: .leading)
 
                                     TimeOfDayField(
                                         minutes: timeBinding(for: role),
@@ -251,7 +252,7 @@ struct CursorSettingsView: View {
                                         }
                                     }
                                     .labelsHidden()
-                                    .frame(maxWidth: 170)
+                                    .frame(maxWidth: 170, alignment: .trailing)
                                 }
                             }
 
@@ -429,7 +430,7 @@ struct CursorSettingsView: View {
 
     private func appearanceThemeBinding(for role: AppearanceRole) -> Binding<String?> {
         Binding(
-            get: { autoSwitch.themeIdentifier(for: role) },
+            get: { library.theme(withId: autoSwitch.themeIdentifier(for: role))?.id },
             set: { newValue in
                 autoSwitch.setThemeIdentifier(newValue, for: role)
                 autoSwitch.save()
@@ -453,8 +454,8 @@ struct CursorSettingsView: View {
     private func appRuleThemeBinding(for rule: AppRule) -> Binding<String?> {
         Binding(
             get: {
-                guard let bundleID = rule.bundleIdentifier else { return rule.themeIdentifier }
-                return autoSwitch.appRule(forBundleIdentifier: bundleID)?.themeIdentifier
+                guard let bundleID = rule.bundleIdentifier else { return library.theme(withId: rule.themeIdentifier)?.id }
+                return library.theme(withId: autoSwitch.appRule(forBundleIdentifier: bundleID)?.themeIdentifier)?.id
             },
             set: { newValue in
                 var updated = rule
@@ -496,7 +497,7 @@ struct CursorSettingsView: View {
 
     private func themeBinding(for role: ScheduleRole) -> Binding<String?> {
         Binding(
-            get: { autoSwitch.rule(for: role).themeIdentifier },
+            get: { library.theme(withId: autoSwitch.rule(for: role).themeIdentifier)?.id },
             set: { newValue in
                 var rule = autoSwitch.rule(for: role)
                 rule.themeIdentifier = newValue
@@ -566,6 +567,7 @@ private struct TimeOfDayField: View {
 
             Text(verbatim: ":")
                 .foregroundStyle(.secondary)
+                .fixedSize()
 
             Picker("", selection: minuteBinding) {
                 ForEach(0..<60, id: \.self) { minute in
@@ -671,6 +673,13 @@ final class FocusFollowsMouseAccessWindowController: NSWindowController, NSWindo
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    func reanchor() {
+        guard let window, window.isVisible,
+              let modal = ModalWindowCoordinator.shared.activeModalWindow, modal.isVisible,
+              window.parent !== modal else { return }
+        attach(window, to: modal)
+    }
+
     func dismiss() {
         window?.close()
     }
@@ -681,7 +690,7 @@ final class FocusFollowsMouseAccessWindowController: NSWindowController, NSWindo
     }
 
     private func anchorWindow() -> NSWindow? {
-        if let settings = SettingsWindowController.shared.window, settings.isVisible { return settings }
+        if let modal = ModalWindowCoordinator.shared.activeModalWindow, modal.isVisible { return modal }
         return NSApp.windows.first { $0.isVisible && $0.canBecomeMain && $0 !== window }
     }
 
@@ -690,7 +699,7 @@ final class FocusFollowsMouseAccessWindowController: NSWindowController, NSWindo
             window.center()
             return
         }
-        parent.removeChildWindow(window)
+        window.parent?.removeChildWindow(window)
         let visibleFrame = parent.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? parent.frame
         window.setFrameOrigin(ModalWindowPlacement.centeredOrigin(
             size: window.frame.size,
@@ -767,6 +776,7 @@ private struct FocusFollowsMouseAccessView: View {
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
         }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
+            guard FocusFollowsMouseAccessWindowController.shared.window?.isVisible == true else { return }
             FocusFollowsMouseConfig.notifyHelper()
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
         }
@@ -775,6 +785,9 @@ private struct FocusFollowsMouseAccessView: View {
                   FocusFollowsMouseAccessWindowController.shared.window?.isVisible == true else { return }
             FocusFollowsMouseConfig.notifyHelper()
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
+        }
+        .onReceive(ModalWindowCoordinator.shared.activeModalDidChange) { _ in
+            FocusFollowsMouseAccessWindowController.shared.reanchor()
         }
     }
 }

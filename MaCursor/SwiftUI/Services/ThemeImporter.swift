@@ -234,7 +234,7 @@ public enum ThemeImporter {
         if entries.contains(where: { fileMagic($0, matches: XCursorReader.self) }) {
             return try loadLinuxTheme(themeRoot: url, cursorDir: url)
         }
-        if let inf = entries.first(where: { $0.pathExtension.lowercased() == "inf" }) {
+        if let inf = preferredINF(in: url) {
             return try loadWindowsPack(url, infURL: inf)
         }
         if entries.contains(where: {
@@ -321,7 +321,7 @@ public enum ThemeImporter {
         }
         guard let declaredFrames = (entry["FrameCount"] as? NSNumber)?.doubleValue,
               declaredFrames.isFinite, declaredFrames == declaredFrames.rounded(),
-              declaredFrames >= 1, declaredFrames <= Double(MACMaxImportFrameCount) else {
+              declaredFrames >= 1, declaredFrames <= Double(MACCursorDefinitions.maxImportFrameCount) else {
             throw CursorReadError.malformed("\(identifier) declares an unusable frame count")
         }
         let frameCount = Int(declaredFrames)
@@ -452,15 +452,35 @@ public enum ThemeImporter {
             appendCandidate(named: file.lastPathComponent, file: file, data: data)
         }
 
+        var aliasLinks: [URL] = []
         for link in symlinks {
             let resolved = link.resolvingSymlinksInPath()
-            if mappedRealPaths.contains(resolved.path) { continue }
+            if mappedRealPaths.contains(resolved.path) {
+                aliasLinks.append(link)
+                continue
+            }
             guard let data = try? Data(contentsOf: resolved) else {
                 warnings.append(.init(.unreadable(file: link.lastPathComponent,
                                                   reason: "dangling symlink")))
                 continue
             }
             appendCandidate(named: link.lastPathComponent, file: resolved, data: data)
+        }
+
+        let directNamed = aliasLinks.filter {
+            RoleMapper.x11NameToIdentifier[$0.lastPathComponent.lowercased()] != nil
+        }
+        let aliasNamed = aliasLinks.filter {
+            RoleMapper.x11NameToIdentifier[$0.lastPathComponent.lowercased()] == nil
+        }
+        for link in directNamed + aliasNamed {
+            let name = link.lastPathComponent
+            let resolved = link.resolvingSymlinksInPath()
+            guard !RoleMapper.isDeliberatelyUnmapped(name),
+                  let mapping = RoleMapper.mapX11Name(name),
+                  !candidates.contains(where: { $0.identifier == mapping.primary }),
+                  let data = try? Data(contentsOf: resolved) else { continue }
+            appendCandidate(named: name, file: resolved, data: data)
         }
 
         let (cursors, mapped) = resolve(candidates, warnings: &warnings)

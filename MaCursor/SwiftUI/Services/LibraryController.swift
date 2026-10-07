@@ -18,6 +18,11 @@ class LibraryController: @unchecked Sendable {
     let undoManager: UndoManager
     let libraryURL: URL
 
+    var trashItem: (URL) throws -> URL? = { url in
+        var resultingURL: NSURL?
+        try FileManager.default.trashItem(at: url, resultingItemURL: &resultingURL)
+        return resultingURL as URL?
+    }
 
     private var willSaveObserver: Any?
 
@@ -55,7 +60,7 @@ class LibraryController: @unchecked Sendable {
         let fm = FileManager.default
         var candidate = libraryURL.appendingPathComponent(baseName + ".cursor")
         var suffix = 2
-        while fm.fileExists(atPath: candidate.path) {
+        while fm.fileExists(atPath: candidate.path), !(theme.fileURL.map { CursorLibrary.isSameFile($0, candidate) } ?? false) {
             candidate = libraryURL.appendingPathComponent("\(baseName)-\(suffix).cursor")
             suffix += 1
         }
@@ -64,13 +69,13 @@ class LibraryController: @unchecked Sendable {
     }
 
     private func sanitizedFilename(from name: String) -> String {
-        var sanitized = name
+        let sanitized = name
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "/", with: "-")
             .replacingOccurrences(of: ":", with: "-")
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        if sanitized.isEmpty { sanitized = "Unnamed" }
-        return sanitized
+            .drop { $0 == "." }
+        return sanitized.isEmpty ? "Unnamed" : String(sanitized)
     }
 
 
@@ -105,27 +110,14 @@ class LibraryController: @unchecked Sendable {
         importTheme(lib)
     }
 
-    func importTheme(_ lib: CursorLibrary) {
-        lib.identifier = CursorLibrary.sanitizeName(lib.name)
-
-        let existingIds = Set(themes.map { $0.identifier })
-        if existingIds.contains(lib.identifier) {
-            let baseName = lib.name
-            let baseId = lib.identifier
-            var suffix = 2
-            var candidateId = "\(baseId)-\(suffix)"
-            while existingIds.contains(candidateId) {
-                suffix += 1
-                candidateId = "\(baseId)-\(suffix)"
-            }
-            lib.name = "\(baseName)-\(suffix)"
-            lib.identifier = candidateId
-        }
-
+    @discardableResult
+    func importTheme(_ lib: CursorLibrary) -> Bool {
+        (lib.name, lib.identifier) = CursorLibrary.uniqueIdentity(forName: lib.name, avoiding: Set(themes.map(\.identifier)))
         lib.fileURL = url(for: lib)
-        lib.write(toFile: lib.fileURL!.path, atomically: true)
+        guard lib.write(toFile: lib.fileURL!.path, atomically: true) else { return false }
 
         addTheme(lib)
+        return true
     }
 
 
@@ -141,7 +133,7 @@ class LibraryController: @unchecked Sendable {
         themes.insert(theme)
 
         undoManager.registerUndo(withTarget: self) { target in
-            target.removeTheme(theme)
+            MainActor.assumeIsolated { try? target.removeTheme(theme) }
         }
         if !undoManager.isUndoing {
             undoManager.setActionName("Add " + (theme.name.isEmpty ? "Theme" : theme.name))
@@ -150,7 +142,14 @@ class LibraryController: @unchecked Sendable {
         theme.undoManager.removeAllActions()
     }
 
-    func removeTheme(_ theme: CursorLibrary) {
+    @MainActor
+    func removeTheme(_ theme: CursorLibrary) throws {
+        if let fileURL = theme.fileURL, let trashedURL = try trash(fileURL) {
+            undoManager.registerUndo(withTarget: self) { target in
+                target.importTheme(at: trashedURL)
+            }
+        }
+
         if theme === appliedTheme {
             restoreTheme()
         }
@@ -161,66 +160,70 @@ class LibraryController: @unchecked Sendable {
 
         themes = themes.filter { $0 !== theme }
 
-        let fm = FileManager.default
-        if let fileURL = theme.fileURL {
-            let trashPath = NSHomeDirectory() + "/.Trash/" + fileURL.lastPathComponent
-            let trashURL = URL(fileURLWithPath: trashPath)
-
-            try? fm.removeItem(at: trashURL)
-            try? fm.moveItem(at: fileURL, to: trashURL)
-
-            undoManager.registerUndo(withTarget: self) { target in
-                target.importTheme(at: trashURL)
-            }
-        }
-
         if !undoManager.isUndoing {
             undoManager.setActionName("Remove " + (theme.name.isEmpty ? "Theme" : theme.name))
         }
     }
 
-    func removeAllThemes() {
+    @MainActor
+    func removeAllThemes() throws {
         if appliedTheme != nil {
             restoreTheme()
         }
 
-        let fm = FileManager.default
-
+        var failure: Error?
+        var kept: [CursorLibrary] = []
         for theme in themes {
-            theme.library = nil
-            if let fileURL = theme.fileURL {
-                let trashPath = NSHomeDirectory() + "/.Trash/" + fileURL.lastPathComponent
-                let trashURL = URL(fileURLWithPath: trashPath)
-                try? fm.removeItem(at: trashURL)
-                try? fm.moveItem(at: fileURL, to: trashURL)
+            do {
+                if let fileURL = theme.fileURL {
+                    _ = try trash(fileURL)
+                }
+                theme.library = nil
+            } catch {
+                failure = failure ?? error
+                kept.append(theme)
             }
         }
 
-        if let remaining = try? fm.contentsOfDirectory(atPath: libraryURL.path) {
+        if let remaining = try? FileManager.default.contentsOfDirectory(atPath: libraryURL.path) {
             for filename in remaining where !filename.hasPrefix(".") {
-                let fileURL = libraryURL.appendingPathComponent(filename)
-                let trashPath = NSHomeDirectory() + "/.Trash/" + filename
-                let trashURL = URL(fileURLWithPath: trashPath)
-                try? fm.removeItem(at: trashURL)
-                try? fm.moveItem(at: fileURL, to: trashURL)
+                do {
+                    _ = try trash(libraryURL.appendingPathComponent(filename))
+                } catch {
+                    failure = failure ?? error
+                }
             }
         }
 
-        themes = []
+        themes = Set(kept)
 
         undoManager.removeAllActions()
+
+        if let failure {
+            throw failure
+        }
+    }
+
+    private func trash(_ url: URL) throws -> URL? {
+        do {
+            return try trashItem(url)
+        } catch CocoaError.fileNoSuchFile {
+            return nil
+        }
     }
 
 
+    @MainActor
     func applyTheme(_ theme: CursorLibrary) {
         guard let path = theme.fileURL?.path else { return }
-        if applyThemeAtPath(path) {
+        if MACCursorActions.shared.applyTheme(atPath: path) {
             appliedTheme = theme
         }
     }
 
+    @MainActor
     func restoreTheme() {
-        resetAllCursors(nil)
+        try? MACCursorActions.shared.resetAllCursors()
         appliedTheme = nil
     }
 
@@ -232,35 +235,6 @@ class LibraryController: @unchecked Sendable {
 
     private func willSaveNotification(_ note: Notification) {
         guard let theme = note.object as? CursorLibrary else { return }
-        let oldURL = theme.fileURL
         theme.fileURL = url(for: theme)
-
-        if let oldURL, oldURL != theme.fileURL {
-            do {
-                try FileManager.default.removeItem(at: oldURL)
-            } catch {
-                NSLog("error removing cursor theme after rename: %@", error.localizedDescription)
-            }
-        }
-    }
-
-
-    func dumpCursors(progressBlock: @escaping (UInt, UInt) -> Bool) -> Bool {
-        let path = NSTemporaryDirectory() + String(
-            format: "%@ (%f).cursor",
-            NSLocalizedString("MaCursor Dump", comment: "MaCursor dump cursor file name"),
-            Date().timeIntervalSince1970
-        )
-
-        if dumpCursorsToFile(path, { current, total in
-            return progressBlock(current, total)
-        }) {
-            DispatchQueue.main.async { [weak self] in
-                self?.importTheme(at: URL(fileURLWithPath: path))
-            }
-            return true
-        }
-
-        return false
     }
 }

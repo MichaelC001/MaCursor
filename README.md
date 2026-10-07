@@ -28,7 +28,7 @@ Requires **macOS 13 Ventura** or later.
 
 - **80+ Ready-to-Apply Themes** — Browse and download curated cursor themes from the Theme Gallery
 - **Menu Bar Panel** — Your favorite themes, the cursor for the app in front, and the cursor scale, Cursor Shadow and Focus on Hover controls, all in the menu bar without opening the window
-- **Theme Automation** — Your cursor changes itself on a Day and Night schedule, or follows the system appearance and switches with Light and Dark mode
+- **Right-Click Menu** — Get more from your right-click in Finder and on the Desktop: copy a path, make a new file, open files in the app you choose, and more
 - **Per-App Themes** — Each app can have its own cursor theme, and MaCursor switches to it when that app comes to the front
 - **Focus on Hover** — The window under your pointer becomes active after a short pause, without clicking; it needs Accessibility access for the helper
 - **Convert Windows, Linux & Mousecape Themes** — A Windows cursor folder (`.cur` / `.ani`), a Linux Xcursor theme folder or a Mousecape `.cape` file becomes a native `.cursor` theme, with every mapped cursor listed for review before it reaches your library
@@ -37,12 +37,13 @@ Requires **macOS 13 Ventura** or later.
 - **Left / Right Hand Mode** — Cursor orientation for left-handed or right-handed mouse use
 
 <details>
-<summary><b>Full feature list</b>: 12 more, including the editor tools, the app languages, and macOS Tahoe support</summary>
+<summary><b>Full feature list</b>: 13 more, including the editor tools, the app languages, and macOS Tahoe support</summary>
 
 ### Applying & Switching
 
 - **One-Click Apply** — One double-click on a theme replaces every system cursor
 - **Global Hotkeys** — Assign keyboard shortcuts to favorite themes for instant switching from anywhere
+- **Theme Automation** — Your cursor changes itself on a Day and Night schedule, or follows the system appearance and switches with Light and Dark mode
 
 ### Editor
 
@@ -127,6 +128,34 @@ Right-click the menu bar icon for **Open MaCursor**, **Settings...** and **Quit 
 
 Once the icon is showing, the **Panel Background** slider in **Settings → General → Menu Bar** sets how see-through the panel is: the middle of the slider is the standard frosted glass, the minimum is clear, the maximum is solid.
 
+### Using the Right-Click Menu
+
+MaCursor makes your right-click menu in Finder and on the Desktop do more. Copy a path, make a new text or Markdown file, open files or a folder in the app you choose, and hide files or show them again.
+
+1. Open **MaCursor → Settings → Right-Click Menu** and turn on **Right-Click Menu**.
+2. If the Finder extension **MaCursorFinder** is not on yet, a **Right-Click Menu** window appears.
+   - On macOS 13 and 14, click **Open System Settings** and turn on **MaCursorFinder**.
+   - On macOS 15.0 and 15.1, System Settings cannot turn Finder extensions on. Click **Copy Command** and run the copied command in Terminal.
+   - On macOS 15.2 and later, click **Open System Settings** and turn on **MaCursorFinder** in **General → Login Items & Extensions → Extensions → File Providers**.
+3. The window notices on its own and shows **Access granted**. Click **Let’s Go!**.
+
+If the menu does not show right away, quit and reopen Finder.
+
+Each item shows when you right-click a file or folder, when you right-click empty space, or in both places. **Open With**, **New File** and **Common Apps** are submenus. The table follows the default menu order.
+
+| Menu item | What you get |
+| --- | --- |
+| **Open With** | On a file or folder. Opens the files you selected in an app from your list. The list starts with Sublime Text, which shows only if you have it installed |
+| **Copy Path** | In both places. Copies the full path of each item you selected, one per line. On empty space it copies the path of the folder you are in |
+| **New File** | In both places. Makes an empty text or Markdown file in the open folder, or next to the item you right-clicked, not inside a right-clicked folder. If the name is taken, MaCursor adds a number |
+| **Common Apps** | In both places. Opens a folder in an app from your list, which starts with Terminal. On empty space it opens the folder you are in. On a folder it opens that folder. On a file it opens the folder that holds it |
+| **Hide Selected File(s)** and **Unhide Selected Files** | On a file or folder. They hide the items you selected, or show them again, without renaming them. Names that start with a dot stay hidden |
+| **Hide All Files in Path** and **Unhide All Files in Path** | On empty space. They hide every item directly in the folder you are in, or show them again. What is inside its subfolders stays as it is |
+
+To change the menu, use the tabs in **MaCursor → Settings → Right-Click Menu**. You can switch each item on or off, add your own apps with **+**, move an item out of its submenu with **Show in**, and drag rows in **Main Menu** to change the order.
+
+You can also add a **MaCursor** button to the Finder toolbar. In Finder, choose **View → Customize Toolbar…** and drag the button in. Click it to get the items you see when you right-click empty space, for the folder you are in. In Applications, Recents and AirDrop it reads *Not available in this location.*
+
 ### Adjusting Cursor Scale
 
 Fine-tune the size of every system cursor from the Settings panel:
@@ -206,7 +235,7 @@ If the pack includes larger artwork, add it while you are already in the editor:
 1. On the review sheet, click **Add & Edit…** instead of **Add to Library**.
 2. For each cursor, drop the 64×64 or larger version of the same artwork onto the **2×** slot.
 
-If a `.cur` or `.ani` file will not land on a slot at all, MaCursor could not read it and the drop is ignored without a message. Run the whole folder through **File → Convert Theme…** instead: it lists every file it could not use under **Warnings & ignored**.
+If a `.cur` or `.ani` file will not land on a slot and MaCursor shows a **Could Not Use File** alert naming it, MaCursor could not read the file. Run the whole folder through **File → Convert Theme…** instead: it lists every file it could not use under **Warnings & ignored**.
 
 ### Editing a Theme
 
@@ -259,6 +288,8 @@ Open **Settings → Cursor Control** and turn off **Hide Tahoe cursors** if you'
 2. Switch to the **Shortcut** tab.
 3. Add slots, assign a theme and a key combination to each.
 4. Press your shortcut from any app to switch cursors instantly.
+
+Every shortcut needs **⌃**, or **⌘** together with **⌥**. MaCursor beeps and refuses a plain **⌘** or **⌘⇧** combination, a common macOS shortcut, or one another slot already uses. If a shortcut you saved earlier breaks these rules, its slot shows **Record Shortcut** until you record a new one.
 
 ### Checking the Helper Tool
 

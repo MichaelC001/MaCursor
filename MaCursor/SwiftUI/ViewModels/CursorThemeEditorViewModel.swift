@@ -88,7 +88,7 @@ class CursorThemeEditorViewModel: ObservableObject {
         var mapping: [String: CursorModel] = [:]
         for original in cursorTheme.cursors {
             guard let backingCopy = original.backingCursor.copy() as? MACCursorSwift else { continue }
-            let copy = CursorModel(from: backingCopy, parentIdentifier: cursorTheme.backingLibrary.identifier)
+            let copy = CursorModel(from: backingCopy)
             copies.append(copy)
             mapping[copy.id] = original
         }
@@ -123,7 +123,7 @@ class CursorThemeEditorViewModel: ObservableObject {
     var visibleEditingCursors: [CursorModel] {
         if hideTahoeCursors {
             return editingCursors.filter {
-                !MACConstants.hiddenCursorAliases.contains($0.identifier)
+                !MACCursorDefinitions.hiddenCursorAliases.contains($0.identifier)
             }
         }
         return editingCursors
@@ -150,6 +150,7 @@ class CursorThemeEditorViewModel: ObservableObject {
         return nil
     }
 
+    @MainActor
     func save() -> Error? {
         guard isDirty else { return nil }
 
@@ -228,6 +229,7 @@ class CursorThemeEditorViewModel: ObservableObject {
 
         let error = cursorTheme.save()
         if error == nil {
+            editingName = cursorTheme.name
             rebaseAfterSave()
             captureBaseline()
 
@@ -239,20 +241,20 @@ class CursorThemeEditorViewModel: ObservableObject {
     }
 
     private func rebaseAfterSave() {
-        let selectedIdentifier = selectedCursor?.identifier
+        var carriedIds: [ObjectIdentifier: String] = [:]
+        for copy in editingCursors {
+            carriedIds[ObjectIdentifier((originalMapping[copy.id] ?? copy).backingCursor)] = copy.id
+        }
         var copies: [CursorModel] = []
         var mapping: [String: CursorModel] = [:]
         for original in cursorTheme.cursors {
             guard let backingCopy = original.backingCursor.copy() as? MACCursorSwift else { continue }
-            let copy = CursorModel(from: backingCopy, parentIdentifier: cursorTheme.backingLibrary.identifier)
+            let copy = CursorModel(from: backingCopy, id: carriedIds[ObjectIdentifier(original.backingCursor)])
             copies.append(copy)
             mapping[copy.id] = original
         }
         editingCursors = copies
         originalMapping = mapping
-        if let selectedIdentifier {
-            selectedCursorId = editingCursors.first { $0.identifier == selectedIdentifier }?.id
-        }
     }
 
     func revertToSaved() {
@@ -263,7 +265,7 @@ class CursorThemeEditorViewModel: ObservableObject {
         var mapping: [String: CursorModel] = [:]
         for original in cursorTheme.cursors {
             guard let backingCopy = original.backingCursor.copy() as? MACCursorSwift else { continue }
-            let copy = CursorModel(from: backingCopy, parentIdentifier: cursorTheme.backingLibrary.identifier)
+            let copy = CursorModel(from: backingCopy)
             copies.append(copy)
             mapping[copy.id] = original
         }
@@ -281,7 +283,7 @@ class CursorThemeEditorViewModel: ObservableObject {
     func addCursor() {
         let newCursor = MACCursorSwift()
         pendingAdditions.append(newCursor)
-        let model = CursorModel(from: newCursor, parentIdentifier: cursorTheme.backingLibrary.identifier)
+        let model = CursorModel(from: newCursor)
         editingCursors.append(model)
         editingCursors.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
@@ -293,31 +295,26 @@ class CursorThemeEditorViewModel: ObservableObject {
         return String(id.dropFirst(EditThemeSidebarModel.emptyRowPrefix.count))
     }
 
-    private func importCursor(from sourceURL: URL, identifier: String) -> MACCursorSwift? {
+    private func importCursor(from sourceURL: URL, identifier: String) throws -> MACCursorSwift {
         let url = SlotImageImporter.normalizedFileURL(sourceURL)
         let ext = url.pathExtension.lowercased()
         if ext == "cur" || ext == "ani" {
-            guard let imported = try? WindowsCursorImporter.importFile(from: url) else {
-                return nil
-            }
+            let imported = try WindowsCursorImporter.importFile(from: url)
             imported.identifier = identifier
             return imported
         }
-        if SlotImageImporter.isGIF(url) {
-            do {
-                if let animated = try SlotImageImporter.importAnimatedGIF(from: url) {
-                    return importAnimatedCursor(animated, identifier: identifier)
-                }
-            } catch {
-                return nil
-            }
+        if SlotImageImporter.isGIF(url),
+           let animated = try SlotImageImporter.importAnimatedGIF(from: url) {
+            return try importAnimatedCursor(animated, identifier: identifier)
         }
         guard let image = NSImage(contentsOf: url),
               let rep = image.representations.first as? NSBitmapImageRep else {
-            return nil
+            throw SlotImageImporter.ImportError.undecodable
         }
         let scaleValue = SlotImageImporter.inferredScaleValue(forPixelWidth: rep.pixelsWide)
-        guard let scale = MACCursorScale(rawValue: scaleValue) else { return nil }
+        guard let scale = MACCursorScale(rawValue: scaleValue) else {
+            throw SlotImageImporter.ImportError.undecodable
+        }
         let cursor = MACCursorSwift()
         cursor.identifier = identifier
         cursor.frameCount = 1
@@ -332,13 +329,15 @@ class CursorThemeEditorViewModel: ObservableObject {
         return cursor
     }
 
-    private func importAnimatedCursor(_ animated: SlotImageImporter.AnimatedImport, identifier: String) -> MACCursorSwift? {
+    private func importAnimatedCursor(_ animated: SlotImageImporter.AnimatedImport, identifier: String) throws -> MACCursorSwift {
         var scaleValue = SlotImageImporter.inferredScaleValue(forPixelWidth: animated.spriteSheet.pixelsWide)
         let factor = Int(scaleValue) / 100
         if factor > 1, (animated.spriteSheet.pixelsHigh / animated.frameCount) % factor != 0 {
             scaleValue = 100
         }
-        guard let scale = MACCursorScale(rawValue: scaleValue) else { return nil }
+        guard let scale = MACCursorScale(rawValue: scaleValue) else {
+            throw SlotImageImporter.ImportError.undecodable
+        }
         let cursor = MACCursorSwift()
         cursor.identifier = identifier
         cursor.frameCount = UInt(animated.frameCount)
@@ -355,21 +354,17 @@ class CursorThemeEditorViewModel: ObservableObject {
         return cursor
     }
 
-    @discardableResult
-    func assignSource(_ url: URL, toIdentifier identifier: String) -> Bool {
+    func assignSource(_ url: URL, toIdentifier identifier: String) throws {
         if let existing = editingCursors.first(where: { $0.identifier == identifier }) {
             selectedCursorId = existing.id
-            return true
+            return
         }
-        guard let newCursor = importCursor(from: url, identifier: identifier) else {
-            return false
-        }
+        let newCursor = try importCursor(from: url, identifier: identifier)
         pendingAdditions.append(newCursor)
-        let model = CursorModel(from: newCursor, parentIdentifier: cursorTheme.backingLibrary.identifier)
+        let model = CursorModel(from: newCursor)
         editingCursors.append(model)
         editingCursors.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         selectedCursorId = model.id
-        return true
     }
 
     private func applyImported(_ imported: MACCursorSwift, to cursor: CursorModel) {
@@ -384,22 +379,18 @@ class CursorThemeEditorViewModel: ObservableObject {
         cursor.representationRevision += 1
     }
 
-    @discardableResult
-    func replaceSource(_ url: URL, for cursor: CursorModel) -> Bool {
-        guard editingCursors.contains(where: { $0.id == cursor.id }),
-              let imported = importCursor(from: url, identifier: cursor.identifier) else {
-            return false
-        }
+    func replaceSource(_ url: URL, for cursor: CursorModel) throws {
+        guard editingCursors.contains(where: { $0.id == cursor.id }) else { return }
+        let imported = try importCursor(from: url, identifier: cursor.identifier)
         applyImported(imported, to: cursor)
         if hideTahoeCursors {
-            for alias in MACConstants.tahoeAliases(for: cursor.identifier) {
+            for alias in MACCursorDefinitions.tahoeAliases(for: cursor.identifier) {
                 if let aliasCursor = editingCursors.first(where: { $0.identifier == alias }) {
                     applyImported(imported, to: aliasCursor)
                 }
             }
         }
         selectedCursorId = cursor.id
-        return true
     }
 
     func clearSlot(_ cursor: CursorModel, selectEmptyRow: Bool = true) {
@@ -417,7 +408,7 @@ class CursorThemeEditorViewModel: ObservableObject {
         performRemoveCursor(cursor)
 
         if hideTahoeCursors {
-            let aliases = MACConstants.tahoeAliases(for: cursor.identifier)
+            let aliases = MACCursorDefinitions.tahoeAliases(for: cursor.identifier)
             for alias in aliases {
                 if let aliasCursor = editingCursors.first(where: { $0.identifier == alias }) {
                     performRemoveCursor(aliasCursor)
@@ -444,23 +435,25 @@ class CursorThemeEditorViewModel: ObservableObject {
         if let copy = cursor.backingCursor.copy() as? MACCursorSwift {
             copy.identifier = UUID().uuidString.replacingOccurrences(of: "-", with: "")
             pendingAdditions.append(copy)
-            let model = CursorModel(from: copy, parentIdentifier: cursorTheme.backingLibrary.identifier)
+            let model = CursorModel(from: copy)
             editingCursors.append(model)
             editingCursors.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         }
     }
 
-    func importWindowsCursors(from urls: [URL]) {
+    func importWindowsCursors(from urls: [URL]) -> [(url: URL, error: Error)] {
+        var failures: [(url: URL, error: Error)] = []
         for url in urls {
             do {
                 let cursor = try WindowsCursorImporter.importFile(from: url)
                 pendingAdditions.append(cursor)
-                let model = CursorModel(from: cursor, parentIdentifier: cursorTheme.backingLibrary.identifier)
+                let model = CursorModel(from: cursor)
                 editingCursors.append(model)
             } catch {
-                NSLog("CursorThemeEditorViewModel: Failed to import \(url.lastPathComponent): \(error.localizedDescription)")
+                failures.append((url, error))
             }
         }
         editingCursors.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        return failures
     }
 }

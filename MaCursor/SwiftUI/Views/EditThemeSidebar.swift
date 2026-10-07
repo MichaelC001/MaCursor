@@ -175,18 +175,16 @@ final class EditorTextShortcutCoordinator {
         return NSApp.sendAction(selector, to: fieldEditor, from: nil)
     }
 
-    func handle(
-        characters: String?,
-        modifiers: NSEvent.ModifierFlags,
-        in window: NSWindow?
-    ) -> Bool {
+    func handle(_ event: NSEvent, in window: NSWindow?) -> Bool {
         pruneReleasedWindows()
         guard !registeredWindows.isEmpty else {
             stop()
             return false
         }
         guard let window,
-              let selector = Self.editingSelector(forCharacters: characters, modifiers: modifiers)
+              let selector = Self.editingSelector(
+                  forCharacters: event.characters(byApplyingModifiers: .command),
+                  modifiers: event.modifierFlags)
         else { return false }
         return performEditingSelector(selector, in: window)
     }
@@ -198,10 +196,7 @@ final class EditorTextShortcutCoordinator {
         ) { [weak self] (event: NSEvent) -> NSEvent? in
             var handled = false
             MainActor.assumeIsolated {
-                handled = self?.handle(
-                    characters: event.charactersIgnoringModifiers,
-                    modifiers: event.modifierFlags,
-                    in: event.window) ?? false
+                handled = self?.handle(event, in: event.window) ?? false
             }
             return handled ? nil : event
         }

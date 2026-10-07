@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** August 2026
+**Last Updated:** October 2026
 
 ## Overview
 
@@ -30,6 +30,7 @@ All data stays on your device:
 | Cursor themes | `~/Library/Application Support/MaCursor/` | Persist installed themes |
 | Preferences | `com.writronic.MaCursor` domain | Remember your settings |
 | Login item | Managed by macOS via `SMAppService` | Optionally apply themes at startup |
+| Right-Click Menu settings | `~/Library/Group Containers/SP495GG2KZ.com.writronic.macursor/` | Share your Right-Click Menu choices with the Finder extension |
 
 ---
 
@@ -40,6 +41,17 @@ The optional Focus on Hover feature uses macOS Accessibility APIs so the helper 
 - Requested only when you turn the feature on, and used only while it stays on
 - Window information is read at the moment of activation and never stored
 - Nothing is logged or transmitted
+
+---
+
+## Finder Extension
+
+The optional Right-Click Menu is a Finder extension (`MaCursorFinder`) that runs in the macOS sandbox:
+
+- Turned on only by you, in System Settings (or with a Terminal command on macOS 15.0 and 15.1)
+- Reads and writes in `/Users/` and `/Volumes/` only to create an empty file where you right-click, hide or unhide the items you select or the items in the current folder, and copy or open their paths
+- Never reads what is inside your files
+- Has no network access, and stores or transmits nothing it handles
 
 ---
 
@@ -70,6 +82,7 @@ No analytics, advertising, or tracking SDKs are included.
 All data is stored locally and can be removed by:
 
 - Removing `~/Library/Application Support/MaCursor/`
+- Removing `~/Library/Group Containers/SP495GG2KZ.com.writronic.macursor/`
 - Uninstalling MaCursor
 
 ---

@@ -123,7 +123,6 @@ struct MenuBarPanelView: View {
                 }
             }
         }
-        .padding(2)
     }
 
     private func emptyThemes(_ title: String, caption: String?) -> some View {
@@ -165,21 +164,29 @@ struct MenuBarPanelView: View {
                         }
                         Spacer(minLength: 0)
                     }
-                    Picker(MenuBarL("Cursor for this app"), selection: frontRuleBinding) {
-                        Text(MenuBarL("None")).tag("")
-                        ForEach(model.appRuleChoices) { theme in
-                            Text(theme.name).tag(theme.id)
+                    HStack(spacing: 8) {
+                        Text(MenuBarL("Cursor for this app"))
+                            .font(.system(size: 12))
+                        Spacer(minLength: 8)
+                        Picker(MenuBarL("Cursor for this app"), selection: frontRuleBinding) {
+                            Text(MenuBarL("None")).tag("")
+                            ForEach(model.appRuleChoices) { theme in
+                                Text(theme.name).tag(theme.id)
+                            }
                         }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .controlSize(.small)
+                        .font(.system(size: 11))
                     }
-                    .pickerStyle(.menu)
-                    .controlSize(.small)
-                    .font(.system(size: 11))
                 } else {
                     Text(MenuBarL("No app in front"))
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 }
-                Toggle(MenuBarL("Per-App Themes"), isOn: binding(model.switchByApp, model.setSwitchByApp))
+                Toggle(isOn: binding(model.switchByApp, model.setSwitchByApp)) {
+                    Text(MenuBarL("Per-App Themes")).frame(maxWidth: .infinity, alignment: .leading)
+                }
                     .toggleStyle(.switch)
                     .controlSize(.small)
                     .font(.system(size: 12))
@@ -225,8 +232,12 @@ struct MenuBarPanelView: View {
                 .controlSize(.small)
                 .accessibilityLabel(MenuBarL("Cursor Scale"))
                 .accessibilityValue(scaleLabel)
-                Toggle(MenuBarL("Cursor Shadow"), isOn: binding(model.cursorShadow, model.setCursorShadow))
-                Toggle(MenuBarL("Focus on Hover"), isOn: focusFollowsMouseBinding)
+                Toggle(isOn: binding(model.cursorShadow, model.setCursorShadow)) {
+                    Text(MenuBarL("Cursor Shadow")).frame(maxWidth: .infinity, alignment: .leading)
+                }
+                Toggle(isOn: focusFollowsMouseBinding) {
+                    Text(MenuBarL("Focus on Hover")).frame(maxWidth: .infinity, alignment: .leading)
+                }
                 if model.focusFollowsMouse && !model.accessibilityTrusted {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -310,7 +321,7 @@ private struct ThemeCard: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 4)
-            .frame(maxWidth: .infinity, minHeight: 72)
+            .frame(maxWidth: .infinity, minHeight: 72, maxHeight: .infinity, alignment: .top)
             .background(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(isApplied ? Color.accentColor.opacity(0.14) : Color.primary.opacity(hovering ? 0.09 : 0.045))

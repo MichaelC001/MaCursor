@@ -30,7 +30,14 @@ enum CursorScaleInput {
         value.formatted(.number
             .precision(.fractionLength(fractionDigits))
             .grouping(.never)
-            .locale(locale))
+            .locale(latinDigits(locale)))
+    }
+
+    private static func latinDigits(_ locale: Locale) -> Locale {
+        guard locale.numberingSystem != "latn" else { return locale }
+        var components = Locale.Components(locale: locale)
+        components.numberingSystem = "latn"
+        return Locale(components: components)
     }
 
     static func parse(_ text: String) -> Double? {
@@ -66,13 +73,25 @@ enum CursorScaleInput {
 final class LimitedLengthFormatter: Formatter {
     var characterLimit = ThemeFieldLimits.nameCharacterLimit
 
-    static func clamped(_ value: String, limit: Int) -> String {
-        value.count > limit ? String(value.prefix(limit)) : value
-    }
-
-    static func resolvedEdit(proposed: String, original: String, limit: Int) -> String {
-        guard proposed.count > limit else { return proposed }
-        return original.count >= limit ? original : clamped(proposed, limit: limit)
+    private static func resolvedEdit(
+        proposed: String,
+        original: String,
+        replacing range: NSRange,
+        limit: Int
+    ) -> String {
+        guard proposed.count > limit, proposed.count > original.count else { return proposed }
+        let originalText = original as NSString
+        let proposedText = proposed as NSString
+        guard NSMaxRange(range) <= originalText.length else { return original }
+        let head = originalText.substring(to: range.location)
+        let tail = originalText.substring(from: NSMaxRange(range))
+        let insertedLength = proposedText.length - range.location - (originalText.length - NSMaxRange(range))
+        let room = limit - head.count - tail.count
+        guard room > 0, insertedLength > 0,
+              proposedText.substring(to: range.location) == head,
+              proposedText.substring(from: range.location + insertedLength) == tail else { return original }
+        let inserted = proposedText.substring(with: NSRange(location: range.location, length: insertedLength))
+        return head + String(inserted.prefix(room)) + tail
     }
 
     override func string(for obj: Any?) -> String? {
@@ -96,16 +115,17 @@ final class LimitedLengthFormatter: Formatter {
         errorDescription error: AutoreleasingUnsafeMutablePointer<NSString?>?
     ) -> Bool {
         let proposed = partialStringPtr.pointee as String
-        guard proposed.count > characterLimit else { return true }
         let resolved = Self.resolvedEdit(proposed: proposed,
                                          original: origString,
+                                         replacing: origSelRange,
                                          limit: characterLimit)
+        guard resolved != proposed else { return true }
         partialStringPtr.pointee = resolved as NSString
         let resolvedLength = (resolved as NSString).length
-        let requested = resolved == origString
-            ? origSelRange.location
-            : (proposedSelRangePtr?.pointee.location ?? resolvedLength)
-        proposedSelRangePtr?.pointee = NSRange(location: min(requested, resolvedLength), length: 0)
+        let caret = resolved == origString
+            ? min(origSelRange.location, resolvedLength)
+            : resolvedLength - ((origString as NSString).length - NSMaxRange(origSelRange))
+        proposedSelRangePtr?.pointee = NSRange(location: caret, length: 0)
         return false
     }
 }
@@ -314,11 +334,23 @@ struct LimitedLengthTextField: NSViewRepresentable {
     }
 }
 
+private struct NumericFieldPendingEditKey: EnvironmentKey {
+    static var defaultValue: @MainActor (Bool) -> Void { { _ in } }
+}
+
+extension EnvironmentValues {
+    var numericFieldPendingEdit: @MainActor (Bool) -> Void {
+        get { self[NumericFieldPendingEditKey.self] }
+        set { self[NumericFieldPendingEditKey.self] = newValue }
+    }
+}
+
 struct NumericTextField: NSViewRepresentable {
     @Binding var value: Double
     var fractionDigits: Int = 0
 
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.numericFieldPendingEdit) private var reportPendingEdit
 
     private func makeFormatter() -> RestrictedNumberFormatter {
         let formatter = RestrictedNumberFormatter()
@@ -342,6 +374,7 @@ struct NumericTextField: NSViewRepresentable {
     func updateNSView(_ nsView: NSTextField, context: Context) {
         let coordinator = context.coordinator
         coordinator.value = $value
+        coordinator.reportPendingEdit = reportPendingEdit
         if let formatter = nsView.formatter as? RestrictedNumberFormatter,
            formatter.maximumFractionDigits != fractionDigits {
             nsView.formatter = makeFormatter()
@@ -349,8 +382,9 @@ struct NumericTextField: NSViewRepresentable {
         if nsView.isEnabled != isEnabled {
             nsView.isEnabled = isEnabled
         }
-        guard coordinator.lastPushedValue != value else { return }
+        guard coordinator.lastPushedValue?.bitPattern != value.bitPattern else { return }
         coordinator.lastPushedValue = value
+        coordinator.typedText = nil
         ValidatedTextFieldSync.apply(value, to: nsView)
     }
 
@@ -362,10 +396,23 @@ struct NumericTextField: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextFieldDelegate {
         var value: Binding<Double>
         var lastPushedValue: Double?
+        var reportPendingEdit: @MainActor (Bool) -> Void = { _ in }
+        var typedText: String? {
+            didSet {
+                guard (typedText == nil) != (oldValue == nil) else { return }
+                reportPendingEdit(typedText != nil)
+            }
+        }
 
         init(value: Binding<Double>) {
             self.value = value
             self.lastPushedValue = value.wrappedValue
+        }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let field = obj.object as? NSTextField,
+                  let editor = field.currentEditor() else { return }
+            typedText = editor.string == shownText(field) ? nil : editor.string
         }
 
         func controlTextDidEndEditing(_ obj: Notification) {
@@ -381,9 +428,14 @@ struct NumericTextField: NSViewRepresentable {
             return true
         }
 
+        private func shownText(_ field: NSTextField) -> String? {
+            field.formatter?.string(for: NSNumber(value: value.wrappedValue))
+        }
+
         private func commit(_ field: NSTextField) {
-            if let formatter = field.formatter as? NumberFormatter,
-               let parsed = formatter.number(from: field.stringValue) {
+            if let typedText,
+               let formatter = field.formatter as? NumberFormatter,
+               let parsed = formatter.number(from: typedText) {
                 let candidate = parsed.doubleValue
                 if NumericFieldValue.isCommittable(candidate), value.wrappedValue != candidate {
                     value.wrappedValue = candidate
@@ -391,6 +443,7 @@ struct NumericTextField: NSViewRepresentable {
             }
             lastPushedValue = value.wrappedValue
             field.objectValue = NSNumber(value: value.wrappedValue)
+            typedText = nil
         }
     }
 }

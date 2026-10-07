@@ -117,7 +117,16 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "/", with: "")
             .replacingOccurrences(of: ":", with: "")
-        return sanitized.isEmpty ? "Unnamed" : sanitized
+            .drop { $0 == "." }
+        return sanitized.isEmpty ? "Unnamed" : String(sanitized)
+    }
+
+    static func isSameFile(_ first: URL, _ second: URL) -> Bool {
+        let resourceIdentifier = { (url: URL) in
+            (try? URL(fileURLWithPath: url.path).resourceValues(forKeys: [.fileResourceIdentifierKey]))?.fileResourceIdentifier as? NSObject
+        }
+        guard let firstId = resourceIdentifier(first) else { return false }
+        return firstId.isEqual(resourceIdentifier(second))
     }
 
     static func generateIdentifier(from name: String) -> String {
@@ -126,6 +135,19 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
 
     static func updateIdentifier(_ existingId: String, newName: String) -> String {
         return sanitizeName(newName)
+    }
+
+    static func uniqueIdentity(forName name: String, avoiding taken: Set<String>) -> (name: String, identifier: String) {
+        let isTaken = { (candidate: String) in taken.contains { $0.caseInsensitiveCompare(candidate) == .orderedSame } }
+        let identifier = sanitizeName(name)
+        guard isTaken(identifier) else { return (name, identifier) }
+        var suffix = 2
+        while isTaken("\(identifier)-\(suffix)") {
+            suffix += 1
+        }
+        let uniqueIdentifier = "\(identifier)-\(suffix)"
+        let uniqueName = "\(name)-\(suffix)"
+        return (sanitizeName(uniqueName) == uniqueIdentifier ? uniqueName : uniqueIdentifier, uniqueIdentifier)
     }
 
 
@@ -201,13 +223,13 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
         undoManager.disableUndoRegistration()
         defer { undoManager.enableUndoRegistration() }
 
-        let cursorDicts    = dictionary[MACConstants.cursorsKey] as? [String: Any]
-        let creatorStr     = dictionary[MACConstants.creatorKey] as? String
-        let hiDPINum       = dictionary[MACConstants.hiDPIKey] as? NSNumber
-        let identifierStr  = dictionary[MACConstants.identifierKey] as? String
-        let themeName      = dictionary[MACConstants.themeNameKey] as? String
-        let themeVersion   = dictionary[MACConstants.themeVersionKey] as? NSNumber
-        let uuidStr        = dictionary[MACConstants.uuidKey] as? String
+        let cursorDicts    = dictionary[MACCursorDefinitions.cursorsKey] as? [String: Any]
+        let creatorStr     = dictionary[MACCursorDefinitions.creatorKey] as? String
+        let hiDPINum       = dictionary[MACCursorDefinitions.hiDPIKey] as? NSNumber
+        let identifierStr  = dictionary[MACCursorDefinitions.identifierKey] as? String
+        let themeName      = dictionary[MACCursorDefinitions.themeNameKey] as? String
+        let themeVersion   = dictionary[MACCursorDefinitions.themeVersionKey] as? NSNumber
+        let uuidStr        = dictionary[MACCursorDefinitions.uuidKey] as? String
 
         self.name       = themeName ?? ""
         self.version    = themeVersion ?? NSNumber(value: 1.0)
@@ -246,12 +268,12 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
     func dictionaryRepresentation() -> [String: Any] {
         var drep = [String: Any]()
 
-        drep[MACConstants.themeNameKey]      = name
-        drep[MACConstants.themeVersionKey]   = version
-        drep[MACConstants.creatorKey]        = creator
-        drep[MACConstants.hiDPIKey]          = NSNumber(value: isHiDPI)
-        drep[MACConstants.identifierKey]     = identifier
-        drep[MACConstants.uuidKey]           = uuid
+        drep[MACCursorDefinitions.themeNameKey]      = name
+        drep[MACCursorDefinitions.themeVersionKey]   = version
+        drep[MACCursorDefinitions.creatorKey]        = creator
+        drep[MACCursorDefinitions.hiDPIKey]          = NSNumber(value: isHiDPI)
+        drep[MACCursorDefinitions.identifierKey]     = identifier
+        drep[MACCursorDefinitions.uuidKey]           = uuid
 
         var cursorsDict = [String: Any]()
         for cursor in cursors {
@@ -260,7 +282,7 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
             }
         }
 
-        drep[MACConstants.cursorsKey] = cursorsDict
+        drep[MACCursorDefinitions.cursorsKey] = cursorsDict
 
         return drep
     }
@@ -314,7 +336,7 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
 
         for case let identifier as String in counted {
             if counted.count(for: identifier) > 1 {
-                duplicates.insert(MACConstants.nameForIdentifier(identifier))
+                duplicates.insert(MACCursorDefinitions.nameForIdentifier(identifier))
             }
         }
 
@@ -329,6 +351,8 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
             )
         }
 
+        let previousURL = fileURL
+        let previousExisted = previousURL.map { FileManager.default.fileExists(atPath: $0.path) } ?? false
         NotificationCenter.default.post(name: .cursorLibraryWillSave, object: self)
 
         guard let path = fileURL?.path else {
@@ -342,12 +366,27 @@ class CursorLibrary: NSObject, NSCopying, @unchecked Sendable {
             )
         }
 
+        let newURL = URL(fileURLWithPath: path)
+        let renamesInPlace = previousExisted && previousURL.map { CursorLibrary.isSameFile($0, newURL) } == true
+
         if write(toFile: path, atomically: true) {
+            if previousExisted, let previousURL, previousURL != fileURL {
+                do {
+                    if renamesInPlace {
+                        try FileManager.default.moveItem(at: previousURL, to: newURL)
+                    } else {
+                        try FileManager.default.removeItem(at: previousURL)
+                    }
+                } catch {
+                    NSLog("error removing cursor theme after rename: %@", error.localizedDescription)
+                }
+            }
             updateChangeCount(.changeCleared)
             NotificationCenter.default.post(name: .cursorLibraryDidSave, object: self)
             return nil
         }
 
+        fileURL = previousURL
         return NSError(
             domain: MACConstants.errorDomain,
             code: MACConstants.ErrorCode.writeFail.rawValue,

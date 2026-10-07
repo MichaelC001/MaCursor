@@ -17,22 +17,6 @@ extension UUID {
 
 extension NSBitmapImageRep {
 
-    var retaggedSRGBSpace: NSBitmapImageRep {
-        var targetSpace = NSColorSpace.sRGB
-        if colorSpace.numberOfColorComponents == 1 {
-            targetSpace = .genericGamma22Gray
-        }
-        return retagging(with: targetSpace) ?? self
-    }
-
-    var ensuredSRGBSpace: NSBitmapImageRep {
-        var targetSpace = NSColorSpace.sRGB
-        if colorSpace.numberOfColorComponents == 1 {
-            targetSpace = .genericGamma22Gray
-        }
-        return converting(to: targetSpace, renderingIntent: .default) ?? self
-    }
-
     var canonicalRGBA: NSBitmapImageRep {
         if bitsPerPixel == 32, samplesPerPixel == 4, hasAlpha, !isPlanar,
            bytesPerRow == pixelsWide * 4 {

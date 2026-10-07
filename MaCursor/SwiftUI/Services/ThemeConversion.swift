@@ -93,7 +93,6 @@ enum ThemeConversionService {
 
 @MainActor
 protocol ThemeLibraryLanding {
-    func importTheme(at url: URL)
     @discardableResult func importThemeReturningId(at url: URL) -> String?
 }
 
@@ -103,6 +102,10 @@ protocol ThemeLibraryLanding {
     @Published private(set) var outcome: ConversionOutcome?
 
     func convert(_ input: URL) async {
+        guard phase == .idle else {
+            NSSound.beep()
+            return
+        }
         phase = .converting
         do {
             let result = try await Task.detached(priority: .userInitiated) {
@@ -116,17 +119,16 @@ protocol ThemeLibraryLanding {
     }
 
     func confirmAddToLibrary(using library: ThemeLibraryLanding) {
-        guard let outcome else { return }
-        library.importTheme(at: outcome.cursorFileURL)
-        ThemeConversionService.discard(outcome)
-        self.outcome = nil
-        phase = .idle
+        confirmAndEditReturningId(using: library)
     }
 
     @discardableResult
     func confirmAndEditReturningId(using library: ThemeLibraryLanding) -> String? {
         guard let outcome else { return nil }
-        let newId = library.importThemeReturningId(at: outcome.cursorFileURL)
+        guard let newId = library.importThemeReturningId(at: outcome.cursorFileURL) else {
+            phase = .failed(NSLocalizedString("Error writing cursor theme to disk.", comment: "New Cursor Theme Failure Filesystem Error"))
+            return nil
+        }
         ThemeConversionService.discard(outcome)
         self.outcome = nil
         phase = .idle

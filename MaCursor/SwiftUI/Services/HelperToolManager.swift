@@ -18,6 +18,7 @@ class HelperToolManager: ObservableObject {
 
     private var statusCheckTimer: Timer?
     private var runStateObservers: [NSObjectProtocol] = []
+    private var ensureGeneration = 0
 
     private init() {
         refreshStatus()
@@ -53,6 +54,7 @@ class HelperToolManager: ObservableObject {
     }
 
     func uninstall() async throws {
+        ensureGeneration += 1
         try await service.unregister()
 
         try await Task.sleep(nanoseconds: 500_000_000)
@@ -69,6 +71,8 @@ class HelperToolManager: ObservableObject {
     }
 
     func ensureCurrent() async {
+        ensureGeneration += 1
+        let generation = ensureGeneration
         await migrateLegacyLoginItem()
         registerBundledHelperWithLaunchServices()
         refreshStatus()
@@ -76,7 +80,9 @@ class HelperToolManager: ObservableObject {
 
         for delay in [UInt64(0), Self.launchItemRebuildWindow] {
             try? await Task.sleep(nanoseconds: delay)
+            guard generation == ensureGeneration else { return }
             try? await service.unregister()
+            guard generation == ensureGeneration else { return }
             do {
                 try service.register()
             } catch {

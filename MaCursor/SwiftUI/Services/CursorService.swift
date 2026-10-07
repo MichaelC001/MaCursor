@@ -1,22 +1,23 @@
 import Foundation
 
+@MainActor
 enum CursorService {
     static func applyTheme(atPath path: String) -> Bool {
         guard themeFileHasApplicableCursor(atPath: path) else {
             NSLog("MaCursor: refusing to apply %@ — no cursor in it has both an image and a known cursor type", path)
             return false
         }
-        return applyThemeAtPath(path)
+        return MACCursorActions.shared.applyTheme(atPath: path)
     }
 
-    static func themeFileHasApplicableCursor(atPath path: String) -> Bool {
+    nonisolated static func themeFileHasApplicableCursor(atPath path: String) -> Bool {
         guard let theme = NSDictionary(contentsOf: URL(fileURLWithPath: path)) as? [String: Any],
-              let cursors = theme[MACConstants.cursorsKey] as? [String: Any] else { return false }
+              let cursors = theme[MACCursorDefinitions.cursorsKey] as? [String: Any] else { return false }
 
         return cursors.contains { identifier, entry in
-            guard MACConstants.isKnownIdentifier(identifier),
+            guard MACCursorDefinitions.isKnownIdentifier(identifier),
                   let cursor = entry as? [String: Any],
-                  let representations = cursor[MACConstants.representationsKey] as? [Any] else { return false }
+                  let representations = cursor[MACCursorDefinitions.representationsKey] as? [Any] else { return false }
             return !representations.isEmpty
         }
     }
@@ -30,24 +31,24 @@ enum CursorService {
 
     @discardableResult
     static func restoreAll() -> Bool {
-        return resetAllCursors(nil)
+        return (try? MACCursorActions.shared.resetAllCursors()) != nil
     }
 
     static func currentScale() -> Float {
-        return cursorScale()
+        return MACCursorActions.shared.cursorScale()
     }
 
     static func defaultScale() -> Float {
-        return defaultCursorScale()
+        return MACCursorActions.shared.defaultCursorScale()
     }
 
     @discardableResult
     static func setScale(_ scale: Float) -> Bool {
-        return setCursorScale(scale)
+        return MACCursorActions.shared.setCursorScale(scale)
     }
 
     @discardableResult
     static func assertPreferredScale() -> Bool {
-        return assertPreferredCursorScale()
+        return MACCursorActions.shared.assertPreferredCursorScale()
     }
 }

@@ -21,31 +21,23 @@ class CursorThemeModel: ObservableObject, Identifiable, Hashable {
         self.isHiDPI = library.isHiDPI
         self.fileURL = library.fileURL
 
-        let parentId = library.identifier
         self.cursors = library.cursors
-            .map { CursorModel(from: $0, parentIdentifier: parentId) }
+            .map { CursorModel(from: $0) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     func syncToObjC() {
-        let oldId = backingLibrary.identifier
-        let nameChanged = (name != backingLibrary.name)
+        if name != backingLibrary.name {
+            let taken = Set(backingLibrary.library?.themes.compactMap { $0 === backingLibrary ? nil : $0.identifier } ?? [])
+            let unique = CursorLibrary.uniqueIdentity(forName: name, avoiding: taken)
+            name = unique.name
+            backingLibrary.identifier = unique.identifier
+        }
 
         backingLibrary.name = name
         backingLibrary.creator = creator
         backingLibrary.version = NSNumber(value: version)
         backingLibrary.isHiDPI = isHiDPI
-
-        if nameChanged {
-            let newId = CursorLibrary.updateIdentifier(oldId, newName: name)
-            backingLibrary.identifier = newId
-
-            NotificationCenter.default.post(
-                name: .cursorLibraryIdentifierDidChange,
-                object: self,
-                userInfo: ["oldId": oldId, "newId": newId]
-            )
-        }
 
         for cursor in cursors {
             cursor.syncToBacking()
@@ -53,8 +45,23 @@ class CursorThemeModel: ObservableObject, Identifiable, Hashable {
     }
 
     func save() -> Error? {
+        let oldName = backingLibrary.name
+        let oldId = backingLibrary.identifier
         syncToObjC()
-        return backingLibrary.save()
+        if let error = backingLibrary.save() {
+            name = oldName
+            backingLibrary.name = oldName
+            backingLibrary.identifier = oldId
+            return error
+        }
+        if backingLibrary.identifier != oldId {
+            NotificationCenter.default.post(
+                name: .cursorLibraryIdentifierDidChange,
+                object: self,
+                userInfo: ["oldId": oldId, "newId": backingLibrary.identifier]
+            )
+        }
+        return nil
     }
 
     func revertToSaved() {
@@ -77,16 +84,15 @@ class CursorThemeModel: ObservableObject, Identifiable, Hashable {
         isHiDPI = backingLibrary.isHiDPI
         fileURL = backingLibrary.fileURL
 
-        let parentId = backingLibrary.identifier
         cursors = backingLibrary.cursors
-            .map { CursorModel(from: $0, parentIdentifier: parentId) }
+            .map { CursorModel(from: $0) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     func addCursor() {
         let newCursor = MACCursorSwift()
         backingLibrary.addCursor(newCursor)
-        let model = CursorModel(from: newCursor, parentIdentifier: backingLibrary.identifier)
+        let model = CursorModel(from: newCursor)
         cursors.append(model)
         cursors.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }

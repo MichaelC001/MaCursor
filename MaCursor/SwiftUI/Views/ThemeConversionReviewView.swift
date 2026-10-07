@@ -35,15 +35,15 @@ struct ThemeConversionReviewView: View {
                         ForEach(Array(outcome.report.mapped.enumerated()), id: \.offset) { _, mapped in
                             HStack {
                                 Text(mapped.displayName)
-                                Spacer()
-                                Text(mapped.identifier)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
                                 if mapped.isSecondary {
                                     Text(NSLocalizedString("2nd", comment: "Secondary mapping tag"))
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
+                                Spacer()
+                                Text(mapped.identifier)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }

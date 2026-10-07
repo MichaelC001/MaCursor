@@ -13,7 +13,7 @@ class MACCursorSwift: MACCursor, @unchecked Sendable {
 
 
     override var name: String {
-        return MACConstants.nameForIdentifier(identifier ?? "")
+        return MACCursorDefinitions.nameForIdentifier(identifier ?? "")
     }
 
 
@@ -24,18 +24,18 @@ class MACCursorSwift: MACCursor, @unchecked Sendable {
 
 
     var isApplicable: Bool {
-        hasImageData && MACConstants.isKnownIdentifier(identifier ?? "")
+        hasImageData && MACCursorDefinitions.isKnownIdentifier(identifier ?? "")
     }
 
 
     override func dictionaryRepresentation() -> [AnyHashable : Any]! {
         var drep = [String: Any]()
-        drep[MACConstants.frameCountKey] = NSNumber(value: frameCount)
-        drep[MACConstants.frameDurationKey] = NSNumber(value: frameDuration)
-        drep[MACConstants.hotSpotXKey] = NSNumber(value: hotSpot.x)
-        drep[MACConstants.hotSpotYKey] = NSNumber(value: hotSpot.y)
-        drep[MACConstants.pointsWideKey] = NSNumber(value: size.width)
-        drep[MACConstants.pointsHighKey] = NSNumber(value: size.height)
+        drep[MACCursorDefinitions.frameCountKey] = NSNumber(value: frameCount)
+        drep[MACCursorDefinitions.frameDurationKey] = NSNumber(value: frameDuration)
+        drep[MACCursorDefinitions.hotSpotXKey] = NSNumber(value: hotSpot.x)
+        drep[MACCursorDefinitions.hotSpotYKey] = NSNumber(value: hotSpot.y)
+        drep[MACCursorDefinitions.pointsWideKey] = NSNumber(value: size.width)
+        drep[MACCursorDefinitions.pointsHighKey] = NSNumber(value: size.height)
 
         var pngs = [Data]()
         if let reps = representations as? [String: NSBitmapImageRep] {
@@ -47,7 +47,7 @@ class MACCursorSwift: MACCursor, @unchecked Sendable {
                 }
             }
         }
-        drep[MACConstants.representationsKey] = pngs
+        drep[MACCursorDefinitions.representationsKey] = pngs
 
         return drep
     }

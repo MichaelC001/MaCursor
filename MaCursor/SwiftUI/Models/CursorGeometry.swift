@@ -3,9 +3,9 @@ import CoreGraphics
 import Foundation
 
 enum CursorGeometry {
-    static let basePointSize = Int(MACBaseCursorPointSize)
+    static let basePointSize = Int(MACCursorDefinitions.basePointSize)
     static let ladder: [UInt] = [100, 200, 500, 1000]
-    static let maxPointSize = Int(MACMaxCursorPointSize)
+    static let maxPointSize = Int(MACCursorDefinitions.maxPointSize)
 
     static var baseSize: CGSize {
         CGSize(width: basePointSize, height: basePointSize)

@@ -1,7 +1,10 @@
 #import "MACCursor.h"
-#import "MACCursorDefs.h"
+#import "MaCursor-Swift.h"
+static const double MACCursorValueLimit = 0x1p53;
+static const double MACCursorPointLimit = 0x1p24;
+
 MACCursorScale cursorScaleForScale(CGFloat scale) {
-    if (scale < 0.0)
+    if (!(scale >= 0.0 && scale < MACCursorValueLimit))
         return MACCursorScaleNone;
 
     return (MACCursorScale)((NSInteger)scale * 100);
@@ -26,7 +29,7 @@ MACCursorScale cursorScaleForScale(CGFloat scale) {
         self.frameDuration   = 1.0;
         self.size            = NSZeroSize;
         self.hotSpot         = NSZeroPoint;
-        self.identifier      = [UUID() stringByReplacingOccurrencesOfString:@"-" withString:@""];
+        self.identifier      = [NSUUID.UUID.UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
         self.representations = [NSMutableDictionary dictionary];
     }
     return self;
@@ -74,43 +77,48 @@ MACCursorScale cursorScaleForScale(CGFloat scale) {
     if (!dictionary || !dictionary.count)
         return NO;
 
-    NSNumber *frameCount    = [dictionary objectForKey:MACCursorDictionaryFrameCountKey];
-    NSNumber *frameDuration = [dictionary objectForKey:MACCursorDictionaryFrameDurationKey];
-    NSNumber *hotSpotX      = [dictionary objectForKey:MACCursorDictionaryHotSpotXKey];
-    NSNumber *hotSpotY      = [dictionary objectForKey:MACCursorDictionaryHotSpotYKey];
-    NSNumber *pointsWide    = [dictionary objectForKey:MACCursorDictionaryPointsWideKey];
-    NSNumber *pointsHigh    = [dictionary objectForKey:MACCursorDictionaryPointsHighKey];
-    NSArray *reps           = [dictionary objectForKey:MACCursorDictionaryRepresentationsKey];
+    NSNumber *frameCount    = [dictionary objectForKey:MACCursorDefinitions.frameCountKey];
+    NSNumber *frameDuration = [dictionary objectForKey:MACCursorDefinitions.frameDurationKey];
+    NSNumber *hotSpotX      = [dictionary objectForKey:MACCursorDefinitions.hotSpotXKey];
+    NSNumber *hotSpotY      = [dictionary objectForKey:MACCursorDefinitions.hotSpotYKey];
+    NSNumber *pointsWide    = [dictionary objectForKey:MACCursorDefinitions.pointsWideKey];
+    NSNumber *pointsHigh    = [dictionary objectForKey:MACCursorDefinitions.pointsHighKey];
+    NSArray *reps           = [dictionary objectForKey:MACCursorDefinitions.representationsKey];
 
-    if (frameCount && frameDuration && hotSpotX && hotSpotY && pointsWide && pointsHigh) {
+    Class number = NSNumber.class;
+    if (![frameCount isKindOfClass:number] || ![frameDuration isKindOfClass:number] || ![hotSpotX isKindOfClass:number] ||
+        ![hotSpotY isKindOfClass:number] || ![pointsWide isKindOfClass:number] || ![pointsHigh isKindOfClass:number])
+        return NO;
 
-        self.frameCount    = frameCount.unsignedIntegerValue;
-        self.frameDuration = frameDuration.doubleValue;
-        self.hotSpot       = NSMakePoint(hotSpotX.doubleValue, hotSpotY.doubleValue);
+    double frames = frameCount.doubleValue, width = pointsWide.doubleValue, height = pointsHigh.doubleValue;
+    BOOL sized = width > 0 && height > 0;
+    if (!(frames >= 1 && frames <= MACCursorValueLimit && width >= 0 && width <= MACCursorPointLimit &&
+          height >= 0 && height <= MACCursorPointLimit && (sized || !reps.count)))
+        return NO;
 
-        self.size           = NSMakeSize(pointsWide.doubleValue, pointsHigh.doubleValue);
+    self.frameCount    = (NSUInteger)frames;
+    self.frameDuration = frameDuration.doubleValue;
+    self.hotSpot       = NSMakePoint(hotSpotX.doubleValue, hotSpotY.doubleValue);
+    self.size          = NSMakeSize(width, height);
 
-        for (NSData *data in reps) {
-            NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithData:data];
-            rep.size = NSMakeSize(self.size.width, self.size.height * self.frameCount);
+    for (NSData *data in reps) {
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithData:data];
+        rep.size = NSMakeSize(self.size.width, self.size.height * self.frameCount);
 
-            [self setRepresentation:rep.retaggedSRGBSpace forScale:cursorScaleForScale(rep.pixelsWide / pointsWide.doubleValue)];
-        }
-
-        return YES;
+        [self setRepresentation:rep.retaggedSRGBSpace forScale:cursorScaleForScale(rep.pixelsWide / width)];
     }
 
-    return NO;
+    return YES;
 }
 
 - (NSDictionary *)dictionaryRepresentation {
     NSMutableDictionary *drep = [NSMutableDictionary dictionary];
-    drep[MACCursorDictionaryFrameCountKey]    = @(self.frameCount);
-    drep[MACCursorDictionaryFrameDurationKey] = @(self.frameDuration);
-    drep[MACCursorDictionaryHotSpotXKey]      = @(self.hotSpot.x);
-    drep[MACCursorDictionaryHotSpotYKey]      = @(self.hotSpot.y);
-    drep[MACCursorDictionaryPointsWideKey]    = @(self.size.width);
-    drep[MACCursorDictionaryPointsHighKey]    = @(self.size.height);
+    drep[MACCursorDefinitions.frameCountKey]    = @(self.frameCount);
+    drep[MACCursorDefinitions.frameDurationKey] = @(self.frameDuration);
+    drep[MACCursorDefinitions.hotSpotXKey]      = @(self.hotSpot.x);
+    drep[MACCursorDefinitions.hotSpotYKey]      = @(self.hotSpot.y);
+    drep[MACCursorDefinitions.pointsWideKey]    = @(self.size.width);
+    drep[MACCursorDefinitions.pointsHighKey]    = @(self.size.height);
 
     NSMutableArray *pngs = [NSMutableArray array];
     for (NSString *key in self.representations) {
@@ -118,7 +126,7 @@ MACCursorScale cursorScaleForScale(CGFloat scale) {
         pngs[pngs.count] = [rep.ensuredSRGBSpace representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     }
 
-    drep[MACCursorDictionaryRepresentationsKey] = pngs;
+    drep[MACCursorDefinitions.representationsKey] = pngs;
 
     return drep;
 }
@@ -176,8 +184,8 @@ MACCursorScale cursorScaleForScale(CGFloat scale) {
     if (imageRep && (self.size.width <= 0 || self.size.height <= 0) && imageRep.pixelsWide > 0 && imageRep.pixelsHigh > 0) {
         NSUInteger frameCount = MAX(self.frameCount, 1);
         CGFloat frameHeight = (CGFloat)imageRep.pixelsHigh / frameCount;
-        CGFloat pointHeight = round(MACBaseCursorPointSize * frameHeight / imageRep.pixelsWide);
-        self.size = NSMakeSize(MACBaseCursorPointSize, MAX(1.0, pointHeight));
+        CGFloat pointHeight = round(MACCursorDefinitions.basePointSize * frameHeight / imageRep.pixelsWide);
+        self.size = NSMakeSize(MACCursorDefinitions.basePointSize, MAX(1.0, pointHeight));
     }
 
     [self didChangeValueForKey:key];
@@ -265,7 +273,7 @@ MACCursorScale cursorScaleForScale(CGFloat scale) {
 }
 
 - (NSString *)name {
-    return nameForCursorIdentifier(self.identifier);
+    return [MACCursorDefinitions nameForIdentifier:self.identifier];
 }
 
 - (BOOL)isEqualTo:(MACCursor *)object {

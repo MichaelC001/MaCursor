@@ -1,25 +1,17 @@
 import AppKit
 import Combine
 
+@MainActor
 func MenuBarL(_ key: String) -> String {
-    MACMenuBarLocalized(key)
-}
-
-struct MenuBarThemeItem: Identifiable, Hashable {
-    let id: String
-    let name: String
-}
-
-private struct ThumbnailBox: @unchecked Sendable {
-    let image: NSImage?
+    MenuBarService.localized(key)
 }
 
 @MainActor
 final class MenuBarPanelModel: ObservableObject {
     static let shared = MenuBarPanelModel()
 
-    @Published private(set) var themes: [MenuBarThemeItem] = []
-    @Published private(set) var favoriteThemes: [MenuBarThemeItem] = []
+    @Published private(set) var themes: [MACMenuBarThemeEntry] = []
+    @Published private(set) var favoriteThemes: [MACMenuBarThemeEntry] = []
     @Published private(set) var appliedIdentifier: String?
     @Published private(set) var overrideIdentifier: String?
     @Published private(set) var frontBundleIdentifier: String?
@@ -34,9 +26,9 @@ final class MenuBarPanelModel: ObservableObject {
     @Published private(set) var panelBackdropAlpha: Double = 0.0
     @Published var cursorScale: Double = 1.0
 
-    let brandImage: NSImage? = MACMenuBarBrandImage()
+    let brandImage: NSImage? = MenuBarService.brandImage()
 
-    private let thumbnailQueue = DispatchQueue(label: "com.writronic.macursor.helper.thumbnails")
+    private let thumbnailLoader = MenuBarThumbnailLoader()
     private var thumbnailGeneration = 0
     private var observers: [NSObjectProtocol] = []
 
@@ -74,25 +66,17 @@ final class MenuBarPanelModel: ObservableObject {
         return thumbnails[identifier]
     }
 
-    var appRuleChoices: [MenuBarThemeItem] {
+    var appRuleChoices: [MACMenuBarThemeEntry] {
         guard let rule = frontRuleThemeIdentifier,
               !favoriteThemes.contains(where: { $0.id == rule }),
               let ruled = themes.first(where: { $0.id == rule }) else { return favoriteThemes }
         return favoriteThemes + [ruled]
     }
 
-    private static func items(from catalog: [[String: String]]) -> [MenuBarThemeItem] {
-        catalog.compactMap { entry in
-            guard let identifier = entry[MACMenuBarThemeIdentifierKey],
-                  let name = entry[MACMenuBarThemeNameKey] else { return nil }
-            return MenuBarThemeItem(id: identifier, name: name)
-        }
-    }
-
     func reload() {
-        let snapshot = MACMenuBarCurrentSnapshot()
-        themes = Self.items(from: snapshot.catalog)
-        favoriteThemes = Self.items(from: snapshot.favorites)
+        let snapshot = MenuBarService.currentSnapshot()
+        themes = snapshot.catalog
+        favoriteThemes = snapshot.favorites
         appliedIdentifier = snapshot.appliedIdentifier
         overrideIdentifier = snapshot.overrideIdentifier
         frontBundleIdentifier = snapshot.frontBundleIdentifier
@@ -113,62 +97,62 @@ final class MenuBarPanelModel: ObservableObject {
     private func loadThumbnails(for identifiers: [String]) {
         thumbnailGeneration += 1
         let generation = thumbnailGeneration
-        thumbnailQueue.async { [weak self] in
+        Task { [weak self, thumbnailLoader] in
             for identifier in identifiers {
-                let box = ThumbnailBox(image: MACMenuBarThumbnailForTheme(identifier))
-                Task { @MainActor [weak self] in
-                    guard let self, self.thumbnailGeneration == generation else { return }
-                    self.thumbnails[identifier] = box.image
+                let record = await thumbnailLoader.thumbnail(for: identifier)
+                guard let self, self.thumbnailGeneration == generation else { return }
+                self.thumbnails[identifier] = record.flatMap {
+                    MACMenuBarThumbnailImageFromData($0.thumbnail.data, $0.thumbnail.frameCount)
                 }
             }
         }
     }
 
     func apply(theme identifier: String) {
-        MACMenuBarApplyTheme(identifier)
+        MenuBarService.applyTheme(identifier)
         reload()
     }
 
     func restoreSystemCursors() {
-        MACMenuBarRestoreSystemCursors()
+        MenuBarService.restoreSystemCursors()
         reload()
     }
 
     func setSwitchByApp(_ enabled: Bool) {
-        MACMenuBarSetSwitchByApp(enabled)
+        MenuBarService.setSwitchByApp(enabled)
         reload()
     }
 
     func setFrontAppRule(_ identifier: String?) {
-        MACMenuBarSetFrontAppRule(identifier)
+        MenuBarService.setFrontAppRule(identifier)
         reload()
     }
 
     func previewCursorScale(_ scale: Double) {
         cursorScale = scale
-        MACMenuBarPreviewCursorScale(scale)
+        MenuBarService.previewCursorScale(scale)
     }
 
     func commitCursorScale() {
-        MACMenuBarCommitCursorScale(cursorScale)
+        MenuBarService.commitCursorScale(cursorScale)
         reload()
     }
 
     func setCursorShadow(_ enabled: Bool) {
-        MACMenuBarSetCursorShadow(enabled)
+        MenuBarService.setCursorShadow(enabled)
         reload()
     }
 
     func toggleFocusFollowsMouse() {
         guard accessibilityTrusted else {
-            MACMenuBarRequestFocusFollowsMouseAccess()
+            MenuBarService.requestFocusFollowsMouseAccess()
             return
         }
-        MACMenuBarSetFocusFollowsMouse(!focusFollowsMouse)
+        MenuBarService.setFocusFollowsMouse(!focusFollowsMouse)
         reload()
     }
 
     func openAccessibilitySettings() {
-        MACMenuBarOpenAccessibilitySettings()
+        MenuBarService.openAccessibilitySettings()
     }
 }

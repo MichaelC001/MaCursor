@@ -71,6 +71,11 @@ struct WindowsCursorParser {
 
 
     static func parseCUR(_ data: Data) throws -> CursorData {
+        var pngPixelBudget = CURReader.maxPNGPixelsPerFile
+        return try parseCUR(data, pngPixelBudget: &pngPixelBudget)
+    }
+
+    static func parseCUR(_ data: Data, pngPixelBudget: inout Int) throws -> CursorData {
         guard data.count >= 6 else { throw ParseError.truncatedFile }
 
         let reserved = readUInt16(data, offset: 0)
@@ -117,6 +122,9 @@ struct WindowsCursorParser {
 
             entries.append((width, height, hotspotX, hotspotY, dataSize, dataOffset, bitCount))
         }
+
+        try CURReader.validateDirectory(entries.map { $0.dataOffset ..< $0.dataOffset + $0.dataSize }, in: data,
+                                        pngPixelBudget: &pngPixelBudget)
 
         entries.sort { lhs, rhs in
             let areaL = lhs.width * lhs.height
@@ -172,8 +180,9 @@ struct WindowsCursorParser {
         var iconChunkCount = 0
         var title: String?
         var creator: String?
+        var pngPixelBudget = CURReader.maxPNGPixelsPerFile
 
-        try parseRIFFChunks(data: data, start: 12, end: data.count) { chunkID, chunkData in
+        try parseRIFFChunks(data: data, start: 12, end: data.count, depth: 0) { chunkID, chunkData in
             switch chunkID {
             case "anih":
                 aniHeader = try parseANIHeader(chunkData)
@@ -193,10 +202,10 @@ struct WindowsCursorParser {
             case "icon":
                 let ordinal = iconChunkCount
                 iconChunkCount += 1
-                if let cursorData = try? parseCUR(chunkData) {
-                    frames.append(cursorData)
+                do {
+                    frames.append(try parseCUR(chunkData, pngPixelBudget: &pngPixelBudget))
                     frameOrdinals.append(ordinal)
-                }
+                } catch is ParseError {}
 
             default:
                 break
@@ -260,8 +269,12 @@ struct WindowsCursorParser {
         data: Data,
         start: Int,
         end: Int,
+        depth: Int,
         handler: (String, Data) throws -> Void
     ) throws {
+        guard depth <= ANIReader.maxChunkDepth else {
+            throw ParseError.invalidHeader("LIST nesting too deep")
+        }
         var offset = start
 
         while offset + 8 <= end {
@@ -276,10 +289,9 @@ struct WindowsCursorParser {
             guard chunkDataEnd <= data.count else { break }
 
             if chunkID == "LIST" {
-                if chunkSize >= 4 {
-                    let listType = String(data: data[chunkDataStart..<(chunkDataStart + 4)], encoding: .ascii) ?? ""
-                    try parseRIFFChunks(data: data, start: chunkDataStart + 4, end: chunkDataEnd, handler: handler)
-                    _ = listType
+                if chunkDataEnd - chunkDataStart >= 4 {
+                    try parseRIFFChunks(data: data, start: chunkDataStart + 4, end: chunkDataEnd,
+                                        depth: depth + 1, handler: handler)
                 }
             } else {
                 let chunkData = Data(data[chunkDataStart..<chunkDataEnd])

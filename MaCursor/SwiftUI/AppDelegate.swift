@@ -17,21 +17,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         TextEditingFocusCoordinator.shared.start()
         startFocusFollowsMouseAccessRequests()
 
-        let systemDefaultPath = MACSystemDefaultCursorPath()
+        let systemDefaultPath = MACCursorCapture.systemDefaultPath
         if !FileManager.default.fileExists(atPath: systemDefaultPath) {
             NSLog("MaCursor: Capturing system default cursors...")
-            let success = MACCaptureSystemDefaults(systemDefaultPath)
+            let success = MACCursorCapture.shared.capture(to: systemDefaultPath)
             NSLog("MaCursor: System default capture %@", success ? "succeeded" : "failed")
         }
 
         CursorService.assertPreferredScale()
 
-        MACAutoSwitchRecoverBaseThemeIfNeeded()
-        let config = MACAutoSwitchReadConfig()
+        MACAutoSwitchEffects.shared.recoverBaseThemeIfNeeded()
+        let config = MACAutoSwitchEffects.shared.readConfig()
         let nowMinutes = MACAutoSwitchCurrentMinuteOfDay()
-        let scheduledId = MACAutoSwitchResolveThemeIdentifier(config, nowMinutes)
+        let isDark = MACAutoSwitchEffects.shared.isSystemInDarkMode()
+        let scheduledId = MACAutoSwitchResolveThemeIdentifier(config, nowMinutes, isDark: isDark)
         let storedId = MACPreferences.value(forKey: MACPreferences.appliedCursorKey) as? String
-        if let appliedId = MACAutoSwitchLaunchThemeIdentifier(config, nowMinutes, storedId),
+        if let appliedId = MACAutoSwitchLaunchThemeIdentifier(config, nowMinutes, storedId, isDark: isDark),
            !appliedId.isEmpty,
            let cursorsPath = try? FileManager.default.findOrCreateDirectory(
                .applicationSupportDirectory,
@@ -44,11 +45,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 if scheduledId != nil {
                     MACPreferences.set(appliedId as NSString, forKey: MACPreferences.appliedCursorKey)
                 }
-                MACAutoSwitchForceVisualRefresh()
+                MACAutoSwitchEffects.shared.forceVisualRefresh()
             }
         }
 
         AutoSwitchScheduler.shared.start()
+        FinderExtensionManager.shared.registerIfNeeded()
 
         Task { @MainActor in
             await HelperToolManager.shared.ensureCurrent()
@@ -114,7 +116,7 @@ extension Notification.Name {
 final class AutoSwitchScheduler {
     static let shared = AutoSwitchScheduler()
 
-    private var boundaryTimer: DispatchSourceTimer?
+    private let boundarySchedule = MACAutoSwitchScheduleTimer()
     private var appearanceObservation: NSKeyValueObservation?
     private var activationDebounce: DispatchWorkItem?
     private var started = false
@@ -175,65 +177,39 @@ final class AutoSwitchScheduler {
             }
         }
 
-        rescheduleBoundaryTimer()
+        boundarySchedule.start()
         resolveFrontmostApp()
     }
 
     private func configDidChange() {
         applyAndRefreshIfNeeded()
         resolveFrontmostApp()
-        rescheduleBoundaryTimer()
+        boundarySchedule.reschedule()
     }
 
     private func frontmostAppChanged(_ bundleID: String?) {
         activationDebounce?.cancel()
         let work = DispatchWorkItem {
-            MACAutoSwitchHandleFrontmostApp(bundleID)
+            MainActor.assumeIsolated {
+                MACAutoSwitchEffects.shared.handleFrontmostApp(bundleID)
+            }
         }
         activationDebounce = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: work)
     }
 
     private func resolveFrontmostApp() {
-        MACAutoSwitchHandleFrontmostApp(NSWorkspace.shared.frontmostApplication?.bundleIdentifier)
+        MACAutoSwitchEffects.shared.handleFrontmostApp(NSWorkspace.shared.frontmostApplication?.bundleIdentifier)
     }
 
     private func systemAppearanceDidChange() {
-        guard MACAutoSwitchMatchesSystemAppearance(MACAutoSwitchReadConfig()) else { return }
+        guard MACAutoSwitchMatchesSystemAppearance(MACAutoSwitchEffects.shared.readConfig()) else { return }
         applyAndRefreshIfNeeded()
     }
 
     private func applyAndRefreshIfNeeded() {
-        if MACAutoSwitchApplyIfNeeded() {
-            MACAutoSwitchForceVisualRefresh()
+        if MACAutoSwitchEffects.shared.applyIfNeeded() {
+            MACAutoSwitchEffects.shared.forceVisualRefresh()
         }
-    }
-
-    private func rescheduleBoundaryTimer() {
-        boundaryTimer?.cancel()
-        boundaryTimer = nil
-
-        guard let config = MACAutoSwitchReadConfig(),
-              (config["enabled"] as? NSNumber)?.boolValue == true,
-              !MACAutoSwitchMatchesSystemAppearance(config) else { return }
-
-        let minutes = MACAutoSwitchMinutesUntilNextBoundary(
-            config["scheduleRules"] as? [Any], MACAutoSwitchCurrentMinuteOfDay())
-        guard minutes >= 0 else { return }
-
-        let timer = DispatchSource.makeTimerSource(queue: .main)
-        timer.schedule(wallDeadline: .now() + .seconds(minutes * 60), leeway: .seconds(5))
-        timer.setEventHandler {
-            MainActor.assumeIsolated {
-                AutoSwitchScheduler.shared.boundaryTimerFired()
-            }
-        }
-        timer.resume()
-        boundaryTimer = timer
-    }
-
-    private func boundaryTimerFired() {
-        applyAndRefreshIfNeeded()
-        rescheduleBoundaryTimer()
     }
 }

@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 
-#import "MACAutoSwitch.h"
-#import "MACFocusFollowsMouse.h"
-#import "MACMenuBarState.h"
-#import "MACMenuBar.h"
+#import "CGSPrivateCursor.h"
+#import "CGSPrivateAccessibility.h"
+#import "HelperProcessBridge.h"

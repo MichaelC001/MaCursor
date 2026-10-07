@@ -132,7 +132,7 @@ struct AppRule: Identifiable, Codable, Hashable {
     }
 }
 
-struct AutoSwitchConfig: Codable {
+struct AutoSwitchConfig: Codable, Equatable {
     var enabled: Bool
     var use24HourTime: Bool
     var matchSystemAppearance: Bool
@@ -262,6 +262,19 @@ struct AutoSwitchConfig: Codable {
         }
     }
 
+    mutating func replaceThemeIdentifier(_ oldIdentifier: String, with newIdentifier: String?) {
+        if lightThemeIdentifier == oldIdentifier { lightThemeIdentifier = newIdentifier }
+        if darkThemeIdentifier == oldIdentifier { darkThemeIdentifier = newIdentifier }
+        if let newIdentifier {
+            for index in scheduleRules.indices where scheduleRules[index].themeIdentifier == oldIdentifier {
+                scheduleRules[index].themeIdentifier = newIdentifier
+            }
+        }
+        for index in appRules.indices where appRules[index].themeIdentifier == oldIdentifier {
+            appRules[index].themeIdentifier = newIdentifier
+        }
+    }
+
     mutating func seedAppearanceThemesIfNeeded() {
         guard lightThemeIdentifier == nil, darkThemeIdentifier == nil else { return }
         lightThemeIdentifier = rule(for: .day).themeIdentifier
@@ -280,8 +293,8 @@ struct AutoSwitchConfig: Codable {
         return resolved != TimeOfDay.clamp(minutes)
     }
 
-    static func load() -> AutoSwitchConfig {
-        guard let data = MACPreferences.value(forKey: MACPreferences.autoSwitchRulesKey) as? Data,
+    static func load(operations: MACPreferences.Operations = .live) -> AutoSwitchConfig {
+        guard let data = MACPreferences.value(forKey: MACPreferences.autoSwitchRulesKey, operations: operations) as? Data,
               var decoded = try? JSONDecoder().decode(AutoSwitchConfig.self, from: data) else {
             var fresh = AutoSwitchConfig()
             fresh.normalize()
@@ -291,13 +304,13 @@ struct AutoSwitchConfig: Codable {
         return decoded
     }
 
-    func save() {
+    func save(operations: MACPreferences.Operations = .live, notifyHelper: () -> Void = AutoSwitchConfig.notifyHelper) {
         var normalized = self
         normalized.normalize()
         guard let data = try? JSONEncoder().encode(normalized) else { return }
-        MACPreferences.set(data, forKey: MACPreferences.autoSwitchRulesKey)
+        MACPreferences.set(data, forKey: MACPreferences.autoSwitchRulesKey, operations: operations)
         NotificationCenter.default.post(name: .macAutoSwitchConfigDidChange, object: nil)
-        AutoSwitchConfig.notifyHelper()
+        notifyHelper()
     }
 
     static func notifyHelper() {

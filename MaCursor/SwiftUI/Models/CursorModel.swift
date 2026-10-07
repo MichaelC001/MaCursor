@@ -36,14 +36,9 @@ class CursorModel: ObservableObject, Identifiable, Hashable {
     private var _frameCache: [String: NSImage] = [:]
     private var _frameCacheRevision: Int = -1
 
-    init(from cursor: MACCursorSwift, parentIdentifier: String? = nil) {
+    init(from cursor: MACCursorSwift, id: String? = nil) {
         self.backingCursor = cursor
-        let rawId = (cursor.identifier?.isEmpty == false) ? cursor.identifier! : UUID().uuidString
-        if let parentId = parentIdentifier, !parentId.isEmpty {
-            self.id = "\(parentId)/\(rawId)"
-        } else {
-            self.id = rawId
-        }
+        self.id = id ?? UUID().uuidString
         self.identifier = cursor.identifier ?? ""
 
         self.frameCount = Int(cursor.frameCount)

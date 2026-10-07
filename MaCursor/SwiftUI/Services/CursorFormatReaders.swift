@@ -73,6 +73,11 @@ public enum CURReader: CursorFormat {
     }
 
     static func readStaticCursor(_ data: Data) throws -> Cursor {
+        var pngPixelBudget = maxPNGPixelsPerFile
+        return try readStaticCursor(data, pngPixelBudget: &pngPixelBudget)
+    }
+
+    static func readStaticCursor(_ data: Data, pngPixelBudget: inout Int) throws -> Cursor {
         var reader = BinaryReader(data)
         let magic = try reader.readBytes(4, context: "cur magic")
         let isICO: Bool
@@ -84,6 +89,15 @@ public enum CURReader: CursorFormat {
 
         let count = try reader.u16le("entry count")
         guard count > 0 else { throw CursorReadError.malformed("no entries in .cur") }
+
+        var directory = reader
+        let ranges = try (0 ..< count).map { index -> Range<Int> in
+            try directory.seek(to: 6 + index * 16 + 8)
+            let size = try directory.u32le("entry \(index) size")
+            let offset = try directory.u32le("entry \(index) offset")
+            return offset ..< offset + size
+        }
+        try validateDirectory(ranges, in: data, pngPixelBudget: &pngPixelBudget)
 
         var cursor = Cursor()
         for index in 0 ..< count {
@@ -123,6 +137,40 @@ public enum CURReader: CursorFormat {
             cursor.add(try CursorImage(image: image, hotspot: CGPoint(x: hotX, y: hotY)))
         }
         return cursor
+    }
+
+    static let maxEntries = 64
+    static let maxPNGSide = 1024
+    static let maxPNGPixelsPerFile = maxEntries * maxPNGSide * maxPNGSide
+
+    static func validateDirectory(_ ranges: [Range<Int>], in data: Data, pngPixelBudget: inout Int) throws {
+        guard ranges.count <= maxEntries else {
+            throw CursorReadError.malformed("more than \(maxEntries) image entries")
+        }
+        guard !imageRangesOverlap(ranges) else {
+            throw CursorReadError.malformed("image entries overlap")
+        }
+        for range in ranges where !range.isEmpty {
+            let head = [UInt8](data.dropFirst(range.lowerBound).prefix(min(range.count, 24)))
+            guard head.count == 24, head.starts(with: pngMagic) else { continue }
+            guard head[12 ..< 16].elementsEqual("IHDR".utf8) else {
+                throw CursorReadError.malformed("PNG entry does not start with an IHDR chunk")
+            }
+            let width = head[16 ..< 20].reduce(0) { $0 << 8 | Int($1) }
+            let height = head[20 ..< 24].reduce(0) { $0 << 8 | Int($1) }
+            guard width <= maxPNGSide, height <= maxPNGSide else {
+                throw CursorReadError.malformed("PNG entries exceed \(maxPNGSide)x\(maxPNGSide) pixels")
+            }
+            guard width * height <= pngPixelBudget else {
+                throw CursorReadError.malformed("PNG entries exceed \(maxPNGPixelsPerFile) pixels in one file")
+            }
+            pngPixelBudget -= width * height
+        }
+    }
+
+    static func imageRangesOverlap(_ ranges: [Range<Int>]) -> Bool {
+        let sorted = ranges.filter { !$0.isEmpty }.sorted { $0.lowerBound < $1.lowerBound }
+        return zip(sorted, sorted.dropFirst()).contains { $0.upperBound > $1.lowerBound }
     }
 }
 
@@ -290,6 +338,7 @@ public enum ANIReader: CursorFormat {
         var icons: [Cursor] = []
         var seq: [Int]?
         var rate: [Int]?
+        var pngPixelBudget = CURReader.maxPNGPixelsPerFile
 
         try walkChunks(&reader, end: reader.count, depth: 0) { id, chunk in
             switch id {
@@ -320,7 +369,7 @@ public enum ANIReader: CursorFormat {
             case "icon":
                 guard let h = header else { throw CursorReadError.malformed("icon chunk before header") }
                 if h.isInIco {
-                    icons.append(try CURReader.readStaticCursor(chunk))
+                    icons.append(try CURReader.readStaticCursor(chunk, pngPixelBudget: &pngPixelBudget))
                 } else {
                     let image = try DIBDecoder.decode(chunk)
                     icons.append(Cursor([try CursorImage(image: image, hotspot: .zero)]))
@@ -360,7 +409,7 @@ public enum ANIReader: CursorFormat {
         return AnimatedCursor(frames: frames)
     }
 
-    private static let maxChunkDepth = 8
+    static let maxChunkDepth = 8
 
     private static func walkChunks(_ reader: inout BinaryReader, end: Int, depth: Int,
                                    handle: (String, Data) throws -> Void) throws {
@@ -424,6 +473,16 @@ public enum XCursorReader: CursorFormat {
             throw CursorReadError.malformed("no cursor images in Xcursor file")
         }
 
+        var chunkReader = reader
+        let chunks = try offsetsBySize.values.joined().map { position -> Range<Int> in
+            try chunkReader.seek(to: position + 16)
+            let (width, height) = try readImageSize(&chunkReader)
+            return position ..< position + imageChunkHeaderSize + width * height * 4
+        }
+        guard !CURReader.imageRangesOverlap(chunks) else {
+            throw CursorReadError.malformed("Xcursor image chunks overlap")
+        }
+
         let frameCount = offsetsBySize.values.map(\.count).max() ?? 0
         var frames: [AnimatedCursor.Frame] = []
         for frameIndex in 0 ..< frameCount {
@@ -432,7 +491,7 @@ public enum XCursorReader: CursorFormat {
             for (nominal, offsets) in offsetsBySize.sorted(by: { $0.key < $1.key }) {
                 guard frameIndex < offsets.count else { continue }
                 let (image, hotX, hotY, delayMS) = try readImageChunk(
-                    data, at: offsets[frameIndex], nominalSize: nominal)
+                    reader, at: offsets[frameIndex], nominalSize: nominal)
                 cursor.add(try CursorImage(image: image, hotspot: CGPoint(x: hotX, y: hotY)))
                 delays.append(delayMS)
             }
@@ -441,10 +500,19 @@ public enum XCursorReader: CursorFormat {
         return AnimatedCursor(frames: frames)
     }
 
+    private static func readImageSize(_ reader: inout BinaryReader) throws -> (Int, Int) {
+        let width = try reader.u32le("width")
+        let height = try reader.u32le("height")
+        guard width <= 0x7FFF, height <= 0x7FFF, width > 0, height > 0 else {
+            throw CursorReadError.malformed("invalid Xcursor image dimensions \(width)x\(height)")
+        }
+        return (width, height)
+    }
+
     private static func readImageChunk(
-        _ data: Data, at offset: Int, nominalSize: Int
+        _ file: BinaryReader, at offset: Int, nominalSize: Int
     ) throws -> (CGImage, Int, Int, Int) {
-        var reader = BinaryReader(data)
+        var reader = file
         try reader.seek(to: offset)
         guard try reader.u32le("chunk header size") == imageChunkHeaderSize else {
             throw CursorReadError.malformed("image chunks must be \(imageChunkHeaderSize) bytes")
@@ -458,15 +526,11 @@ public enum XCursorReader: CursorFormat {
         guard try reader.u32le("chunk version") == 1 else {
             throw CursorReadError.malformed("unsupported image chunk version")
         }
-        let width = try reader.u32le("width")
-        let height = try reader.u32le("height")
+        let (width, height) = try readImageSize(&reader)
         var hotX = try reader.u32le("xhot")
         var hotY = try reader.u32le("yhot")
         let delayMS = try reader.u32le("delay")
 
-        guard width <= 0x7FFF, height <= 0x7FFF, width > 0, height > 0 else {
-            throw CursorReadError.malformed("invalid Xcursor image dimensions \(width)x\(height)")
-        }
         if !(0 ..< width).contains(hotX) { hotX = 0 }
         if !(0 ..< height).contains(hotY) { hotY = 0 }
 

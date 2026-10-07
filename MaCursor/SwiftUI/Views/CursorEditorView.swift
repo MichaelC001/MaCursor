@@ -1,11 +1,46 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum CursorSourceAlert {
+    @MainActor
+    static func present(title: String, message: String) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = title
+        alert.informativeText = message
+        alert.runModal()
+    }
+
+    static func reportUnusable(_ message: String) {
+        DispatchQueue.main.async {
+            present(title: NSLocalizedString(
+                        "Could Not Use File",
+                        comment: "Alert title when a chosen or dropped file cannot become a cursor or slot image"),
+                    message: message)
+        }
+    }
+
+    static func reportUnreadable(fileName: String?, error: Error?) {
+        reportUnusable(unreadableMessage(fileName: fileName, error: error))
+    }
+
+    static func unreadableMessage(fileName: String?, error: Error?) -> String {
+        let detail = (error as? LocalizedError)?.errorDescription
+        guard let fileName else { return detail ?? "" }
+        let sentence = String(
+            format: NSLocalizedString(
+                "“%@” could not be read as a cursor or image file.",
+                comment: "Replace source failure alert message"),
+            fileName)
+        return [sentence, detail].compactMap { $0 }.joined(separator: "\n\n")
+    }
+}
+
 struct CursorEditorView: View {
     @ObservedObject var cursor: CursorModel
     var usedIdentifiers: Set<String> = []
     var onDirty: (() -> Void)? = nil
-    var onReplaceSource: ((URL) -> Bool)? = nil
+    var onReplaceSource: ((URL) throws -> Void)? = nil
     var onClearSlot: (() -> Void)? = nil
 
     private var availableIdentifiers: [(identifier: String, name: String)] {
@@ -68,21 +103,19 @@ struct CursorEditorView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack(spacing: 16) {
                             LabeledContent("X:") {
-                                TextField("", value: Binding(
+                                NumericTextField(value: Binding(
                                     get: { Double(cursor.hotSpot.x) },
                                     set: { cursor.hotSpot.x = CGFloat($0); onDirty?() }
-                                ), format: .number.precision(.fractionLength(1)))
+                                ), fractionDigits: 1)
                                     .frame(width: 60)
-                                    .textFieldStyle(.roundedBorder)
                             }
 
                             LabeledContent("Y:") {
-                                TextField("", value: Binding(
+                                NumericTextField(value: Binding(
                                     get: { Double(cursor.hotSpot.y) },
                                     set: { cursor.hotSpot.y = CGFloat($0); onDirty?() }
-                                ), format: .number.precision(.fractionLength(1)))
+                                ), fractionDigits: 1)
                                     .frame(width: 60)
-                                    .textFieldStyle(.roundedBorder)
                             }
 
                             LabeledContent("Size:") {
@@ -121,19 +154,17 @@ struct CursorEditorView: View {
                     panel.message = NSLocalizedString(
                         "Choose a cursor or image file (.cur, .ani, Xcursor, .png, .gif)",
                         comment: "Choose source panel message")
-                    if panel.runModal() == .OK, let url = panel.url,
-                       !onReplaceSource(url) {
-                        let alert = NSAlert()
-                        alert.alertStyle = .warning
-                        alert.messageText = NSLocalizedString(
-                            "Could Not Replace Cursor",
-                            comment: "Replace source failure alert title")
-                        alert.informativeText = String(
-                            format: NSLocalizedString(
-                                "“%@” could not be read as a cursor or image file.",
-                                comment: "Replace source failure alert message"),
-                            url.lastPathComponent)
-                        alert.runModal()
+                    if panel.runModal() == .OK, let url = panel.url {
+                        do {
+                            try onReplaceSource(url)
+                        } catch {
+                            CursorSourceAlert.present(
+                                title: NSLocalizedString(
+                                    "Could Not Replace Cursor",
+                                    comment: "Replace source failure alert title"),
+                                message: CursorSourceAlert.unreadableMessage(
+                                    fileName: url.lastPathComponent, error: error))
+                        }
                     }
                 }
             }
@@ -239,7 +270,10 @@ struct RepresentationDropZone: View {
             if provider.canLoadObject(ofClass: NSImage.self) {
                 _ = provider.loadObject(ofClass: NSImage.self) { image, _ in
                     guard let nsImage = image as? NSImage,
-                          let rep = nsImage.representations.first as? NSBitmapImageRep else { return }
+                          let rep = nsImage.representations.first as? NSBitmapImageRep else {
+                        CursorSourceAlert.reportUnreadable(fileName: nil, error: nil)
+                        return
+                    }
                     DispatchQueue.main.async {
                         if let conflict = cursor.applyOrderedRepresentation(rep, forScale: scale) {
                             presentSlotOrderAlert(conflict)
@@ -259,18 +293,16 @@ struct RepresentationDropZone: View {
     }
 
     private func presentSlotOrderAlert(_ conflict: CursorModel.SlotOrderConflict) {
-        let alert = NSAlert()
-        alert.alertStyle = .warning
-        alert.messageText = NSLocalizedString(
-            "Slot Sizes Out of Order",
-            comment: "Slot order rejection alert title")
-        alert.informativeText = String(
-            format: NSLocalizedString(
-                "Slot images must stay in size order (10× > 5× > 2× > 1×). This image does not fit the %1$@ slot because of the image in the %2$@ slot.",
-                comment: "Slot order rejection alert message"),
-            slotDisplayName(conflict.targetScale),
-            slotDisplayName(conflict.conflictingScale))
-        alert.runModal()
+        CursorSourceAlert.present(
+            title: NSLocalizedString(
+                "Slot Sizes Out of Order",
+                comment: "Slot order rejection alert title"),
+            message: String(
+                format: NSLocalizedString(
+                    "Slot images must stay in size order (10× > 5× > 2× > 1×). This image does not fit the %1$@ slot because of the image in the %2$@ slot.",
+                    comment: "Slot order rejection alert message"),
+                slotDisplayName(conflict.targetScale),
+                slotDisplayName(conflict.conflictingScale)))
     }
 
     private func applyAnimatedImport(_ animated: SlotImageImporter.AnimatedImport) {
@@ -288,7 +320,9 @@ struct RepresentationDropZone: View {
                 pixelsWide: animated.spriteSheet.pixelsWide,
                 pixelsHigh: animated.spriteSheet.pixelsHigh,
                 replacingScale: scale) else {
-                NSLog("Rejected animated GIF drop: geometry or frame count conflicts with existing representations")
+                CursorSourceAlert.reportUnusable(NSLocalizedString(
+                    "This animation does not match the other slots of this cursor. Every slot needs the same number of frames and the same proportions.",
+                    comment: "Alert message when an animated GIF dropped on a slot has a different frame count or shape than the cursor's other slots"))
                 return
             }
             if cursor.applyOrderedRepresentation(
@@ -309,10 +343,13 @@ struct RepresentationDropZone: View {
                 return
             }
         } catch {
-            NSLog("Failed to import dropped GIF data: \(error.localizedDescription)")
+            CursorSourceAlert.reportUnreadable(fileName: nil, error: error)
             return
         }
-        guard let rep = NSBitmapImageRep(data: data) else { return }
+        guard let rep = NSBitmapImageRep(data: data) else {
+            CursorSourceAlert.reportUnreadable(fileName: nil, error: nil)
+            return
+        }
         DispatchQueue.main.async {
             if let conflict = cursor.applyOrderedRepresentation(rep, forScale: scale) {
                 presentSlotOrderAlert(conflict)
@@ -345,7 +382,7 @@ struct RepresentationDropZone: View {
                     onDirty?()
                 }
             } catch {
-                NSLog("Failed to import Windows cursor: \(error.localizedDescription)")
+                CursorSourceAlert.reportUnreadable(fileName: url.lastPathComponent, error: error)
             }
             return
         }
@@ -357,13 +394,16 @@ struct RepresentationDropZone: View {
                     return
                 }
             } catch {
-                NSLog("Failed to import GIF: \(error.localizedDescription)")
+                CursorSourceAlert.reportUnreadable(fileName: url.lastPathComponent, error: error)
                 return
             }
         }
 
         guard let nsImage = NSImage(contentsOf: url),
-              let rep = nsImage.representations.first as? NSBitmapImageRep else { return }
+              let rep = nsImage.representations.first as? NSBitmapImageRep else {
+            CursorSourceAlert.reportUnreadable(fileName: url.lastPathComponent, error: nil)
+            return
+        }
         DispatchQueue.main.async {
             if let conflict = cursor.applyOrderedRepresentation(rep, forScale: scale) {
                 presentSlotOrderAlert(conflict)

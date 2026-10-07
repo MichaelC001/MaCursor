@@ -195,9 +195,6 @@
 /* App name */
 "MaCursor" = "MaCursor";
 
-/* Default cursor dump file name */
-"MaCursor Dump" = "MaCursor Dump";
-
 /* About: tagline */
 "Made with ❤️" = "Made with ❤️";
 
@@ -585,13 +582,13 @@
 /* Toggle giving one app its own cursor theme */
 "Per-App Themes" = "Per-App Themes";
 
-/* Button that opens a file panel to add an app rule */
+/* Opens an application picker to add an app rule or a Finder menu app row. */
 "Add App…" = "Add App…";
 
 /* Accessibility label for the button that removes an app rule row */
 "Remove app rule" = "Remove app rule";
 
-/* Notice shown when the picked app already has a rule */
+/* Notice when the chosen app already has a rule or is already in this Finder app list. */
 "That app is already in the list." = "That app is already in the list.";
 
 /* Explanation shown under the Per-App Themes toggle */
@@ -714,3 +711,163 @@
 
 /* Button that closes that window once access was granted */
 "Let’s Go!" = "Let’s Go!";
+
+/* Alert title when a chosen or dropped file cannot become a cursor or slot image */
+"Could Not Use File" = "Could Not Use File";
+
+/* Alert message when an animated GIF dropped on a slot has a different frame count or shape than the cursor's other slots */
+"This animation does not match the other slots of this cursor. Every slot needs the same number of frames and the same proportions." = "This animation does not match the other slots of this cursor. Every slot needs the same number of frames and the same proportions.";
+
+/* Settings sidebar tab, main switch and request window title for the menu opened by right-clicking. Use the everyday term for this menu. */
+"Right-Click Menu" = "Right-Click Menu";
+/* Finder right-click menu item that copies selected paths or the current folder path. */
+"Copy Path" = "Copy Path";
+/* Finder extension access caption on macOS 13 and 14, shared by the request window and inline controls. Refers to all MaCursor shortcuts, not only Copy Path. MaCursorFinder is the extension product name and stays untranslated. */
+"Enable MaCursorFinder in System Settings to add MaCursor’s shortcuts to Finder’s right-click menu." = "Enable MaCursorFinder in System Settings to add MaCursor’s shortcuts to Finder’s right-click menu.";
+
+/* General explanation under the Right-Click Menu switch. */
+"Adds MaCursor’s shortcuts to the right-click menu in Finder and on the Desktop." = "Adds MaCursor’s shortcuts to the right-click menu in Finder and on the Desktop.";
+
+/* Warning when the saved Right-Click Menu switch is on but macOS has disabled the extension. */
+"The Finder extension is turned off." = "The Finder extension is turned off.";
+
+/* Finder extension access instructions on macOS 15.2 and later. Use Apple's exact localized System Settings labels, including spacing. MaCursorFinder is the extension product name and stays untranslated. */
+"Turn on MaCursorFinder in System Settings → General → Login Items & Extensions → Extensions → File Providers." = "Turn on MaCursorFinder in System Settings → General → Login Items & Extensions → Extensions → File Providers.";
+
+/* Finder extension access instructions for the macOS 15.0 and 15.1 System Settings bug. */
+"macOS 15.0 and 15.1 cannot turn on Finder extensions from System Settings. Copy the command and run it in Terminal." = "macOS 15.0 and 15.1 cannot turn on Finder extensions from System Settings. Copy the command and run it in Terminal.";
+
+/* Button that copies the Finder extension enable command for Terminal. */
+"Copy Command" = "Copy Command";
+
+/* Error when the bundled Finder extension could not be registered. */
+"MaCursor could not register its Finder extension." = "MaCursor could not register its Finder extension.";
+
+/* Button that retries registering the bundled Finder extension. */
+"Try Again" = "Try Again";
+
+/* Explanation when macOS is running the app from an App Translocation path. */
+"Move MaCursor to the Applications folder to use the Right-Click Menu." = "Move MaCursor to the Applications folder to use the Right-Click Menu.";
+
+/* Caption when macOS has enabled the Finder extension. */
+"If the menu does not appear right away, quit and reopen Finder." = "If the menu does not appear right away, quit and reopen Finder.";
+
+/* Top-level Finder item and the base name of the created .txt file; must not contain / or :. */
+"New Text File" = "New Text File";
+
+/* Top-level Finder item and the base name of the created .md file; must not contain / or :. */
+"New Markdown File" = "New Markdown File";
+
+/* Finder submenu and Settings subtab for opening the selection in an app. */
+"Open With" = "Open With";
+
+/* Finder right-click item. %@ is an app name; place it in the natural word order for this language. */
+"Open With %@" = "Open With %@";
+
+/* Caption for an app row in either Finder list when the app cannot be found. */
+"The chosen app is not installed." = "The chosen app is not installed.";
+
+/* Settings subtab for the flat Finder menu actions. */
+"Main Menu" = "Main Menu";
+
+/* Finder submenu and Settings subtab for creating files. */
+"New File" = "New File";
+
+/* Finder submenu and Settings subtab for apps that open the current folder. */
+"Common Apps" = "Common Apps";
+
+/* File type inside New File and its Settings row. The extension is shown separately. */
+"Text File" = "Text File";
+
+/* File type inside New File and its Settings row. Keep Markdown as the format name. */
+"Markdown File" = "Markdown File";
+
+/* Switch column: include this row in the Finder menu. */
+"Enable" = "Enable";
+
+/* Top-level Finder item for opening a folder. %@ is the chosen app name; use natural word order. */
+"Open in %@" = "Open in %@";
+
+/* Accessibility label and help for the minus button. Removes the app from this list, not from the Mac. */
+"Remove App" = "Remove App";
+
+/* Finder action and Main Menu switch. Sets the hidden flag on selected files or folders without renaming. A plural may cover one selection. */
+"Hide Selected File(s)" = "Hide Selected File(s)";
+
+/* Finder action and Main Menu switch. Clears the selected items' hidden flag without renaming. Dot-prefixed names remain hidden. */
+"Unhide Selected Files" = "Unhide Selected Files";
+
+/* Finder action and Main Menu switch. Path means the current folder. Hides direct children only, skips dot-prefixed names, and never recurses. */
+"Hide All Files in Path" = "Hide All Files in Path";
+
+/* Finder action and Main Menu switch. Clears hidden flags on direct children of the current folder only. Never recurses; dot-prefixed names remain hidden. */
+"Unhide All Files in Path" = "Unhide All Files in Path";
+
+/* Settings subtab with the Copy Path and Hide/Unhide switches. */
+"Actions" = "Actions";
+
+/* Note under the Main Menu heading. The rows are the right-click menu items in Finder's order. */
+"Everything that is on, in the order Finder shows it. Drag a row to move it." = "Everything that is on, in the order Finder shows it. Drag a row to move it.";
+
+/* Note under the Actions heading. Main Menu is the name of the first subtab. */
+"Turn items on or off. Items that are on show in Main Menu." = "Turn items on or off. Items that are on show in Main Menu.";
+
+/* Note under the New File heading. */
+"File types you can create from the right-click menu." = "File types you can create from the right-click menu.";
+
+/* Note under the Open With heading. */
+"Opens the selected files in one of these apps." = "Opens the selected files in one of these apps.";
+
+/* Note under the Common Apps heading. */
+"Opens the current folder in one of these apps." = "Opens the current folder in one of these apps.";
+
+/* Main Menu column heading: one line of the right-click menu. */
+"Item" = "Item";
+
+/* Main Menu column heading: the apps or file types inside a submenu. */
+"Contains" = "Contains";
+
+/* Main Menu column heading: whether the item appears on files, on empty space, or on both. */
+"Shows on" = "Shows on";
+
+/* New File column heading. */
+"File Type" = "File Type";
+
+/* Open With and Common Apps column heading. */
+"App" = "App";
+
+/* Shows on value: the item appears when you right-click files or folders. */
+"Files" = "Files";
+
+/* Shows on value: the item appears when you right-click empty space in a Finder window or on the Desktop. */
+"Empty space" = "Empty space";
+
+/* Shows on value: the item appears on files and on empty space. */
+"Files and empty space" = "Files and empty space";
+
+/* Actions row caption: the item appears when you right-click files or folders. */
+"Shows on files" = "Shows on files";
+
+/* Actions row caption: the item appears when you right-click empty space in a Finder window or on the Desktop. */
+"Shows on empty space" = "Shows on empty space";
+
+/* Actions row caption: the item appears on files and on empty space. */
+"Shows on files and empty space" = "Shows on files and empty space";
+
+/* Context menu item on a Main Menu row: moves the item one place up. */
+"Move Up" = "Move Up";
+
+/* Context menu item on a Main Menu row: moves the item one place down. */
+"Move Down" = "Move Down";
+
+/* Main Menu table when no right-click menu item is on. */
+"Nothing is turned on." = "Nothing is turned on.";
+
+/* Column heading over a pop-up that picks where the row shows: Main Menu or its submenu. */
+"Show in" = "Show in";
+
+/* Finder toolbar button menu when the window shows a place the Finder extension cannot use, such as Applications, Recents or AirDrop. */
+"Not available in this location." = "Not available in this location.";
+
+/* Finder toolbar button menu when every right-click menu item that is on shows only on files, so none shows on empty space. */
+"Items that are on show only on files." = "Items that are on show only on files.";

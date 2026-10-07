@@ -11,6 +11,7 @@ private class SettingsPanel: NSWindow {
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general  = "General"
     case cursor   = "Cursor Control"
+    case rightClickMenu   = "Right-Click Menu"
     case shortcut = "Shortcut"
     case about    = "About"
 
@@ -20,6 +21,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:  return String(localized: "General")
         case .cursor:   return String(localized: "Cursor Control")
+        case .rightClickMenu:   return String(localized: "Right-Click Menu")
         case .shortcut: return String(localized: "Shortcut")
         case .about:    return String(localized: "About")
         }
@@ -29,6 +31,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:  return "gear"
         case .cursor:   return "cursorarrow"
+        case .rightClickMenu:   return "contextualmenu.and.cursorarrow"
         case .shortcut: return "star"
         case .about:    return "info.circle"
         }
@@ -43,7 +46,11 @@ struct SettingsSidebarView: View {
 
     var body: some View {
         List(SettingsTab.allCases, selection: $selectedTab) { tab in
-            Label(tab.localizedName, systemImage: tab.icon)
+            Label {
+                Text(tab.localizedName)
+            } icon: {
+                Color.clear.frame(width: 24, height: 9).overlay(Image(systemName: tab.icon).fixedSize())
+            }
                 .font(.system(size: Self.rowFontSize))
                 .imageScale(.large)
                 .frame(height: Self.rowContentHeight)
@@ -74,8 +81,8 @@ final class SettingsWindowController: NSWindowController, NSToolbarDelegate {
 
     private init() {
         let window = SettingsPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 850, height: 525),
-            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
+            contentRect: NSRect(x: 0, y: 0, width: 978, height: 604),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered, defer: false
         )
 
@@ -115,10 +122,9 @@ final class SettingsWindowController: NSWindowController, NSToolbarDelegate {
 
         window.contentViewController = splitVC
 
-        let windowSize = NSSize(width: 850, height: 525)
-        window.setContentSize(windowSize)
-        window.minSize = windowSize
-        window.maxSize = windowSize
+        let minimumSize = NSSize(width: 850, height: 525)
+        window.setContentSize(NSSize(width: 978, height: 604))
+        window.minSize = minimumSize
 
         updateSidebarView()
         updateDetailView()
@@ -196,6 +202,8 @@ final class SettingsWindowController: NSWindowController, NSToolbarDelegate {
             detailView = AnyView(CursorSettingsView())
         case .shortcut:
             detailView = AnyView(ShortcutSettingsView())
+        case .rightClickMenu:
+            detailView = AnyView(RightClickMenuSettingsView())
         case .about:
             detailView = AnyView(AboutSettingsView())
         }
@@ -383,7 +391,13 @@ struct GeneralSettingsView: View {
 
 
     private func performFullReset() {
-        library.removeAllThemes()
+        do {
+            try library.removeAllThemes()
+        } catch {
+            DispatchQueue.main.async {
+                NSApp.presentError(error)
+            }
+        }
 
         CursorService.setScale(CursorService.defaultScale())
 
@@ -392,6 +406,14 @@ struct GeneralSettingsView: View {
         }
         AutoSwitchConfig.notifyHelper()
         FocusFollowsMouseConfig.notifyHelper()
+
+        do {
+            try FinderExtensionManager.shared.resetSettings()
+        } catch {
+            DispatchQueue.main.async {
+                NSApp.presentError(error)
+            }
+        }
 
         appearanceManager.currentMode = .system
         languageManager.currentLanguage = .system

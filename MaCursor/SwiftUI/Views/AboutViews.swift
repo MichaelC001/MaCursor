@@ -5,11 +5,6 @@ struct AboutSettingsView: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     }
 
-
-    private var yearString: String {
-        String(Calendar.current.component(.year, from: Date()))
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             if let appIcon = NSApp.applicationIconImage {
@@ -42,7 +37,7 @@ struct AboutSettingsView: View {
                 Text("Made with ❤️")
                     .font(.system(size: 16, weight: .semibold))
 
-                Text("Copyright © \(yearString) Writronic. All rights reserved.")
+                Text("Copyright © \(MACConstants.copyrightYear(at: Date())) Writronic. All rights reserved.")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .padding(.top, 10)
@@ -67,15 +62,10 @@ struct AboutSettingsView: View {
 }
 
 struct AboutWindowView: View {
-    @State private var aboutWindow: NSWindow?
+    @MainActor static weak var window: NSWindow?
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-    }
-
-
-    private var yearString: String {
-        String(Calendar.current.component(.year, from: Date()))
     }
 
     var body: some View {
@@ -109,7 +99,7 @@ struct AboutWindowView: View {
                 Text("Made with ❤️")
                     .font(.system(size: 14, weight: .semibold))
 
-                Text("Copyright © \(yearString) Writronic. All rights reserved.")
+                Text("Copyright © \(MACConstants.copyrightYear(at: Date())) Writronic. All rights reserved.")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
 
@@ -127,10 +117,10 @@ struct AboutWindowView: View {
         .padding(.vertical, 20)
         .padding(.horizontal, 32)
         .frame(minWidth: 360, minHeight: 320)
-        .background(AboutWindowAccessor(window: $aboutWindow))
+        .background(AboutWindowAccessor())
         .background(WindowRoleAccessor(role: .modal))
         .overlay {
-            Button("") { aboutWindow?.close() }
+            Button("") { Self.window?.close() }
                 .keyboardShortcut(.cancelAction)
                 .frame(width: 0, height: 0)
                 .opacity(0)
@@ -167,25 +157,23 @@ private struct AboutActionButtons: View {
 }
 
 private struct AboutWindowAccessor: NSViewRepresentable {
-    @Binding var window: NSWindow?
-
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         DispatchQueue.main.async {
-            self.window = view.window
-            Self.lockWindowSize(view.window)
+            Self.adopt(view.window)
         }
         return view
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        self.window = nsView.window
-        Self.lockWindowSize(nsView.window)
+        Self.adopt(nsView.window)
     }
 
-    private static func lockWindowSize(_ window: NSWindow?) {
+    private static func adopt(_ window: NSWindow?) {
+        guard let window else { return }
+        AboutWindowView.window = window
         if #unavailable(macOS 15) {
-            window?.lockSizeAsLegacyAboutWindow()
+            window.lockSizeAsLegacyAboutWindow()
         }
     }
 }

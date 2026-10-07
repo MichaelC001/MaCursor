@@ -1,5 +1,19 @@
 import SwiftUI
 
+enum SystemSettingsPane {
+    enum FinderExtensions {
+        case extensions
+        case fileProviders
+        case command
+    }
+
+    static func finderExtensions(on version: OperatingSystemVersion = ProcessInfo.processInfo.operatingSystemVersion) -> FinderExtensions {
+        if version.majorVersion == 15 && version.minorVersion < 2 { return .command }
+        if version.majorVersion > 15 || (version.majorVersion == 15 && version.minorVersion >= 2) { return .fileProviders }
+        return .extensions
+    }
+}
+
 extension View {
     @ViewBuilder
     func onChangeCompat<V: Equatable>(of value: V, perform action: @escaping (V) -> Void) -> some View {

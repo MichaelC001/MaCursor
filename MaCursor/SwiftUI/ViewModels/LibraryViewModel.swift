@@ -7,16 +7,26 @@ import Combine
 class LibraryViewModel: ObservableObject {
     @Published var cursorThemes: [CursorThemeModel] = []
     @Published var appliedThemeId: String?
-    @Published var favoriteThemeIds = Set(MACMenuBarFavoriteThemeIdentifiers(MACPreferences.value(forKey: MACPreferences.favoriteThemesKey)))
+    @Published var favoriteThemeIds: Set<String>
     let conversion = ThemeConversionCoordinator()
 
     private let backingController: LibraryController
+    private let preferences: MACPreferences.Operations
+    private let postDistributed: (Notification.Name) -> Void
     private var conversionForwarder: AnyCancellable?
     private nonisolated(unsafe) var didSaveObserver: Any?
     private nonisolated(unsafe) var identifierChangeObserver: Any?
     private nonisolated(unsafe) var autoSwitchObserver: Any?
 
-    init(libraryDirectory: URL? = nil) {
+    init(libraryDirectory: URL? = nil,
+         preferences: MACPreferences.Operations = .live,
+         postDistributed: @escaping (Notification.Name) -> Void = {
+             DistributedNotificationCenter.default().postNotificationName($0, object: nil, userInfo: nil, deliverImmediately: true)
+         }) {
+        self.preferences = preferences
+        self.postDistributed = postDistributed
+        favoriteThemeIds = Set(MACMenuBarFavoriteThemeIdentifiers(
+            MACPreferences.value(forKey: MACPreferences.favoriteThemesKey, operations: preferences)))
         let cursorsPath = (try? FileManager.default.findOrCreateDirectory(
             .applicationSupportDirectory,
             in: .userDomainMask,
@@ -49,13 +59,7 @@ class LibraryViewModel: ObservableObject {
             let newId = note.userInfo?["newId"] as? String
             MainActor.assumeIsolated {
                 guard let oldId, let newId else { return }
-                if self?.appliedThemeId == oldId {
-                    self?.appliedThemeId = newId
-                }
-                if let self, self.favoriteThemeIds.remove(oldId) != nil {
-                    self.favoriteThemeIds.insert(newId)
-                    self.saveFavorites()
-                }
+                self?.retargetThemeReferences(from: oldId, to: newId)
             }
         }
 
@@ -138,7 +142,33 @@ class LibraryViewModel: ObservableObject {
 
     private func saveFavorites() {
         MACPreferences.set(favoriteThemeIds.isEmpty ? nil : favoriteThemeIds.sorted() as NSArray,
-                           forKey: MACPreferences.favoriteThemesKey)
+                           forKey: MACPreferences.favoriteThemesKey, operations: preferences)
+    }
+
+    private func retargetThemeReferences(from oldId: String, to newId: String?) {
+        guard oldId != newId else { return }
+        if appliedThemeId == oldId {
+            appliedThemeId = newId
+        }
+        if favoriteThemeIds.remove(oldId) != nil {
+            if let newId {
+                favoriteThemeIds.insert(newId)
+            }
+            saveFavorites()
+        }
+
+        var rules = AutoSwitchConfig.load(operations: preferences)
+        let storedRules = rules
+        rules.replaceThemeIdentifier(oldId, with: newId)
+        if rules != storedRules {
+            rules.save(operations: preferences) { postDistributed(.MACAutoSwitchDidChange) }
+        }
+
+        if let slots = MACShortcutSlotsByReplacingTheme(
+            MACPreferences.value(forKey: MACPreferences.favoriteCursorsKey, operations: preferences), oldId, newId) {
+            MACPreferences.set(slots, forKey: MACPreferences.favoriteCursorsKey, operations: preferences)
+            postDistributed(.init("MACShortcutsDidChange"))
+        }
     }
 
 
@@ -146,7 +176,7 @@ class LibraryViewModel: ObservableObject {
         let success = CursorService.applyTheme(from: cursorTheme.backingLibrary)
         guard success else { return }
 
-        MACAutoSwitchClearAppOverride()
+        MACAutoSwitchEffects.shared.clearAppOverride()
         backingController.appliedTheme = cursorTheme.backingLibrary
 
         for c in cursorThemes {
@@ -160,7 +190,7 @@ class LibraryViewModel: ObservableObject {
         MACPreferences.setFlag(false, forKey: MACPreferences.handednessKey)
         MACPreferences.setFlag(false, forKey: MACPreferences.cursorShadowKey)
         CursorService.setScale(1.0)
-        MACAutoSwitchClearAppOverride()
+        MACAutoSwitchEffects.shared.clearAppOverride()
         backingController.restoreTheme()
         for c in cursorThemes {
             c.isApplied = false
@@ -170,30 +200,24 @@ class LibraryViewModel: ObservableObject {
     }
 
     @discardableResult
-    func addNewTheme() -> String {
-        let newLib = CursorLibrary()
-        backingController.importTheme(newLib)
-        reload()
-        return newLib.identifier
+    func addNewTheme() -> String? {
+        landTheme(CursorLibrary())
     }
 
-    func remove(_ cursorTheme: CursorThemeModel) {
-        backingController.removeTheme(cursorTheme.backingLibrary)
-        cursorThemes.removeAll { $0.id == cursorTheme.id }
-        if appliedThemeId == cursorTheme.id {
-            appliedThemeId = nil
-        }
-        if favoriteThemeIds.remove(cursorTheme.id) != nil {
+    func remove(_ cursorTheme: CursorThemeModel) throws {
+        let removedId = cursorTheme.id
+        try backingController.removeTheme(cursorTheme.backingLibrary)
+        cursorThemes.removeAll { $0.id == removedId }
+        retargetThemeReferences(from: removedId, to: nil)
+    }
+
+    func removeAllThemes() throws {
+        defer {
+            favoriteThemeIds = []
             saveFavorites()
+            reload()
         }
-    }
-
-    func removeAllThemes() {
-        backingController.removeAllThemes()
-        cursorThemes = []
-        appliedThemeId = nil
-        favoriteThemeIds = []
-        saveFavorites()
+        try backingController.removeAllThemes()
     }
 
     @discardableResult
@@ -213,20 +237,33 @@ class LibraryViewModel: ObservableObject {
         copy.identifier = CursorLibrary.updateIdentifier(copy.identifier, newName: candidateName)
         copy.undoManager.enableUndoRegistration()
 
-        backingController.importTheme(copy)
-        reload()
-        return copy.identifier
+        return landTheme(copy)
     }
 
     func importTheme(at url: URL) {
-        backingController.importTheme(at: url)
+        guard let lib = CursorLibrary(contentsOfURL: url) else { return }
+        landTheme(lib)
+    }
+
+    @discardableResult
+    private func landTheme(_ lib: CursorLibrary) -> String? {
+        guard backingController.importTheme(lib) else {
+            NSApp.presentError(NSError(
+                domain: MACConstants.errorDomain,
+                code: MACConstants.ErrorCode.writeFail.rawValue,
+                userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("Error writing cursor theme to disk.", comment: "New Cursor Theme Failure Filesystem Error")]
+            ))
+            return nil
+        }
         reload()
+        return lib.identifier
     }
 
     @discardableResult
     func importThemeReturningId(at url: URL) -> String? {
         let existing = Set(cursorThemes.map(\.id))
-        importTheme(at: url)
+        backingController.importTheme(at: url)
+        reload()
         guard let landed = cursorThemes.first(where: { !existing.contains($0.id) }),
               let fileURL = landed.fileURL,
               FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
@@ -288,18 +325,6 @@ class LibraryViewModel: ObservableObject {
             }
         }
         return true
-    }
-
-
-    nonisolated func dumpCursors(progress: @Sendable @escaping (UInt, UInt) -> Bool, completion: @MainActor @Sendable @escaping () -> Void) {
-        DispatchQueue.global(qos: .background).async { [backingController] in
-            let _ = backingController.dumpCursors { current, total in
-                return progress(current, total)
-            }
-            DispatchQueue.main.async {
-                completion()
-            }
-        }
     }
 }
 

@@ -109,7 +109,10 @@ final class ModalWindowCoordinator: ObservableObject {
 
     @Published private(set) var isMainWindowBlocked = false
 
+    let activeModalDidChange = PassthroughSubject<Void, Never>()
+
     private var modalStack: [WeakWindow] = []
+    private var liftedWindows: [WeakWindow] = []
     private var registeredMain: [WeakWindow] = []
     private var registeredModals: [WeakWindow] = []
     private var overlayView: BlockingOverlayView?
@@ -150,6 +153,13 @@ final class ModalWindowCoordinator: ObservableObject {
             self,
             selector: #selector(handleWindowBecameKey(_:)),
             name: NSWindow.didBecomeMainNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWindowDidUpdate(_:)),
+            name: NSWindow.didUpdateNotification,
             object: nil
         )
 
@@ -315,6 +325,7 @@ final class ModalWindowCoordinator: ObservableObject {
         removeOverlay()
         removeEventMonitor()
         findMainWindow()?.makeKeyAndOrderFront(nil)
+        lowerLiftedWindows()
     }
 
 
@@ -326,9 +337,36 @@ final class ModalWindowCoordinator: ObservableObject {
         applyModalLevel(to: window, active: isApplicationActive())
     }
 
+    private func applyLiftedLevel(to window: NSWindow, active: Bool) {
+        window.level = active ? .modalPanel : .normal
+    }
+
     private func refreshModalLevels(active: Bool) {
         for modal in trackedModalWindows {
             applyModalLevel(to: modal, active: active)
+        }
+        for window in liftedWindows.compactMap({ $0.window }) {
+            applyLiftedLevel(to: window, active: active)
+        }
+    }
+
+    private func liftAboveModals(_ window: NSWindow) {
+        guard !modalStack.isEmpty,
+              !liftedWindows.contains(where: { $0.window === window }),
+              window.parent == nil,
+              !window.isSheet,
+              window.level == .normal else { return }
+        liftedWindows.removeAll { $0.window == nil }
+        liftedWindows.append(WeakWindow(window: window))
+        applyLiftedLevel(to: window, active: isApplicationActive())
+    }
+
+    private func lowerLiftedWindows() {
+        let lifted = liftedWindows.compactMap { $0.window }
+        liftedWindows.removeAll()
+        for window in lifted {
+            window.level = .normal
+            if window.isVisible { window.orderFront(nil) }
         }
     }
 
@@ -425,15 +463,20 @@ final class ModalWindowCoordinator: ObservableObject {
         pruneRegistrations()
 
         if isBlockingWindow(window) {
+            liftedWindows.removeAll { $0.window === window }
             promoteToTopOfModalStack(window)
             blockMainWindow(for: window)
+            activeModalDidChange.send()
             return
         }
 
         if isMainLibraryWindow(window) {
             mainWindow = window
             raiseActiveModal(above: window)
+            return
         }
+
+        liftAboveModals(window)
     }
 
     private func releaseModal(_ window: NSWindow) {
@@ -441,10 +484,9 @@ final class ModalWindowCoordinator: ObservableObject {
         window.level = .normal
         modalStack.removeAll { $0.window == nil || $0.window === window }
         refreshBlockedState()
+        activeModalDidChange.send()
 
-        if modalStack.isEmpty {
-            unblockMainWindow()
-        } else {
+        if !modalStack.isEmpty {
             refocusRemainingModal()
         }
     }
@@ -452,6 +494,11 @@ final class ModalWindowCoordinator: ObservableObject {
     func windowWillClose(_ window: NSWindow) {
         registeredModals.removeAll { $0.window === window }
         registeredMain.removeAll { $0.window === window }
+
+        if liftedWindows.contains(where: { $0.window === window }) {
+            liftedWindows.removeAll { $0.window === window }
+            window.level = .normal
+        }
 
         guard modalStack.contains(where: { $0.window === window }) else { return }
         releaseModal(window)
@@ -461,6 +508,15 @@ final class ModalWindowCoordinator: ObservableObject {
     @objc private func handleWindowBecameKey(_ notification: Notification) {
         guard let window = notification.object as? NSWindow else { return }
         windowDidBecomeKey(window)
+    }
+
+    @objc private func handleWindowDidUpdate(_ notification: Notification) {
+        guard !modalStack.isEmpty,
+              let window = notification.object as? NSWindow,
+              window.level == .normal,
+              !isBlockingWindow(window),
+              !isMainLibraryWindow(window) else { return }
+        liftAboveModals(window)
     }
 
     @objc private func handleWindowWillClose(_ notification: Notification) {

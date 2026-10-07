@@ -15,6 +15,7 @@ XCODEPROJ="${PROJECT_ROOT}/MaCursor.xcodeproj"
 
 ENTITLEMENTS_MAIN="${PROJECT_ROOT}/MaCursor/MaCursor.entitlements"
 ENTITLEMENTS_HELPER="${PROJECT_ROOT}/CursorEngineHelper/CursorEngineHelper.entitlements"
+ENTITLEMENTS_EXT="${PROJECT_ROOT}/MaCursorFinder/MaCursorFinder.entitlements"
 OUTPUT_DIR="${PROJECT_ROOT}/output"
 
 CODESIGN_EXTRA=()
@@ -149,6 +150,13 @@ codesign --force --options runtime --timestamp \
     "${CODESIGN_EXTRA[@]}" \
     "$APP_PATH/Contents/Frameworks/Sparkle.framework"
 
+
+echo "  Signing MaCursorFinder.appex..."
+codesign --force --options runtime --timestamp \
+    --sign "$SIGNING_IDENTITY" \
+    "${CODESIGN_EXTRA[@]}" \
+    --entitlements "$ENTITLEMENTS_EXT" \
+    "$APP_PATH/Contents/PlugIns/MaCursorFinder.appex"
 
 echo "  Signing MaCursorHelper.app..."
 codesign --force --options runtime --timestamp \

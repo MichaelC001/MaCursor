@@ -55,6 +55,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             await HelperToolManager.shared.ensureCurrent()
         }
+        Task { @MainActor in
+            guard await FinderExtensionManager.shared.shouldAskForFullDiskAccessAtLaunch() else { return }
+            AccessWindowController.rightClickMenu.present()
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -99,11 +103,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil,
             queue: .main
         ) { _ in
-            FocusFollowsMouseAccessWindowController.shared.present()
+            AccessWindowController.focusFollowsMouse.present()
         }
         guard MACPreferences.flag(MACPreferences.pendingFFMAccessWindowKey) else { return }
         MACPreferences.setFlag(false, forKey: MACPreferences.pendingFFMAccessWindowKey)
-        FocusFollowsMouseAccessWindowController.shared.present()
+        AccessWindowController.focusFollowsMouse.present()
     }
 
 }

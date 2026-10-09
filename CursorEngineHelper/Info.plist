@@ -12,6 +12,8 @@
 	<string>APPL</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>This lets the MaCursor button in the Finder toolbar work inside iCloud folders.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Writronic. All rights reserved.</string>
 </dict>

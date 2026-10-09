@@ -353,7 +353,7 @@ struct CursorSettingsView: View {
                 case .enable:
                     FocusFollowsMouseConfig.setEnabled(true)
                 case .requestAccess:
-                    FocusFollowsMouseAccessWindowController.shared.present()
+                    AccessWindowController.focusFollowsMouse.present()
                 case .disable:
                     FocusFollowsMouseConfig.setEnabled(false)
                 case .ignore:
@@ -638,75 +638,9 @@ private struct TimeOfDayField: View {
     }
 }
 
-final class FocusFollowsMouseAccessWindowController: NSWindowController, NSWindowDelegate {
-    static let shared = FocusFollowsMouseAccessWindowController()
-
-    private init() {
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 380),
-            styleMask: [.titled, .closable],
-            backing: .buffered, defer: false
-        )
-        window.title = String(localized: "Focus on Hover")
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
-        window.isReleasedWhenClosed = false
-
-        super.init(window: window)
-        window.delegate = self
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func present() {
-        guard let window else { return }
-        if !window.isVisible {
-            let content = NSHostingController(rootView: FocusFollowsMouseAccessView())
-            window.contentViewController = content
-            window.setContentSize(content.view.fittingSize)
-        }
-        attach(window, to: anchorWindow())
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-    }
-
-    func reanchor() {
-        guard let window, window.isVisible,
-              let modal = ModalWindowCoordinator.shared.activeModalWindow, modal.isVisible,
-              window.parent !== modal else { return }
-        attach(window, to: modal)
-    }
-
-    func dismiss() {
-        window?.close()
-    }
-
-    func windowWillClose(_ notification: Notification) {
-        guard let window else { return }
-        window.parent?.removeChildWindow(window)
-    }
-
-    private func anchorWindow() -> NSWindow? {
-        if let modal = ModalWindowCoordinator.shared.activeModalWindow, modal.isVisible { return modal }
-        return NSApp.windows.first { $0.isVisible && $0.canBecomeMain && $0 !== window }
-    }
-
-    private func attach(_ window: NSWindow, to parent: NSWindow?) {
-        guard let parent, parent !== window, parent.isVisible else {
-            window.center()
-            return
-        }
-        window.parent?.removeChildWindow(window)
-        let visibleFrame = parent.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? parent.frame
-        window.setFrameOrigin(ModalWindowPlacement.centeredOrigin(
-            size: window.frame.size,
-            over: parent.frame,
-            constrainedTo: visibleFrame
-        ))
-        parent.addChildWindow(window, ordered: .above)
+extension AccessWindowController {
+    static let focusFollowsMouse = AccessWindowController(title: String(localized: "Focus on Hover")) {
+        NSHostingController(rootView: FocusFollowsMouseAccessView())
     }
 }
 
@@ -716,18 +650,10 @@ private struct FocusFollowsMouseAccessView: View {
     private let waitTicker = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(nsImage: NSImage(named: NSImage.applicationIconName) ?? NSImage())
-                .resizable()
-                .frame(width: 76, height: 76)
-
-            Text("Allow Accessibility Access")
-                .font(.title2.weight(.semibold))
-
+        AccessDialog(title: Text("Allow Accessibility Access")) {
             Text("MaCursorHelper needs Accessibility access to bring the window under the mouse pointer to the front. Choose Allow for Accessibility, then turn on MaCursorHelper in Privacy & Security → Accessibility.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
             if trusted {
@@ -738,36 +664,30 @@ private struct FocusFollowsMouseAccessView: View {
                 Text("Waiting for access. This window updates as soon as MaCursorHelper is allowed.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             if trusted {
                 Button("Let’s Go!") {
                     FocusFollowsMouseConfig.setEnabled(true)
-                    FocusFollowsMouseAccessWindowController.shared.dismiss()
+                    AccessWindowController.focusFollowsMouse.dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
-                .controlSize(.large)
             } else {
                 HStack(spacing: 12) {
                     Button("Not Now") {
                         FocusFollowsMouseConfig.setEnabled(false)
-                        FocusFollowsMouseAccessWindowController.shared.dismiss()
+                        AccessWindowController.focusFollowsMouse.dismiss()
                     }
-                    .controlSize(.large)
 
                     Button("Allow for Accessibility") {
                         didRequest = true
                         FocusFollowsMouseConfig.requestAccessibility()
                     }
                     .keyboardShortcut(.defaultAction)
-                    .controlSize(.large)
                 }
             }
         }
-        .padding(28)
-        .frame(width: 460)
         .onAppear {
             FocusFollowsMouseConfig.notifyHelper()
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
@@ -776,18 +696,18 @@ private struct FocusFollowsMouseAccessView: View {
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
         }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
-            guard FocusFollowsMouseAccessWindowController.shared.window?.isVisible == true else { return }
+            guard AccessWindowController.focusFollowsMouse.window?.isVisible == true else { return }
             FocusFollowsMouseConfig.notifyHelper()
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
         }
         .onReceive(waitTicker) { _ in
             guard !trusted,
-                  FocusFollowsMouseAccessWindowController.shared.window?.isVisible == true else { return }
+                  AccessWindowController.focusFollowsMouse.window?.isVisible == true else { return }
             FocusFollowsMouseConfig.notifyHelper()
             trusted = FocusFollowsMouseConfig.accessibilityTrusted
         }
         .onReceive(ModalWindowCoordinator.shared.activeModalDidChange) { _ in
-            FocusFollowsMouseAccessWindowController.shared.reanchor()
+            AccessWindowController.focusFollowsMouse.reanchor()
         }
     }
 }

@@ -13,6 +13,25 @@ enum RightClickMenuToggleAction: Equatable {
     case requestAccess
 }
 
+enum RightClickMenuAccessStep {
+    case finderExtension
+    case fullDiskAccess
+
+    var title: String {
+        switch self {
+        case .finderExtension: return String(localized: "Finder Extension")
+        case .fullDiskAccess: return String(localized: "Full Disk Access")
+        }
+    }
+
+    var progress: String {
+        switch self {
+        case .finderExtension: return String(localized: "Step 1 of 2")
+        case .fullDiskAccess: return String(localized: "Step 2 of 2")
+        }
+    }
+}
+
 enum RightClickMenuTab: CaseIterable, Identifiable {
     case mainMenu
     case actions
@@ -91,17 +110,30 @@ enum RightClickMenuState {
         bundlePath.contains("/AppTranslocation/")
     }
 
-    static func isOn(enabled: Bool, election: FinderExtensionElection) -> Bool {
-        enabled && election == .elected
+    static func isOn(settings: RightClickMenuSettings, election: FinderExtensionElection) -> Bool {
+        settings.isActive && election == .elected
     }
 
-    static func showsItems(enabled: Bool, election: FinderExtensionElection) -> Bool {
-        isOn(enabled: enabled, election: election)
+    static func showsItems(settings: RightClickMenuSettings, election: FinderExtensionElection) -> Bool {
+        isOn(settings: settings, election: election)
     }
 
-    static func toggleAction(enabled: Bool, election: FinderExtensionElection) -> RightClickMenuToggleAction {
-        if isOn(enabled: enabled, election: election) { return .disable }
-        return election == .elected ? .enable : .requestAccess
+    static func toggleAction(settings: RightClickMenuSettings, election: FinderExtensionElection) -> RightClickMenuToggleAction {
+        if isOn(settings: settings, election: election) { return .disable }
+        return election == .elected && settings.hasFullDiskAccess ? .enable : .requestAccess
+    }
+
+    static func accessStep(election: FinderExtensionElection) -> RightClickMenuAccessStep {
+        election == .elected ? .fullDiskAccess : .finderExtension
+    }
+
+    static func asksForFullDiskAccessAtLaunch(enabled: Bool, hasFullDiskAccess: Bool, alreadyAsked: Bool) -> Bool {
+        enabled && !hasFullDiskAccess && !alreadyAsked
+    }
+
+    static func fullDiskAccessProbeArguments(home: URL) -> [String] {
+        ["-c", "true < \"$1\" || true < \"$2\"", "sh"]
+            + ["Library/Application Support/com.apple.TCC/TCC.db", "Library/Safari/Bookmarks.plist"].map { home.appendingPathComponent($0).path }
     }
 }
 

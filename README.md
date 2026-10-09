@@ -74,6 +74,12 @@ Get up and running in under a minute:
 
 Download the latest `.dmg` from the [Releases page](https://github.com/writronic/MaCursor/releases/latest), open it, and drag MaCursor to your Applications folder.
 
+Or install it with [Homebrew](https://brew.sh):
+
+```bash
+brew install --cask writronic/tap/macursor
+```
+
 ### 2. Get Themes
 
 Browse `.cursor` theme files in the [Theme Gallery](https://github.com/writronic/MaCursor/blob/main/themes/README.md) or grab them all from the [Releases page](https://github.com/writronic/MaCursor/releases/latest). Already have a Windows or Linux cursor theme? Use **File → Convert Theme…** instead.
@@ -137,9 +143,10 @@ MaCursor makes your right-click menu in Finder and on the Desktop do more. Copy 
    - On macOS 13 and 14, click **Open System Settings** and turn on **MaCursorFinder**.
    - On macOS 15.0 and 15.1, System Settings cannot turn Finder extensions on. Click **Copy Command** and run the copied command in Terminal.
    - On macOS 15.2 and later, click **Open System Settings** and turn on **MaCursorFinder** in **General → Login Items & Extensions → Extensions → File Providers**.
-3. The window notices on its own and shows **Access granted**. Click **Let’s Go!**.
+3. The window notices on its own and shows **Access granted**. Click **Continue**.
+4. Click **Open System Settings**, turn on **MaCursor** in **Full Disk Access**, then click **Let’s Go!**.
 
-If the menu does not show right away, quit and reopen Finder.
+If the menu does not show right away, quit and reopen Finder. If you turn off Full Disk Access, the menu turns off too.
 
 Each item shows when you right-click a file or folder, when you right-click empty space, or in both places. **Open With**, **New File** and **Common Apps** are submenus. The table follows the default menu order.
 
@@ -154,7 +161,7 @@ Each item shows when you right-click a file or folder, when you right-click empt
 
 To change the menu, use the tabs in **MaCursor → Settings → Right-Click Menu**. You can switch each item on or off, add your own apps with **+**, move an item out of its submenu with **Show in**, and drag rows in **Main Menu** to change the order.
 
-You can also add a **MaCursor** button to the Finder toolbar. In Finder, choose **View → Customize Toolbar…** and drag the button in. Click it to get the items you see when you right-click empty space, for the folder you are in. In Applications, Recents and AirDrop it reads *Not available in this location.*
+You can also add a **MaCursor** button to the Finder toolbar. In Finder, choose **View → Customize Toolbar…** and drag the button in. Click it to get the items you see when you right-click empty space, for the folder you are in. Inside iCloud Drive folders, use this button: it works there through the Helper Tool.
 
 ### Adjusting Cursor Scale
 

@@ -26,6 +26,7 @@
 		2E1702D586C5DBAB452EFD4C /* ThemeConversionReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21C6CCC11C45C8C4992D080 /* ThemeConversionReviewView.swift */; };
 		2F6964BFCA8BA5118217ECDC /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0C4AD5A867375C3B578C81DC /* Sparkle */; };
 		306A8734D68F162DCE742B4D /* MACCursorShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57A71ACB4F71D1DCD59CDBF /* MACCursorShadow.swift */; };
+		31061DC157F15877503BC4F3 /* RightClickMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1097097C2236A05DED1E65F6 /* RightClickMenuActions.swift */; };
 		31CE2EA67DFE60CF9BCAE867 /* MACCursorShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57A71ACB4F71D1DCD59CDBF /* MACCursorShadow.swift */; };
 		34D1F4A3E4407896FB687FB9 /* RightClickMenuAccessWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F132A48AE52E5D15CCBF99 /* RightClickMenuAccessWindow.swift */; };
 		370DDD008458658141B24E55 /* RightClickMenuApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F2FB49B86EE92379369EE4 /* RightClickMenuApplication.swift */; };
@@ -36,6 +37,7 @@
 		4863FC43749EB5290692E89F /* MaCursorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5596005C577340FA0593E1 /* MaCursorApp.swift */; };
 		4D5C301425E3BB35A2027BAF /* MenuBarPanelModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521C91D148CC82EBBA90B935 /* MenuBarPanelModel.swift */; };
 		535C429F4C95B33FD9667BA7 /* MenuBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036186046B7AF1697810F328 /* MenuBarService.swift */; };
+		5432B5E59CD0BD47CAC29CBA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 830ADA898229083DB1B1DC53 /* InfoPlist.strings */; };
 		591ED2DF7F6E5990400F7AD7 /* HelperEventPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09709B3245369F5EB8436FB3 /* HelperEventPolicy.swift */; };
 		59582E5DEBCC07D766AEDFB7 /* RoleMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70BB2ABDF9BC5E047402C07 /* RoleMapper.swift */; };
 		5C19920675DB8C2C9574E3F9 /* ThemeConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230AEDCB1251CC7363EF6815 /* ThemeConversion.swift */; };
@@ -96,17 +98,19 @@
 		D3BF75CF1CA27559EDBAAC4D /* CursorModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF9028122AAB91843F3DD3E /* CursorModels.swift */; };
 		D51177E3C48810FF822EE174 /* AutoSwitchRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB81795AA1B42ED1782ABBE4 /* AutoSwitchRules.swift */; };
 		D580B2ECDE3274AF7AFD66C4 /* MACCursorDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3130D9B5522D6002AD43A4BD /* MACCursorDefinitions.swift */; };
+		D7A4BBCEB2F43AD5D1B6DBF5 /* RightClickMenuSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B626B57B81215FCFCB719A /* RightClickMenuSettings.swift */; };
 		DC56C8C3B1A165F69982121D /* MenuBarPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13E6B0E715A6EC90E2A41D1 /* MenuBarPanelView.swift */; };
 		E1F47FE568F219EC557961D9 /* ConversionErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B088EBE4AE3E41A939B90B0C /* ConversionErrors.swift */; };
 		E445B530220AAEE8BD4EF54D /* MACFinderSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5924AEB58D9A4E2185A9E0F0 /* MACFinderSync.swift */; };
 		E577F3EF2B16EC461B07391F /* HelperToolManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB43430C8E46157D3E2AB0EB /* HelperToolManager.swift */; };
+		E706F2C40D58CD671FF0A6BC /* RightClickMenuApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F2FB49B86EE92379369EE4 /* RightClickMenuApplication.swift */; };
 		EA3F0C1A503E5B25F6331647 /* CursorTryAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E3F40ADC1D804070A82D1A2 /* CursorTryAreaView.swift */; };
 		EAA005994EA56D3602A31E4B /* MaCursorFinder.appex in Copy Finder Extension */ = {isa = PBXBuildFile; fileRef = BE23462D3D84572F9A9349B3 /* MaCursorFinder.appex */; };
 		EDA08F2BE1BCBA92E008F1C4 /* RightClickMenuApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F2FB49B86EE92379369EE4 /* RightClickMenuApplication.swift */; };
 		EE11001100110022 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE11001100110011 /* Localizable.strings */; };
 		EEDFCEDDA7F5DCA5A65C3862 /* MACFocusFollowsMouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C715E0E99D311B899A43976 /* MACFocusFollowsMouse.swift */; };
+		EFFD3D19C7C7F1E4F6BC1027 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE11001100110011 /* Localizable.strings */; };
 		F2AF4A4FAD5E676EB79E5C98 /* LibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD8C57FC7AAC15C0A4FFF14 /* LibraryController.swift */; };
-		F3832C1B4949F72FE82F2655 /* RightClickMenuScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52DAFC85D9DCDA5D2A80BEA0 /* RightClickMenuScope.swift */; };
 		F45334BB31FBD50ED15AE246 /* RightClickMenuSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C7595F9F3A0C28BF0FB3B /* RightClickMenuSettingsView.swift */; };
 		FCEB500CE496CFA6209D3BF9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE11001100110011 /* Localizable.strings */; };
 		FE8CF1303E56D37F66BABC4A /* MACCursorCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 793B260F3448BFA7330A4B90 /* MACCursorCapture.swift */; };
@@ -151,10 +155,12 @@
 		006B454DC8542472D6F23062 /* AppExtensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppExtensions.swift; path = SwiftUI/Utils/AppExtensions.swift; sourceTree = "<group>"; };
 		00B626B57B81215FCFCB719A /* RightClickMenuSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RightClickMenuSettings.swift; path = SwiftUI/Models/RightClickMenuSettings.swift; sourceTree = "<group>"; };
 		036186046B7AF1697810F328 /* MenuBarService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarService.swift; sourceTree = "<group>"; };
+		04E3D72F9C2898B5A8735B4B /* ja */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		09709B3245369F5EB8436FB3 /* HelperEventPolicy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HelperEventPolicy.swift; sourceTree = "<group>"; };
 		0C80E913C3F3C419701EF5E8 /* MACPreferences.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MACPreferences.swift; path = SwiftUI/Models/MACPreferences.swift; sourceTree = "<group>"; };
 		1097097C2236A05DED1E65F6 /* RightClickMenuActions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RightClickMenuActions.swift; sourceTree = "<group>"; };
 		230AEDCB1251CC7363EF6815 /* ThemeConversion.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThemeConversion.swift; path = SwiftUI/Services/ThemeConversion.swift; sourceTree = "<group>"; };
+		248CA63A44FD8CEB3D3BF35E /* nl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C5596005C577340FA0593E1 /* MaCursorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI/MaCursorApp.swift; sourceTree = "<group>"; };
 		2E3F40ADC1D804070A82D1A2 /* CursorTryAreaView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CursorTryAreaView.swift; path = SwiftUI/Views/CursorTryAreaView.swift; sourceTree = "<group>"; };
 		2F0C3B03DB82A9E62EA9E5D5 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -169,10 +175,11 @@
 		4205C662771641888F85B8C1 /* HelperTrustProbe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HelperTrustProbe.swift; sourceTree = "<group>"; };
 		44B36FDC21A51D11AA8B8598 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		4B35E1828BA082BA61A49C5B /* MaCursor-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaCursor-Prefix.pch"; sourceTree = "<group>"; };
+		4C1387CC7D903D4649189FE6 /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		4CE928E43730D5BEECFA6DEF /* CursorSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CursorSettingsView.swift; path = SwiftUI/Views/CursorSettingsView.swift; sourceTree = "<group>"; };
+		4D16FCD3F6340A86048549AA /* pl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		504BFF22761DC61FCD6C0448 /* SlotImageImporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SlotImageImporter.swift; path = SwiftUI/Services/SlotImageImporter.swift; sourceTree = "<group>"; };
 		521C91D148CC82EBBA90B935 /* MenuBarPanelModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarPanelModel.swift; sourceTree = "<group>"; };
-		52DAFC85D9DCDA5D2A80BEA0 /* RightClickMenuScope.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RightClickMenuScope.swift; sourceTree = "<group>"; };
 		55489F4B790F8CA2C3A9CCF4 /* MACCursorActions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MACCursorActions.swift; sourceTree = "<group>"; };
 		578387732EEC904403B4CCA9 /* CursorThemeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI/Models/CursorThemeModel.swift; sourceTree = "<group>"; };
 		57C7AC8F1D706B5AEC650A79 /* HotspotEditorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HotspotEditorView.swift; path = SwiftUI/Views/HotspotEditorView.swift; sourceTree = "<group>"; };
@@ -190,12 +197,17 @@
 		793B260F3448BFA7330A4B90 /* MACCursorCapture.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MACCursorCapture.swift; path = MACCursorCapture.swift; sourceTree = "<group>"; };
 		7C27736576C36C2373197271 /* MACCursor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MACCursor.m; sourceTree = "<group>"; };
 		7C715E0E99D311B899A43976 /* MACFocusFollowsMouse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MACFocusFollowsMouse.swift; sourceTree = "<group>"; };
+		7EC30C4870D0493722BA7786 /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7F778D392ABC460D8A6CBF35 /* MaCursor-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaCursor-Bridging-Header.h"; sourceTree = "<group>"; };
+		8024FC4064B62C35996C97F3 /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		81D1B557FEEB5D16934A5E19 /* fr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		822AA46EAA8E188937F8C791 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI/AppDelegate.swift; sourceTree = "<group>"; };
 		831B510FB228DE9195D6BE9A /* MaCursor-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaCursor-Prefix.pch"; sourceTree = "<group>"; };
 		8574FFD83EC52D4A26BA70DB /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		8632FC338D84FE2E2A5BE854 /* CursorPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI/Views/CursorPreviewView.swift; sourceTree = "<group>"; };
 		897480CACDA0C15040C7EE47 /* CursorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUI/Models/CursorModel.swift; sourceTree = "<group>"; };
+		8A04DEC4382A93D32A73D863 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		91B0A8EF6F3A9E2E0DBAEB10 /* tr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		91CA3CDFBC4188A26362F24B /* MACAutoSwitch.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MACAutoSwitch.swift; sourceTree = "<group>"; };
 		91F132A48AE52E5D15CCBF99 /* RightClickMenuAccessWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RightClickMenuAccessWindow.swift; path = SwiftUI/Views/RightClickMenuAccessWindow.swift; sourceTree = "<group>"; };
 		92F2FB49B86EE92379369EE4 /* RightClickMenuApplication.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RightClickMenuApplication.swift; path = SwiftUI/Models/RightClickMenuApplication.swift; sourceTree = "<group>"; };
@@ -230,6 +242,7 @@
 		CE00000600000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D20E996ED042D7B7C3E0BBC3 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D70BB2ABDF9BC5E047402C07 /* RoleMapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RoleMapper.swift; path = SwiftUI/Services/RoleMapper.swift; sourceTree = "<group>"; };
+		D8B2F753EAD3FD77C9E2EA24 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA31B7A258EBBADE32F0F7AF /* SettingsViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsViews.swift; path = SwiftUI/Views/SettingsViews.swift; sourceTree = "<group>"; };
 		DB81795AA1B42ED1782ABBE4 /* AutoSwitchRules.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AutoSwitchRules.swift; path = SwiftUI/Models/AutoSwitchRules.swift; sourceTree = "<group>"; };
 		DD3F9AF6BB008150E7278111 /* CursorLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CursorLibrary.swift; path = SwiftUI/Models/CursorLibrary.swift; sourceTree = "<group>"; };
@@ -256,6 +269,7 @@
 		EF9EB697879D62DF6340DB40 /* MaCursorFinder.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = MaCursorFinder.entitlements; sourceTree = "<group>"; };
 		F0D49742409994E5C09D2DAC /* EditThemeSidebar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EditThemeSidebar.swift; path = SwiftUI/Views/EditThemeSidebar.swift; sourceTree = "<group>"; };
 		F3A4722D0B1F38D0AE79C045 /* INFParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = INFParser.swift; path = SwiftUI/Services/INFParser.swift; sourceTree = "<group>"; };
+		F42EAC265BF07A53844E6B41 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F5466634D03C89F32474E964 /* ValidatedTextFields.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ValidatedTextFields.swift; path = SwiftUI/Views/ValidatedTextFields.swift; sourceTree = "<group>"; };
 		F786902C3D0A218B2D644200 /* HelperProcessBridge.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = HelperProcessBridge.h; sourceTree = "<group>"; };
 		FBF4A84746CBBF771D24272E /* CursorFormatReaders.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CursorFormatReaders.swift; path = SwiftUI/Services/CursorFormatReaders.swift; sourceTree = "<group>"; };
@@ -319,6 +333,7 @@
 				E7C8777C2DCC55E42D2E6E99 /* HelperTrustProbePolicy.swift */,
 				4205C662771641888F85B8C1 /* HelperTrustProbe.swift */,
 				F786902C3D0A218B2D644200 /* HelperProcessBridge.h */,
+				830ADA898229083DB1B1DC53 /* InfoPlist.strings */,
 			);
 			path = CursorEngineHelper;
 			sourceTree = "<group>";
@@ -490,7 +505,6 @@
 			children = (
 				5924AEB58D9A4E2185A9E0F0 /* MACFinderSync.swift */,
 				1097097C2236A05DED1E65F6 /* RightClickMenuActions.swift */,
-				52DAFC85D9DCDA5D2A80BEA0 /* RightClickMenuScope.swift */,
 				5CD0495728C6F3BF749A47CA /* Info.plist */,
 				EF9EB697879D62DF6340DB40 /* MaCursorFinder.entitlements */,
 			);
@@ -652,6 +666,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0144D78447208A4C3DED14A9 /* AppIcon.icns in Resources */,
+				EFFD3D19C7C7F1E4F6BC1027 /* Localizable.strings in Resources */,
+				5432B5E59CD0BD47CAC29CBA /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,6 +695,9 @@
 				31CE2EA67DFE60CF9BCAE867 /* MACCursorShadow.swift in Sources */,
 				D580B2ECDE3274AF7AFD66C4 /* MACCursorDefinitions.swift in Sources */,
 				FE8CF1303E56D37F66BABC4A /* MACCursorCapture.swift in Sources */,
+				D7A4BBCEB2F43AD5D1B6DBF5 /* RightClickMenuSettings.swift in Sources */,
+				E706F2C40D58CD671FF0A6BC /* RightClickMenuApplication.swift in Sources */,
+				31061DC157F15877503BC4F3 /* RightClickMenuActions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -757,7 +776,6 @@
 			files = (
 				E445B530220AAEE8BD4EF54D /* MACFinderSync.swift in Sources */,
 				D2A2D0D95B8D9BC5C9E6FBC0 /* RightClickMenuActions.swift in Sources */,
-				F3832C1B4949F72FE82F2655 /* RightClickMenuScope.swift in Sources */,
 				8B1FAFDF9460ABBACE80E92B /* RightClickMenuSettings.swift in Sources */,
 				370DDD008458658141B24E55 /* RightClickMenuApplication.swift in Sources */,
 			);
@@ -775,6 +793,24 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		830ADA898229083DB1B1DC53 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8A04DEC4382A93D32A73D863 /* en */,
+				91B0A8EF6F3A9E2E0DBAEB10 /* tr */,
+				8024FC4064B62C35996C97F3 /* de */,
+				81D1B557FEEB5D16934A5E19 /* fr */,
+				F42EAC265BF07A53844E6B41 /* es */,
+				D8B2F753EAD3FD77C9E2EA24 /* ru */,
+				248CA63A44FD8CEB3D3BF35E /* nl */,
+				04E3D72F9C2898B5A8735B4B /* ja */,
+				4C1387CC7D903D4649189FE6 /* zh-Hans */,
+				7EC30C4870D0493722BA7786 /* ar */,
+				4D16FCD3F6340A86048549AA /* pl */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		EE11001100110011 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -808,7 +844,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = SP495GG2KZ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -826,7 +862,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.6.5;
 				METAL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.writronic.macursor.helper;
 				PRODUCT_MODULE_NAME = MaCursorHelper;
@@ -847,7 +883,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SP495GG2KZ;
@@ -860,7 +896,7 @@
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.6.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.writronic.macursor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -881,13 +917,13 @@
 				CODE_SIGN_ENTITLEMENTS = MaCursorFinder/MaCursorFinder.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = SP495GG2KZ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MaCursorFinder/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.6.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.writronic.macursor.finder;
 				PRODUCT_MODULE_NAME = MaCursorFinder;
 				PRODUCT_NAME = MaCursorFinder;
@@ -904,7 +940,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = SP495GG2KZ;
@@ -917,7 +953,7 @@
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.6.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.writronic.macursor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -942,7 +978,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = SP495GG2KZ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -964,7 +1000,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.6.5;
 				METAL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.writronic.macursor.helper;
 				PRODUCT_MODULE_NAME = MaCursorHelper;
@@ -1041,13 +1077,13 @@
 				CODE_SIGN_ENTITLEMENTS = MaCursorFinder/MaCursorFinder.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = SP495GG2KZ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MaCursorFinder/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.6.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.writronic.macursor.finder;
 				PRODUCT_MODULE_NAME = MaCursorFinder;
 				PRODUCT_NAME = MaCursorFinder;

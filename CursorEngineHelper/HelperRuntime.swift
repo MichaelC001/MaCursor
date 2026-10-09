@@ -44,6 +44,43 @@ private func helperDisplayCallback(
     DispatchQueue.main.async { runtime.displayChanged() }
 }
 
+private let finderScript = """
+    on frontfolder()
+        with timeout of 10 seconds
+            tell application "Finder" to return URL of (target of front Finder window)
+        end timeout
+    end frontfolder
+
+    on makefile(fileName)
+        with timeout of 10 seconds
+            tell application "Finder"
+                set destination to target of front Finder window
+                if exists item fileName of destination then return false
+                select (make new file at destination with properties {name:fileName})
+            end tell
+        end timeout
+        return true
+    end makefile
+    """
+
+private func askFinder(_ handler: String, _ arguments: String...) throws -> NSAppleEventDescriptor {
+    let finder = NSAppleEventDescriptor(bundleIdentifier: "com.apple.finder")
+    let status = withExtendedLifetime(finder) { AEDeterminePermissionToAutomateTarget(finder.aeDesc, typeWildCard, typeWildCard, true) }
+    guard status == noErr else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(status)) }
+    let event = NSAppleEventDescriptor.appleEvent(withEventClass: AEEventClass(kASAppleScriptSuite), eventID: AEEventID(kASSubroutineEvent),
+                                                  targetDescriptor: .currentProcess(), returnID: AEReturnID(kAutoGenerateReturnID),
+                                                  transactionID: AETransactionID(kAnyTransactionID))
+    event.setParam(NSAppleEventDescriptor(string: handler), forKeyword: AEKeyword(keyASSubroutineName))
+    let parameters = NSAppleEventDescriptor.list()
+    for argument in arguments { parameters.insert(NSAppleEventDescriptor(string: argument), at: parameters.numberOfItems + 1) }
+    event.setParam(parameters, forKeyword: keyDirectObject)
+    var error: NSDictionary?
+    guard let result = NSAppleScript(source: finderScript)?.executeAppleEvent(event, error: &error) else {
+        throw NSError(domain: NSOSStatusErrorDomain, code: error?[NSAppleScript.errorNumber] as? Int ?? Int(errOSAScriptError))
+    }
+    return result
+}
+
 @MainActor
 final class HelperRuntime {
     private static let hotKeySignature: OSType = 0x4D414352
@@ -115,6 +152,9 @@ final class HelperRuntime {
         observeDistributed(Notification.Name.MACAutoSwitchDidChange.rawValue)
         observeDistributed(Notification.Name.MACMenuBarDidChange.rawValue)
         observeDistributed(Notification.Name.MACFocusFollowsMouseDidChange.rawValue)
+        for name in RightClickMenuHandoff.requests.keys {
+            CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), context, helperNotificationCallback, name as CFString, nil, .deliverImmediately)
+        }
         workspaceObservers.append(center.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification,
                                                        object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
@@ -160,6 +200,7 @@ final class HelperRuntime {
         if displayRegistered { CGDisplayRemoveReconfigurationCallback(helperDisplayCallback, context) }
         displayRegistered = false
         CFNotificationCenterRemoveEveryObserver(CFNotificationCenterGetDistributedCenter(), context)
+        CFNotificationCenterRemoveEveryObserver(CFNotificationCenterGetDarwinNotifyCenter(), context)
         appearanceObservation?.invalidate()
         appearanceObservation = nil
         for observer in workspaceObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
@@ -199,7 +240,13 @@ final class HelperRuntime {
         case Notification.Name.MACFocusFollowsMouseDidChange.rawValue:
             focusController.configDidChange()
         default:
-            break
+            guard let request = RightClickMenuHandoff.requests[name] else { break }
+            HelperFinderHandoff.receive(request, frontmost: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, settings: RightClickMenuSettings.load(),
+                                        folder: { try askFinder("frontfolder").stringValue ?? "" }, makeFile: { try askFinder("makefile", $0).booleanValue },
+                                        copy: { RightClickMenuActions.copyPaths([$0]) },
+                                        open: { RightClickMenuActions.openSelection([$0], application: RightClickMenuApplication.resolve($1),
+                                                                                    reportFailure: { _ in NSSound.beep() }) },
+                                        fail: { _ in NSSound.beep() })
         }
     }
 

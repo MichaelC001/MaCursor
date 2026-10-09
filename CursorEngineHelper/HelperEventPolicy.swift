@@ -81,3 +81,51 @@ enum HelperEventPolicy {
         return MACMenuBarIsHelperBundleIdentifier(live) ? nil : live
     }
 }
+
+enum HelperFinderHandoff {
+    private static let queue = DispatchQueue(label: "HelperFinderHandoff")
+
+    static func receive(_ request: RightClickMenuHandoff.Request, frontmost: String?, settings: RightClickMenuSettings,
+                        folder: @escaping @Sendable () throws -> String, makeFile: @escaping @Sendable (String) throws -> Bool,
+                        copy: @escaping @MainActor (URL) -> Void, open: @escaping @MainActor (URL, String) -> Void,
+                        fail: @escaping @MainActor (Int) -> Void) {
+        guard frontmost == "com.apple.finder", settings.isActive else { return }
+        switch request {
+        case .copyPath:
+            guard settings.copyPathEnabled else { return }
+            inFolder(folder, fail: fail, then: copy)
+        case .openCommonApp(let index):
+            guard let (_, row) = RightClickMenuActions.applicationRow(tag: settings.openWithApps.count + index, shown: settings, latest: settings) else { return }
+            inFolder(folder, fail: fail) { open($0, row.bundleIdentifier) }
+        case .newFile(let type):
+            guard settings[keyPath: type.keyPath].enabled else { return }
+            let baseName = type.itemTitle, ext = type.fileExtension
+            queue.async {
+                do {
+                    _ = try RightClickMenuActions.createFile(in: URL(fileURLWithPath: "/", isDirectory: true), baseName: baseName, ext: ext) {
+                        guard try makeFile($0.lastPathComponent) else { throw CocoaError(.fileWriteFileExists) }
+                    }
+                } catch {
+                    report(error, to: fail)
+                }
+            }
+        }
+    }
+
+    private static func inFolder(_ folder: @escaping @Sendable () throws -> String, fail: @escaping @MainActor (Int) -> Void,
+                                 then act: @escaping @MainActor (URL) -> Void) {
+        queue.async {
+            do {
+                guard let url = RightClickMenuActions.usableFolder(URL(string: try folder())) else { throw CocoaError(.fileNoSuchFile) }
+                DispatchQueue.main.async { act(url) }
+            } catch {
+                report(error, to: fail)
+            }
+        }
+    }
+
+    private static func report(_ error: Error, to fail: @escaping @MainActor (Int) -> Void) {
+        let code = (error as NSError).code
+        DispatchQueue.main.async { fail(code) }
+    }
+}

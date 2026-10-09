@@ -1,17 +1,21 @@
 import Combine
 import SwiftUI
 
-@MainActor
-final class RightClickMenuAccessWindowController: NSWindowController, NSWindowDelegate {
-    static let shared = RightClickMenuAccessWindowController()
+final class AccessWindowController: NSWindowController, NSWindowDelegate {
+    static let rightClickMenu = AccessWindowController(title: String(localized: "Right-Click Menu")) {
+        NSHostingController(rootView: RightClickMenuAccessView())
+    }
 
-    private init() {
+    private let makeContent: () -> NSViewController
+
+    init(title: String, content: @escaping () -> NSViewController) {
+        makeContent = content
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 460, height: 380),
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
-        window.title = String(localized: "Right-Click Menu")
+        window.title = title
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
@@ -27,7 +31,7 @@ final class RightClickMenuAccessWindowController: NSWindowController, NSWindowDe
     func present() {
         guard let window else { return }
         if !window.isVisible {
-            let content = NSHostingController(rootView: RightClickMenuAccessView())
+            let content = makeContent()
             window.contentViewController = content
             window.setContentSize(content.view.fittingSize)
         }
@@ -77,52 +81,66 @@ struct FinderExtensionAccessControls: View {
     @ObservedObject private var manager = FinderExtensionManager.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Group {
-                switch SystemSettingsPane.finderExtensions() {
-                case .extensions:
-                    Text("Enable MaCursorFinder in System Settings to add MaCursor’s shortcuts to Finder’s right-click menu.")
-                case .fileProviders:
-                    Text("Turn on MaCursorFinder in System Settings → General → Login Items & Extensions → Extensions → File Providers.")
-                case .command:
-                    Text("macOS 15.0 and 15.1 cannot turn on Finder extensions from System Settings. Copy the command and run it in Terminal.")
-                }
+        Group {
+            switch SystemSettingsPane.finderExtensions() {
+            case .extensions:
+                Text("Enable MaCursorFinder in System Settings to add MaCursor’s shortcuts to Finder’s right-click menu.")
+            case .fileProviders:
+                Text("Turn on MaCursorFinder in System Settings → General → Login Items & Extensions → Extensions → File Providers.")
+            case .command:
+                Text("macOS 15.0 and 15.1 cannot turn on Finder extensions from System Settings. Copy the command and run it in Terminal.")
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
 
-            HStack {
-                if SystemSettingsPane.finderExtensions() == .command {
-                    Button("Copy Command") { manager.copyCommand() }
-                } else {
-                    Button("Open System Settings") { manager.openSystemSettings() }
-                }
-            }
+        if SystemSettingsPane.finderExtensions() == .command {
+            Button("Copy Command") { manager.copyCommand() }
+        } else {
+            Button("Open System Settings") { manager.openSystemSettings() }
         }
     }
 }
 
 private struct RightClickMenuAccessView: View {
     @ObservedObject private var manager = FinderExtensionManager.shared
+    @State private var step = RightClickMenuState.accessStep(election: FinderExtensionManager.shared.election)
     @State private var errorMessage: String?
     private let waitTicker = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(nsImage: NSImage(named: NSImage.applicationIconName) ?? NSImage())
-                .resizable()
-                .frame(width: 76, height: 76)
+        let shown = manager.election == .elected ? step : .finderExtension
+        AccessDialog(title: Text("Right-Click Menu")) {
+            VStack(spacing: 4) {
+                Text(shown.progress)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(shown.title)
+                    .font(.headline)
+            }
 
-            Text("Right-Click Menu")
-                .font(.title2.weight(.semibold))
-
-            if manager.election == .elected {
-                Label("Access granted", systemImage: "checkmark.circle.fill")
+            switch shown {
+            case .finderExtension:
+                if manager.election == .elected {
+                    Label("Access granted", systemImage: "checkmark.circle.fill")
+                        .font(.callout)
+                        .foregroundStyle(.green)
+                } else {
+                    FinderExtensionAccessControls()
+                }
+            case .fullDiskAccess:
+                Text("MaCursor needs Full Disk Access. Turn on MaCursor in System Settings, then quit and reopen MaCursor if macOS asks.")
                     .font(.callout)
-                    .foregroundStyle(.green)
-            } else {
-                FinderExtensionAccessControls()
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if manager.settings.hasFullDiskAccess {
+                    Label("Access granted", systemImage: "checkmark.circle.fill")
+                        .font(.callout)
+                        .foregroundStyle(.green)
+                } else {
+                    Button("Open System Settings") { manager.openFullDiskAccessSettings() }
+                }
             }
 
             if let errorMessage {
@@ -132,15 +150,12 @@ private struct RightClickMenuAccessView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            HStack(spacing: 12) {
-                Button("Not Now") {
-                    RightClickMenuAccessWindowController.shared.dismiss()
-                }
-                if manager.election == .elected {
+            if shown == .fullDiskAccess {
+                if manager.settings.hasFullDiskAccess {
                     Button("Let’s Go!") {
                         do {
                             if try manager.setEnabled(true) {
-                                RightClickMenuAccessWindowController.shared.dismiss()
+                                AccessWindowController.rightClickMenu.dismiss()
                             }
                         } catch {
                             errorMessage = error.localizedDescription
@@ -148,22 +163,47 @@ private struct RightClickMenuAccessView: View {
                     }
                     .keyboardShortcut(.defaultAction)
                 }
+            } else if manager.election == .elected {
+                Button("Continue") { step = .fullDiskAccess }
+                    .keyboardShortcut(.defaultAction)
             }
-            .controlSize(.large)
         }
-        .padding(28)
-        .frame(width: 460)
-        .onAppear { manager.refresh() }
+        .onAppear {
+            MACPreferences.setFlag(true, forKey: MACPreferences.fullDiskAccessAskedKey)
+            manager.refresh()
+        }
         .onReceive(waitTicker) { _ in
-            guard RightClickMenuAccessWindowController.shared.window?.isVisible == true else { return }
+            guard AccessWindowController.rightClickMenu.window?.isVisible == true else { return }
             manager.refresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
-            guard RightClickMenuAccessWindowController.shared.window?.isVisible == true else { return }
+            guard AccessWindowController.rightClickMenu.window?.isVisible == true else { return }
             manager.refresh()
         }
         .onReceive(ModalWindowCoordinator.shared.activeModalDidChange) { _ in
-            RightClickMenuAccessWindowController.shared.reanchor()
+            AccessWindowController.rightClickMenu.reanchor()
         }
+    }
+}
+
+struct AccessDialog<Content: View>: View {
+    let title: Text
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(nsImage: NSImage(named: NSImage.applicationIconName) ?? NSImage())
+                .resizable()
+                .frame(width: 76, height: 76)
+
+            title
+                .font(.title2.weight(.semibold))
+
+            content
+        }
+        .controlSize(.large)
+        .multilineTextAlignment(.center)
+        .padding(28)
+        .frame(width: 460)
     }
 }

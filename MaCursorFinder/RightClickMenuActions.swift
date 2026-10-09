@@ -90,12 +90,33 @@ enum RightClickMenuEntry: Equatable {
 
 typealias RightClickMenuApplicationOpener = ([URL], URL, @escaping @Sendable (Error?) -> Void) -> Void
 
+struct RightClickMenuPlace {
+    var canCreateFiles = true
+    var canChangeVisibility = true
+
+    func allows(_ item: RightClickMenuItem) -> Bool {
+        switch item {
+        case .file, .group(.newFile): return canCreateFiles
+        case .action(.hideSelected), .action(.unhideSelected), .action(.hideAll), .action(.unhideAll): return canChangeVisibility
+        default: return true
+        }
+    }
+}
+
 enum RightClickMenuActions {
+    static func place(context: RightClickMenuContext, target: URL?, selectedItems: [URL],
+                      isWritable: (String) -> Bool = FileManager.default.isWritableFile(atPath:)) -> RightClickMenuPlace {
+        RightClickMenuPlace(
+            canCreateFiles: creationDirectory(context: context, target: target, selectedItems: selectedItems).map { isWritable($0.path) } ?? false,
+            canChangeVisibility: RightClickMenuScope.allowsVisibilityChange(
+                for: context == .items ? selectedItems + selectedItems.map { $0.deletingLastPathComponent() } : target.map { [$0] } ?? []))
+    }
+
     static func actions(settings: RightClickMenuSettings, context: RightClickMenuContext,
-                        applications: [String: RightClickMenuApplication] = [:]) -> [RightClickMenuEntry] {
-        guard settings.isEnabled else { return [] }
+                        applications: [String: RightClickMenuApplication] = [:], place: RightClickMenuPlace = .init()) -> [RightClickMenuEntry] {
+        guard settings.isActive else { return [] }
         let isAvailable: (String) -> Bool = { applications[$0] != nil }
-        return settings.menuItems(isAvailable: isAvailable).filter { $0.shows(in: context) }.compactMap { item in
+        return settings.menuItems(isAvailable: isAvailable).filter { $0.shows(in: context) && place.allows($0) }.compactMap { item in
             if case .group(let group) = item {
                 return .submenu(group, settings.submenuItems(of: group, isAvailable: isAvailable).compactMap {
                     action(for: $0, settings: settings, context: context, applications: applications)
@@ -124,8 +145,8 @@ enum RightClickMenuActions {
     }
 
     static func menu(settings: RightClickMenuSettings, context: RightClickMenuContext, target: RightClickMenuActionTarget,
-                     applications: [String: RightClickMenuApplication] = [:]) -> NSMenu? {
-        let actions = actions(settings: settings, context: context, applications: applications)
+                     applications: [String: RightClickMenuApplication] = [:], place: RightClickMenuPlace = .init()) -> NSMenu? {
+        let actions = actions(settings: settings, context: context, applications: applications, place: place)
         guard !actions.isEmpty else { return nil }
         let menu = NSMenu()
         for entry in actions {
@@ -144,14 +165,19 @@ enum RightClickMenuActions {
         return menu
     }
 
-    static func toolbarMenu(settings: RightClickMenuSettings, targetedURL: URL?, target: RightClickMenuActionTarget,
-                            applications: [String: RightClickMenuApplication] = [:]) -> NSMenu {
-        let folderMenu = menu(settings: settings, context: .container, target: target, applications: applications)
-        if let folderMenu, targetedURL != nil { return folderMenu }
+    static func toolbarMenu(settings: RightClickMenuSettings, targetedURL: URL?, helperIsRunning: Bool = false, target: RightClickMenuActionTarget,
+                            applications: [String: RightClickMenuApplication] = [:], place: RightClickMenuPlace = .init()) -> NSMenu {
+        if targetedURL != nil || helperIsRunning,
+           let folderMenu = menu(settings: settings, context: .container, target: target, applications: applications,
+                                 place: targetedURL == nil ? RightClickMenuPlace(canChangeVisibility: false) : place) {
+            return folderMenu
+        }
+        let files = actions(settings: settings, context: .items, applications: applications)
         let reason: String
-        if folderMenu != nil {
+        if !actions(settings: settings, context: .container, applications: applications).isEmpty
+            || (targetedURL != nil && !files.isEmpty && actions(settings: settings, context: .items, applications: applications, place: place).isEmpty) {
             reason = String(localized: "Not available in this location.")
-        } else if actions(settings: settings, context: .items, applications: applications).isEmpty {
+        } else if files.isEmpty {
             reason = String(localized: "Nothing is turned on.")
         } else {
             reason = String(localized: "Items that are on show only on files.")
@@ -173,7 +199,7 @@ enum RightClickMenuActions {
 
     static func resolvedApplications(settings: RightClickMenuSettings,
                                      resolve: (String) -> RightClickMenuApplication? = RightClickMenuApplication.resolve) -> [String: RightClickMenuApplication] {
-        guard settings.isEnabled else { return [:] }
+        guard settings.isActive else { return [:] }
         var applications: [String: RightClickMenuApplication] = [:]
         for row in settings.openWithApps + settings.commonApps where row.enabled {
             if applications[row.bundleIdentifier] == nil {
@@ -181,6 +207,11 @@ enum RightClickMenuActions {
             }
         }
         return applications
+    }
+
+    static func usableFolder(_ url: URL?) -> URL? {
+        guard let url, url.isFileURL, !url.path.isEmpty else { return nil }
+        return url
     }
 
     static func pasteboardText(for urls: [URL]) -> String {
@@ -195,7 +226,7 @@ enum RightClickMenuActions {
     }
 
     static func applicationRow(tag: Int, shown: RightClickMenuSettings, latest: RightClickMenuSettings) -> (RightClickMenuAppList, RightClickMenuAppRow)? {
-        guard shown.isEnabled, latest.isEnabled, tag >= 0 else { return nil }
+        guard shown.isActive, latest.isActive, tag >= 0 else { return nil }
         let list: RightClickMenuAppList = tag < shown.openWithApps.count ? .openWith : .commonApps
         let index = list == .openWith ? tag : tag - shown.openWithApps.count
         let oldRows = shown[keyPath: list.keyPath]
@@ -211,12 +242,16 @@ enum RightClickMenuActions {
                                 resolve: (String) -> RightClickMenuApplication? = RightClickMenuApplication.resolve,
                                 isDirectory: (URL) throws -> Bool = { try $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true },
                                 opener: RightClickMenuApplicationOpener = openInWorkspace,
-                                reportFailure: @escaping @MainActor (Int?) -> Void = reportApplicationFailure) {
+                                reportFailure: @escaping @MainActor (Int?) -> Void = reportApplicationFailure,
+                                post: (RightClickMenuHandoff.Request) -> Void = RightClickMenuHandoff.post) {
+        let index = tag - shown.openWithApps.count
         guard let (list, row) = applicationRow(tag: tag, shown: shown, latest: latest),
-              list != .openWith || context == .items else {
+              list != .openWith || context == .items,
+              context == .items || target != nil || index < RightClickMenuHandoff.commonAppSlots else {
             DispatchQueue.main.async { reportFailure(nil) }
             return
         }
+        if context == .container, target == nil { return post(.openCommonApp(index)) }
         do {
             let urls: [URL]
             if list == .openWith {
@@ -374,5 +409,49 @@ enum RightClickMenuActions {
             }
         }
         throw CocoaError(.fileWriteUnknown)
+    }
+}
+
+enum RightClickMenuHandoff {
+    enum Request: Equatable {
+        case copyPath
+        case newFile(RightClickMenuFileType)
+        case openCommonApp(Int)
+    }
+
+    static let helperBundleIdentifier = "com.writronic.macursor.helper"
+    static let commonAppSlots = 32
+    static let requests = Dictionary(uniqueKeysWithValues: ([Request.copyPath] + RightClickMenuFileType.allCases.map(Request.newFile)
+                                                            + (0..<commonAppSlots).map(Request.openCommonApp)).map { (name($0), $0) })
+
+    static func name(_ request: Request) -> String {
+        let action: String
+        switch request {
+        case .copyPath: action = "copyPath"
+        case .newFile(let type): action = "newFile.\(type.rawValue)"
+        case .openCommonApp(let index): action = "openCommonApp.\(index)"
+        }
+        return "\(RightClickMenuSettings.appGroupIdentifier).handoff.\(getuid()).\(action)"
+    }
+
+    static func post(_ request: Request) {
+        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName(name(request) as CFString), nil, nil, true)
+    }
+}
+
+enum RightClickMenuScope {
+    static let visibilityRoots = ["/Users", "/Volumes"].map { URL(fileURLWithPath: $0, isDirectory: true) }
+    static let roots = visibilityRoots + [URL(fileURLWithPath: "/", isDirectory: true)]
+
+    static func directoryURLs(mountedVolumes: [URL]?) -> Set<URL> {
+        Set(roots + (mountedVolumes ?? []))
+    }
+
+    static func allowsVisibilityChange(for urls: [URL]) -> Bool {
+        !urls.isEmpty && urls.allSatisfy { url in
+            var components = url.resolvingSymlinksInPath().pathComponents
+            if components.starts(with: ["/", "System", "Volumes", "Data"]) { components.removeSubrange(1..<4) }
+            return visibilityRoots.contains { components.starts(with: $0.pathComponents) }
+        }
     }
 }

@@ -859,3 +859,24 @@
 
 /* Finder toolbar button menu when every right-click menu item that is on shows only on files, so none shows on empty space. */
 "Items that are on show only on files." = "Включённые пункты показываются только для файлов.";
+
+/* Title of the Full Disk Access row on the Right-Click Menu page and of step 2 in its access window. Use the name System Settings gives this privacy setting. */
+"Full Disk Access" = "Доступ к диску";
+
+/* Title of step 1 in the Right-Click Menu access window, where the user turns on MaCursor’s Finder extension. */
+"Finder Extension" = "Расширение Finder";
+
+/* Progress line above the step title in the Right-Click Menu access window. */
+"Step 1 of 2" = "Шаг 1 из 2";
+
+/* Progress line above the step title in the Right-Click Menu access window. */
+"Step 2 of 2" = "Шаг 2 из 2";
+
+/* Button in the Right-Click Menu access window that moves from step 1 to step 2 once the Finder extension is on. */
+"Continue" = "Продолжить";
+
+/* Caption of the Full Disk Access warning on the Right-Click Menu page and of step 2 in its access window. The Right-Click Menu stays off until MaCursor has this access. After the setting is turned on, macOS offers to quit and reopen the app. */
+"MaCursor needs Full Disk Access. Turn on MaCursor in System Settings, then quit and reopen MaCursor if macOS asks." = "Для работы MaCursor нужен полный доступ к диску. Включите MaCursor в Системных настройках, а затем, если macOS попросит, завершите работу MaCursor и откройте его снова.";
+
+/* Warning when the saved Right-Click Menu switch is on but MaCursor has no Full Disk Access. */
+"Full Disk Access is turned off." = "Полный доступ к диску выключен.";

@@ -6,8 +6,18 @@ final class MACFinderSync: FIFinderSync, RightClickMenuActionTarget {
 
     override init() {
         super.init()
-        FIFinderSyncController.default().directoryURLs = Set(RightClickMenuScope.roots)
+        refreshScope()
+        for name in [NSWorkspace.didMountNotification, NSWorkspace.didUnmountNotification, NSWorkspace.didRenameVolumeNotification] {
+            NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(refreshScope), name: name, object: nil)
+        }
     }
+
+    @objc private func refreshScope() {
+        FIFinderSyncController.default().directoryURLs = RightClickMenuScope.directoryURLs(
+            mountedVolumes: FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: nil, options: [.skipHiddenVolumes]))
+    }
+
+    private var targetFolder: URL? { RightClickMenuActions.usableFolder(FIFinderSyncController.default().targetedURL()) }
 
     override var toolbarItemName: String { "MaCursor" }
 
@@ -27,17 +37,20 @@ final class MACFinderSync: FIFinderSync, RightClickMenuActionTarget {
         let applications = RightClickMenuActions.resolvedApplications(settings: settings)
         menuSettings = settings
         menuContext = context
+        let folder = targetFolder
+        let place = RightClickMenuActions.place(context: context, target: folder,
+                                                selectedItems: context == .items ? FIFinderSyncController.default().selectedItemURLs() ?? [] : [])
         if menuKind == .toolbarItemMenu {
-            let folder = FIFinderSyncController.default().targetedURL()
-            return RightClickMenuActions.toolbarMenu(settings: settings, targetedURL: folder, target: self, applications: applications)
+            let helperIsRunning = folder == nil && !NSRunningApplication.runningApplications(withBundleIdentifier: RightClickMenuHandoff.helperBundleIdentifier).isEmpty
+            return RightClickMenuActions.toolbarMenu(settings: settings, targetedURL: folder, helperIsRunning: helperIsRunning, target: self, applications: applications, place: place)
         }
-        return RightClickMenuActions.menu(settings: settings, context: context, target: self, applications: applications)
+        return RightClickMenuActions.menu(settings: settings, context: context, target: self, applications: applications, place: place)
     }
 
     @objc func openApplication(_ sender: NSMenuItem) {
         RightClickMenuActions.openApplication(
             tag: sender.tag, context: menuContext, shown: menuSettings, latest: RightClickMenuSettings.load(),
-            target: FIFinderSyncController.default().targetedURL(),
+            target: targetFolder,
             selectedItems: menuContext == .items ? FIFinderSyncController.default().selectedItemURLs() ?? [] : []
         )
     }
@@ -47,7 +60,7 @@ final class MACFinderSync: FIFinderSync, RightClickMenuActionTarget {
     }
 
     @objc func copyFolderPath() {
-        guard let url = FIFinderSyncController.default().targetedURL() else { return }
+        guard let url = targetFolder else { return RightClickMenuHandoff.post(.copyPath) }
         RightClickMenuActions.copyPaths([url])
     }
 
@@ -60,10 +73,12 @@ final class MACFinderSync: FIFinderSync, RightClickMenuActionTarget {
     }
 
     @objc func newTextFileInFolder() {
+        guard targetFolder != nil else { return RightClickMenuHandoff.post(.newFile(.text)) }
         createFile(context: .container, baseName: RightClickMenuAction.newTextFileInFolder.title, ext: "txt")
     }
 
     @objc func newMarkdownFileInFolder() {
+        guard targetFolder != nil else { return RightClickMenuHandoff.post(.newFile(.markdown)) }
         createFile(context: .container, baseName: RightClickMenuAction.newMarkdownFileInFolder.title, ext: "md")
     }
 
@@ -85,7 +100,7 @@ final class MACFinderSync: FIFinderSync, RightClickMenuActionTarget {
 
     private func changeVisibility(hidden: Bool, context: RightClickMenuContext) {
         let result = RightClickMenuActions.changeVisibility(
-            hidden: hidden, context: context, target: FIFinderSyncController.default().targetedURL(),
+            hidden: hidden, context: context, target: targetFolder,
             selectedItems: context == .items ? FIFinderSyncController.default().selectedItemURLs() ?? [] : []
         )
         RightClickMenuActions.reportVisibilityFailures(result)
@@ -94,7 +109,7 @@ final class MACFinderSync: FIFinderSync, RightClickMenuActionTarget {
     private func createFile(context: RightClickMenuContext, baseName: String, ext: String) {
         do {
             guard let directory = RightClickMenuActions.creationDirectory(
-                context: context, target: FIFinderSyncController.default().targetedURL(),
+                context: context, target: targetFolder,
                 selectedItems: context == .items ? FIFinderSyncController.default().selectedItemURLs() ?? [] : []
             ) else {
                 throw CocoaError(.fileNoSuchFile)

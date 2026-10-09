@@ -30,6 +30,7 @@ final class FinderExtensionManager: ObservableObject {
                 backgroundTask = nil
             }
             await readElection()
+            await readFullDiskAccess()
         }
     }
 
@@ -103,10 +104,32 @@ final class FinderExtensionManager: ObservableObject {
         election = RightClickMenuState.election(fromPluginkitRow: row ?? "")
     }
 
+    private func readFullDiskAccess() async {
+        let granted = await Self.run("/bin/sh", RightClickMenuState.fullDiskAccessProbeArguments(home: FileManager.default.homeDirectoryForCurrentUser)) != nil
+        guard granted != settings.hasFullDiskAccess else { return }
+        try? update(\.hasFullDiskAccess, to: granted)
+    }
+
+    func openFullDiskAccessSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    func shouldAskForFullDiskAccessAtLaunch() async -> Bool {
+        if let backgroundTask { await backgroundTask.value }
+        let asked = MACPreferences.flag(MACPreferences.fullDiskAccessAskedKey)
+        if settings.isEnabled { await readFullDiskAccess() }
+        return RightClickMenuState.asksForFullDiskAccessAtLaunch(enabled: settings.isEnabled, hasFullDiskAccess: settings.hasFullDiskAccess, alreadyAsked: asked)
+    }
+
     nonisolated private static func runPluginkit(_ arguments: [String]) async -> String? {
+        await run("/usr/bin/pluginkit", arguments)
+    }
+
+    nonisolated private static func run(_ executable: String, _ arguments: [String]) async -> String? {
         let process = Process()
         let pipe = Pipe()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/pluginkit")
+        process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
         process.standardOutput = pipe
         process.standardError = FileHandle.nullDevice

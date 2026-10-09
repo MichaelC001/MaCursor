@@ -39,6 +39,7 @@ enum MACPreferences {
     static let favoriteThemesKey         = "MACFavoriteThemes"
     static let pendingOpenSettingsKey    = "MACPendingOpenSettings"
     static let pendingFFMAccessWindowKey = "MACPendingFFMAccessWindow"
+    static let fullDiskAccessAskedKey    = "MACFullDiskAccessAsked"
     static let helperBuildKey            = "MACHelperBuild"
 
     static let resetKeys: [String] = [
@@ -60,7 +61,8 @@ enum MACPreferences {
         showMenuBarIconKey,
         menuBarPanelBackgroundKey,
         favoriteThemesKey,
-        ffmAccessibilityTrustedKey
+        ffmAccessibilityTrustedKey,
+        fullDiskAccessAskedKey
     ]
 
     static var hideTahoeCursors: Bool {

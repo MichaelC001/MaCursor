@@ -231,6 +231,7 @@ struct RightClickMenuSettings: Codable, Equatable {
     static let appGroupIdentifier = "SP495GG2KZ.com.writronic.macursor"
 
     var isEnabled = false
+    var hasFullDiskAccess = false
     var copyPathEnabled = true
     var hideSelectedFilesEnabled = true
     var unhideSelectedFilesEnabled = true
@@ -242,7 +243,9 @@ struct RightClickMenuSettings: Codable, Equatable {
     var commonApps = [RightClickMenuAppRow(bundleIdentifier: "com.apple.Terminal")]
     var menuOrder = RightClickMenuItem.defaultOrder
 
-    init(isEnabled: Bool = false, copyPathEnabled: Bool = true,
+    var isActive: Bool { isEnabled && hasFullDiskAccess }
+
+    init(isEnabled: Bool = false, hasFullDiskAccess: Bool = false, copyPathEnabled: Bool = true,
          textFile: RightClickMenuRowOptions = RightClickMenuRowOptions(), markdownFile: RightClickMenuRowOptions = RightClickMenuRowOptions(),
          openWithApps: [RightClickMenuAppRow] = [RightClickMenuAppRow(bundleIdentifier: "com.sublimetext.4")],
          commonApps: [RightClickMenuAppRow] = [RightClickMenuAppRow(bundleIdentifier: "com.apple.Terminal")],
@@ -250,6 +253,7 @@ struct RightClickMenuSettings: Codable, Equatable {
          hideAllFilesInPathEnabled: Bool = true, unhideAllFilesInPathEnabled: Bool = true,
          menuOrder: [RightClickMenuItem] = RightClickMenuItem.defaultOrder) {
         self.isEnabled = isEnabled
+        self.hasFullDiskAccess = hasFullDiskAccess
         self.copyPathEnabled = copyPathEnabled
         self.hideSelectedFilesEnabled = hideSelectedFilesEnabled
         self.unhideSelectedFilesEnabled = unhideSelectedFilesEnabled
@@ -266,6 +270,7 @@ struct RightClickMenuSettings: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? false
+        hasFullDiskAccess = try container.decodeIfPresent(Bool.self, forKey: .hasFullDiskAccess) ?? false
         copyPathEnabled = try container.decodeIfPresent(Bool.self, forKey: .copyPathEnabled) ?? true
         hideSelectedFilesEnabled = try container.decodeIfPresent(Bool.self, forKey: .hideSelectedFilesEnabled) ?? true
         unhideSelectedFilesEnabled = try container.decodeIfPresent(Bool.self, forKey: .unhideSelectedFilesEnabled) ?? true
@@ -406,7 +411,7 @@ struct RightClickMenuSettings: Codable, Equatable {
     }
 
     static func reset(to url: URL? = fileURL) throws -> Self {
-        let defaults = Self()
+        let defaults = Self(hasFullDiskAccess: load(from: url).hasFullDiskAccess)
         try defaults.save(to: url)
         return defaults
     }

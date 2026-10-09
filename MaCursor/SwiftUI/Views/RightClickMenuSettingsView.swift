@@ -103,11 +103,15 @@ struct RightClickMenuSettingsView: View {
     @State private var errorMessage: String?
 
     private var isOn: Bool {
-        RightClickMenuState.isOn(enabled: manager.settings.isEnabled, election: manager.election)
+        RightClickMenuState.isOn(settings: manager.settings, election: manager.election)
     }
 
     private var showsAccessWarning: Bool {
         manager.settings.isEnabled && manager.election != .elected
+    }
+
+    private var showsFullDiskAccessWarning: Bool {
+        manager.settings.isEnabled && manager.election == .elected && !manager.settings.hasFullDiskAccess
     }
 
     private var showsRegistrationFailure: Bool {
@@ -141,13 +145,24 @@ struct RightClickMenuSettingsView: View {
                     .frame(minHeight: RightClickMenuLayout.twoLineRowHeight)
                     .rightClickMenuCard()
 
-                    if showsAccessWarning || showsRegistrationFailure || manager.isTranslocated || errorMessage != nil {
+                    if showsAccessWarning || showsFullDiskAccessWarning || showsRegistrationFailure || manager.isTranslocated || errorMessage != nil {
                         VStack(alignment: .leading, spacing: 8) {
                             if showsAccessWarning {
                                 Label("The Finder extension is turned off.", systemImage: "exclamationmark.triangle.fill")
                                     .foregroundStyle(.orange)
                                     .font(.callout)
                                 FinderExtensionAccessControls()
+                            }
+
+                            if showsFullDiskAccessWarning {
+                                Label("Full Disk Access is turned off.", systemImage: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.orange)
+                                    .font(.callout)
+                                Text("MaCursor needs Full Disk Access. Turn on MaCursor in System Settings, then quit and reopen MaCursor if macOS asks.")
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Button("Open System Settings") { manager.openFullDiskAccessSettings() }
                             }
 
                             if showsRegistrationFailure {
@@ -175,7 +190,7 @@ struct RightClickMenuSettingsView: View {
                         .padding(.horizontal, RightClickMenuLayout.inset)
                     }
 
-                    if RightClickMenuState.showsItems(enabled: manager.settings.isEnabled, election: manager.election) {
+                    if RightClickMenuState.showsItems(settings: manager.settings, election: manager.election) {
                         TabBar(
                             titles: RightClickMenuTab.allCases.map(\.title),
                             label: String(localized: "Right-Click Menu"),
@@ -619,7 +634,7 @@ struct RightClickMenuSettingsView: View {
     }
 
     private func toggle() {
-        switch RightClickMenuState.toggleAction(enabled: manager.settings.isEnabled, election: manager.election) {
+        switch RightClickMenuState.toggleAction(settings: manager.settings, election: manager.election) {
         case .enable:
             save { try manager.setEnabled(true) }
         case .disable:
@@ -628,7 +643,7 @@ struct RightClickMenuSettingsView: View {
             requestTask = Task {
                 await manager.prepareAccessRequest()
                 guard !Task.isCancelled else { return }
-                RightClickMenuAccessWindowController.shared.present()
+                AccessWindowController.rightClickMenu.present()
             }
         }
     }

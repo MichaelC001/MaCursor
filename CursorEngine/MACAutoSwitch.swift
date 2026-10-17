@@ -259,6 +259,7 @@ struct MACAutoSwitchEffects {
             clearAppOverride()
             forceVisualRefresh()
         }
+        postAppliedThemeChange()
     }
 }
 

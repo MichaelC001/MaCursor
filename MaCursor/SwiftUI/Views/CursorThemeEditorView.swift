@@ -95,7 +95,6 @@ struct CursorThemeEditorView: View {
         .background(WindowRoleAccessor(role: .modal))
         .onChangeCompat(of: editorWindow) { window in
             guard let window else { return }
-            EditorTextShortcutCoordinator.shared.register(window)
             redirectInitialFocus(in: window)
         }
     }

@@ -22,6 +22,8 @@ final class MenuBarPanelModel: ObservableObject {
     @Published private(set) var cursorShadow = false
     @Published private(set) var focusFollowsMouse = false
     @Published private(set) var accessibilityTrusted = false
+    @Published private(set) var cursorTrails = CursorTrailsConfig()
+    @Published private(set) var cursorGestures = CursorGesturesConfig()
     @Published private(set) var thumbnails: [String: NSImage] = [:]
     @Published private(set) var panelBackdropAlpha: Double = 0.0
     @Published var cursorScale: Double = 1.0
@@ -87,11 +89,17 @@ final class MenuBarPanelModel: ObservableObject {
         cursorShadow = snapshot.cursorShadow
         focusFollowsMouse = snapshot.focusFollowsMouse
         accessibilityTrusted = snapshot.accessibilityTrusted
+        cursorTrails = snapshot.cursorTrails
+        cursorGestures = snapshot.cursorGestures
         cursorScale = snapshot.cursorScale
         panelBackdropAlpha = snapshot.panelBackdropAlpha
         var wanted = favoriteThemes.map(\.id)
         if let visible = visibleIdentifier, !wanted.contains(visible) { wanted.append(visible) }
         loadThumbnails(for: wanted)
+    }
+
+    func reloadTrails() {
+        cursorTrails = CursorTrailsConfig.load()
     }
 
     private func loadThumbnails(for identifiers: [String]) {
@@ -149,6 +157,30 @@ final class MenuBarPanelModel: ObservableObject {
             return
         }
         MenuBarService.setFocusFollowsMouse(!focusFollowsMouse)
+        reload()
+    }
+
+    func setCursorTrails(_ key: WritableKeyPath<CursorTrailsConfig, Bool>, _ value: Bool) {
+        MenuBarService.setCursorTrails(key, value)
+        reload()
+    }
+
+    var ignoresFrontApp: Bool {
+        cursorGestures.ignores(frontBundleIdentifier)
+    }
+
+    func toggleCursorGestures() {
+        guard accessibilityTrusted else {
+            MenuBarService.requestCursorGesturesAccess()
+            return
+        }
+        MenuBarService.setCursorGestures { $0.turn(!cursorGestures.enabled) }
+        reload()
+    }
+
+    func ignoreFrontApp(_ ignored: Bool) {
+        guard let front = frontBundleIdentifier else { return }
+        MenuBarService.setCursorGestures { $0.ignoreFully(front, ignored) }
         reload()
     }
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-private extension View {
+extension View {
     func rightClickMenuCard() -> some View {
         background(Color.quaternaryFill, in: RoundedRectangle(cornerRadius: RightClickMenuLayout.cardRadius, style: .continuous))
             .clipShape(RoundedRectangle(cornerRadius: RightClickMenuLayout.cardRadius, style: .continuous))
@@ -21,7 +21,7 @@ private extension View {
     }
 }
 
-private final class EqualWhenFitsSegmentedControl: NSSegmentedControl {
+final class EqualWhenFitsSegmentedControl: NSSegmentedControl {
     var widestLabel: CGFloat = 0
 
     override func layout() {
@@ -32,7 +32,7 @@ private final class EqualWhenFitsSegmentedControl: NSSegmentedControl {
     }
 }
 
-private struct TabBar: NSViewRepresentable {
+struct TabBar: NSViewRepresentable {
     let titles: [String]
     let label: String
     @Binding var selection: Int

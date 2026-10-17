@@ -880,3 +880,415 @@
 
 /* Warning when the saved Right-Click Menu switch is on but MaCursor has no Full Disk Access. */
 "Full Disk Access is turned off." = "Volledige schijftoegang is uitgeschakeld.";
+
+/* Settings tab name and its switch; the feature draws a fading trail behind the pointer */
+"Cursor Trails" = "Cursorsporen";
+
+/* Warning under the Cursor Trails switch when the helper is missing */
+"Cursor Trails requires the Helper Tool. You can install it from General → Helper Tool." = "Voor “Cursorsporen” is het Hulpprogramma vereist. Je kunt dit installeren via Algemeen → Hulpprogramma.";
+
+/* Caption under the Cursor Trails switch; "Reduce motion" is the macOS Accessibility → Display setting, use the system's own name */
+"A trail follows the cursor as it moves and fades when it stops. The trail stays hidden while Reduce motion is on." = "Een spoor volgt de cursor terwijl die beweegt en vervaagt wanneer die stilstaat. Het spoor blijft verborgen zolang “Verminder beweging” aan staat.";
+
+/* Label of the slider that sets how long the cursor trail is */
+"Length" = "Lengte";
+
+/* Left end of the trail Length slider */
+"Short" = "Kort";
+
+/* Right end of the trail Length slider */
+"Long" = "Lang";
+
+/* Heading above the grid of trail colour cards */
+"Colors" = "Kleuren";
+
+/* First colour card; the trail takes its colours from the theme's arrow */
+"Match Cursor Theme" = "Zoals het cursorthema";
+
+/* Name of a trail colour card (amber, orange, red) */
+"Blaze" = "Vlam";
+
+/* Trail colour card (yellow, lime, green) */
+"Lime" = "Limoen";
+
+/* Trail colour card (green, teal, blue) */
+"Jade" = "Jade";
+
+/* Trail colour card (teal, sky blue, blue) */
+"Lagoon" = "Lagune";
+
+/* Trail colour card (blue, indigo, violet) */
+"Cobalt" = "Kobalt";
+
+/* Trail colour card (violet, magenta, pink) */
+"Orchid" = "Orchidee";
+
+/* Trail colour card (pink, rose, red) */
+"Cherry" = "Kers";
+
+/* Trail colour card (cyan, violet, magenta) */
+"Electric" = "Elektrisch";
+
+/* Trail colour card (orange, magenta, indigo) */
+"Twilight" = "Schemering";
+
+/* Trail colour card (red, yellow, green, blue, violet) */
+"Prism" = "Prisma";
+
+/* Trail colour card (light to dark grey) */
+"Graphite" = "Grafiet";
+
+/* Label of the slider that sets how wide the cursor trail is */
+"Width" = "Breedte";
+
+/* Left end of the trail Width slider */
+"Thin" = "Smal";
+
+/* Right end of the trail Width slider */
+"Wide" = "Breed";
+
+/* Switch under Cursor Trails, also a row in the menu bar panel: on, the graphics hardware draws the trail; off, the processor draws it. Use Apple's own term for graphics hardware in your language, and keep the label short enough for the menu bar row */
+"Use Graphics Hardware" = "Videohardware gebruiken";
+
+/* Switch under Cursor Trails: on, the trail grows more see-through toward its old end; off, it keeps one solid colour */
+"Fade" = "Vervagen";
+
+/* Grey note under the greyed-out Use Graphics Hardware switch on a Mac without Metal graphics */
+"This Mac has no Metal graphics, so the processor draws the trail." = "Deze Mac heeft geen Metal-graphics, dus de processor tekent het spoor.";
+
+/* Label of the pop-up menu above the trail Length slider; it picks how the trail is drawn: Line or Soft Dots */
+"Style" = "Stijl";
+
+/* Trail style: one smooth line that follows the pointer */
+"Line" = "Lijn";
+
+/* Trail style: soft round dots that drift behind the pointer */
+"Soft Dots" = "Zachte stippen";
+
+/* Switch under the trail Width slider: while the pointer rests, a soft round glow in the card's colours stays under it until the pointer moves */
+"Glow when still" = "Gloeien bij stilstand";
+
+/* Settings tab and switch: hold keys, draw a shape with the pointer, let go and an action runs */
+"Cursor Gestures" = "Cursorgebaren";
+
+"Cursor Gestures requires the Helper Tool. You can install it from General → Helper Tool." = "Voor “Cursorgebaren” is het Hulpprogramma vereist. Je kunt dit installeren via Algemeen → Hulpprogramma.";
+
+"Hold the trigger keys or button, draw a shape with the pointer and let go to run its action. Esc or any other key cancels the gesture, and so does a left click when repeat is off. With repeat on, left-click while you still hold the trigger to run the last gesture again." = "Houd de activeringstoetsen of -knop ingedrukt, teken een vorm met de aanwijzer en laat los om de actie uit te voeren. Esc of een andere toets annuleert het gebaar, en als herhalen uitstaat ook een klik met links. Als herhalen aanstaat, klik je met links terwijl je de trigger nog ingedrukt houdt om het laatste gebaar opnieuw uit te voeren.";
+
+/* Cursor Gestures editor: heading over the shape pictures */
+"Shape" = "Vorm";
+
+"Add a gesture, then pick its shape and what it does." = "Voeg een gebaar toe en kies dan de vorm en wat het doet.";
+
+/* Cursor Gestures action: applies the favorite theme after the current one */
+"Next Favorite Theme" = "Volgend favoriet thema";
+
+/* Cursor Gestures action: puts back the macOS cursors, keeping size, hand and shadow settings */
+"Use System Cursors" = "Gebruik systeemcursors";
+
+"MaCursorHelper needs Accessibility access to see the keys you hold, to hold back the mouse buttons and two-finger scrolls that draw a gesture, and to run its action. Choose Allow for Accessibility, then turn on MaCursorHelper in Privacy & Security → Accessibility." = "MaCursorHelper heeft toegang tot Toegankelijkheid nodig om de toetsen te zien die je ingedrukt houdt, de muisknoppen en het scrollen met twee vingers waarmee je een gebaar tekent tegen te houden, en de actie ervan uit te voeren. Kies “Toegankelijkheid toestaan” en schakel MaCursorHelper daarna in via Privacy en beveiliging → Toegankelijkheid.";
+
+/* Cursor Gestures: system actions, sent as the macOS default keyboard shortcuts */
+"Mission Control" = "Mission Control";
+"App Exposé" = "App-exposé";
+"Move Left a Space" = "Eén space naar links";
+"Move Right a Space" = "Eén space naar rechts";
+"Show Desktop" = "Toon bureaublad";
+"Spotlight" = "Spotlight";
+"Lock Screen" = "Vergrendel scherm";
+"Force Quit Window" = "Venster “Forceer stop”";
+"Screenshot of the Screen" = "Schermafbeelding van het hele scherm";
+"Screenshot of an Area" = "Schermafbeelding van een gebied";
+"Screenshot Options" = "Opties voor schermafbeeldingen";
+
+/* Cursor Gestures: switch that raises the window under the pointer before a shortcut or text is sent */
+"Bring the Window Under the Pointer Forward First" = "Breng eerst het venster onder de aanwijzer naar voren";
+
+/* Cursor Gestures: actions on the window under the pointer */
+"Left Half" = "Linkerhelft";
+"Right Half" = "Rechterhelft";
+"Top Half" = "Bovenste helft";
+"Bottom Half" = "Onderste helft";
+"Top Left Quarter" = "Kwart linksboven";
+"Top Right Quarter" = "Kwart rechtsboven";
+"Bottom Left Quarter" = "Kwart linksonder";
+"Bottom Right Quarter" = "Kwart rechtsonder";
+"Left Third" = "Linkerderde";
+"Center Third" = "Middelste derde";
+"Right Third" = "Rechterderde";
+"Left Two Thirds" = "Linker twee derde";
+"Right Two Thirds" = "Rechter twee derde";
+"Maximize" = "Maximaliseer";
+"Center" = "Centreer";
+"Next Display" = "Volgend scherm";
+"Restore Size" = "Herstel grootte";
+"Minimize" = "Minimaliseer";
+"Close Window" = "Sluit venster";
+"Full Screen" = "Schermvullend";
+"Hide App" = "Verberg app";
+
+/* Cursor Gestures: system actions for sound, brightness, sleep and the screen saver */
+"Volume Up" = "Volume omhoog";
+"Volume Down" = "Volume omlaag";
+"Mute" = "Geluid uit";
+"Brightness Up" = "Helderheid omhoog";
+"Brightness Down" = "Helderheid omlaag";
+"Sleep" = "Sluimer";
+"Start Screen Saver" = "Start schermbeveiliging";
+
+/* Cursor Gestures: slider for how closely a stroke must follow a shape to run its action */
+"Strictness" = "Striktheid";
+/* Cursor Gestures: slider for the smallest stroke that runs an action */
+"Minimum Size" = "Minimumgrootte";
+/* Cursor Gestures: hint inside the box where you draw a shape */
+"Draw the shape here in one stroke." = "Teken de vorm hier in één beweging.";
+/* Cursor Gestures: placeholder of the name field of a recorded shape */
+"Shape Name" = "Naam van vorm";
+/* Cursor Gestures: switch; when on, the shape drawn the other way round is a different shape */
+"Direction Counts" = "Richting telt";
+
+/* Cursor Gestures: filter chip and choice for the gestures that work in every app */
+"All Apps" = "Alle apps";
+/* Cursor Gestures: row with the menu of apps where no gesture runs */
+"Ignored Apps" = "Genegeerde apps";
+/* Cursor Gestures: help tag of the Ignored Apps row */
+"Cursor Gestures stay off in these apps for the triggers you pick." = "Cursorgebaren blijven uit in deze apps voor de triggers die je kiest.";
+/* Menu bar panel: switch in the Active App card that turns Cursor Gestures off for the app in front */
+"Ignore Cursor Gestures" = "Cursorgebaren negeren";
+
+/* Cursor Gestures: action categories */
+"Apps" = "Apps";
+"Browser and Tabs" = "Browser en tabbladen";
+"Clipboard" = "Klembord";
+"Windows" = "Vensters";
+"Custom" = "Eigen";
+
+/* Cursor Gestures: shape families */
+"Lines" = "Lijnen";
+"Diagonals" = "Diagonalen";
+"Corners" = "Hoeken";
+"Returns" = "Heen en terug";
+"Curves" = "Bochten";
+"Letters" = "Letters";
+
+/* Cursor Gestures: shape names; the stroke starts where the name starts */
+"Line Up" = "Lijn omhoog";
+"Line Down" = "Lijn omlaag";
+"Line Left" = "Lijn naar links";
+"Line Right" = "Lijn naar rechts";
+"Slant Up Right" = "Schuin naar rechtsboven";
+"Slant Up Left" = "Schuin naar linksboven";
+"Slant Down Right" = "Schuin naar rechtsonder";
+"Slant Down Left" = "Schuin naar linksonder";
+"Right, Then Down" = "Rechts, dan omlaag";
+"Right, Then Up" = "Rechts, dan omhoog";
+"Left, Then Down" = "Links, dan omlaag";
+"Left, Then Up" = "Links, dan omhoog";
+"Down, Then Right" = "Omlaag, dan rechts";
+"Down, Then Left" = "Omlaag, dan links";
+"Up, Then Right" = "Omhoog, dan rechts";
+"Up, Then Left" = "Omhoog, dan links";
+"Up and Back" = "Omhoog en terug";
+"Down and Back" = "Omlaag en terug";
+"Left and Back" = "Naar links en terug";
+"Right and Back" = "Naar rechts en terug";
+"Up Right and Back" = "Naar rechtsboven en terug";
+"Up Left and Back" = "Naar linksboven en terug";
+"Down Right and Back" = "Naar rechtsonder en terug";
+"Down Left and Back" = "Naar linksonder en terug";
+"Backward C" = "Gespiegelde C";
+"U, Right to Left" = "U, van rechts naar links";
+"Arch" = "Boog";
+"Arch, Right to Left" = "Boog, van rechts naar links";
+"Circle" = "Cirkel";
+"V, Right to Left" = "V, van rechts naar links";
+"Peak" = "Piek";
+
+/* Cursor Gestures: built-in actions; menu names follow each language's own Apple menus */
+"Undo" = "Herstel";
+"Redo" = "Opnieuw";
+"Switch to Last App" = "Ga naar vorige app";
+"Back" = "Terug";
+"Forward" = "Vooruit";
+"Top of Page" = "Begin van pagina";
+"Bottom of Page" = "Einde van pagina";
+"New Tab" = "Nieuw tabblad";
+"Close Tab" = "Sluit tabblad";
+"Reload Page" = "Laad pagina opnieuw";
+"Reopen Last Closed Tab" = "Open laatst gesloten tabblad opnieuw";
+"Show Next Tab" = "Toon volgende tabblad";
+"Show Previous Tab" = "Toon vorige tabblad";
+"Copy" = "Kopieer";
+"Cut" = "Knip";
+"Paste" = "Plak";
+
+/* Cursor Gestures: the short line under each action's name */
+"Take back your last change" = "Maakt je laatste wijziging ongedaan";
+"Bring back what you took back" = "Voert ongedaan gemaakte wijziging opnieuw uit";
+"Go to the app you used before this one" = "Gaat naar de app die je hiervoor gebruikte";
+"Go to the page you saw before" = "Gaat naar de vorige pagina";
+"Go to the page you saw after this one" = "Gaat naar de volgende pagina";
+"Jump to the start of the page" = "Springt naar het begin van de pagina";
+"Jump to the end of the page" = "Springt naar het einde van de pagina";
+"Open an empty tab" = "Opent een leeg tabblad";
+"Close the tab you are on" = "Sluit het huidige tabblad";
+"Load the page again" = "Laadt de pagina opnieuw";
+"Bring back the tab you closed" = "Haalt het gesloten tabblad terug";
+"Move one tab to the right" = "Gaat één tabblad naar rechts";
+"Move one tab to the left" = "Gaat één tabblad naar links";
+"Put the selection on the clipboard" = "Zet de selectie op het klembord";
+"Move the selection to the clipboard" = "Verplaatst de selectie naar het klembord";
+"Insert what is on the clipboard" = "Voegt in wat op het klembord staat";
+"Fit the window under the pointer to this place" = "Plaatst het venster onder de aanwijzer op deze plek";
+"Move the window to the next display" = "Verplaatst het venster naar het volgende scherm";
+"Put the window back where it was" = "Zet het venster terug waar het was";
+"Send the window to the Dock" = "Zet het venster in het Dock";
+"Close the window under the pointer" = "Sluit het venster onder de aanwijzer";
+"Fill the screen with the window, or go back" = "Toont het venster schermvullend, of gaat terug";
+"Hide every window of the app" = "Verbergt alle vensters van de app";
+"See all open windows at once" = "Toont alle open vensters tegelijk";
+"See the windows of the app in front" = "Toont de vensters van de app op de voorgrond";
+"Go to the Space on the left" = "Gaat naar de space links";
+"Go to the Space on the right" = "Gaat naar de space rechts";
+"Move every window aside" = "Schuift alle vensters opzij";
+"Search your Mac" = "Zoekt op je Mac";
+"Lock the Mac right away" = "Vergrendelt de Mac meteen";
+"Choose an app that is not responding" = "Laat je een app kiezen die niet reageert";
+"Save a picture of the whole screen" = "Bewaart een afbeelding van het hele scherm";
+"Save a picture of the part you choose" = "Bewaart een afbeelding van het gekozen deel";
+"Open the screenshot tools" = "Opent de schermafbeeldingstools";
+"Make the sound louder" = "Zet het geluid harder";
+"Make the sound quieter" = "Zet het geluid zachter";
+"Turn the sound off or on" = "Zet het geluid uit of aan";
+"Make the display brighter" = "Maakt het scherm helderder";
+"Make the display darker" = "Maakt het scherm donkerder";
+"Put the Mac to sleep" = "Zet de Mac in de sluimerstand";
+"Show the screen saver now" = "Toont nu de schermbeveiliging";
+"Apply the next theme in your favorites" = "Past het volgende thema uit je favorieten toe";
+"Go back to the standard macOS cursors" = "Gaat terug naar de standaardcursors van macOS";
+"Apply this theme" = "Past dit thema toe";
+
+/* Cursor Gestures: buttons above the gesture cards; New Gesture is also the title of the editor window for a new gesture */
+"New Gesture" = "Nieuw gebaar";
+"Shapes" = "Vormen";
+/* Cursor Gestures: filter chip that shows every gesture, or every action */
+"All" = "Alle";
+/* Cursor Gestures: heading over the shapes you drew yourself */
+"Your Shapes" = "Jouw vormen";
+/* Cursor Gestures: title of the window that edits a gesture */
+"Edit Gesture" = "Gebaar bewerken";
+/* Cursor Gestures editor: column headings */
+"Trigger" = "Trigger";
+"Details" = "Details";
+/* Cursor Gestures editor: picker of how you draw: while holding keys, with a mouse button held, or with two fingers on the trackpad */
+"Draw With" = "Tekenen met";
+"Held Keys" = "Ingedrukte toetsen";
+"Right Button" = "Rechterknop";
+"Middle Button" = "Middelste knop";
+/* Cursor Gestures: a mouse button other than the left, right and middle ones */
+"Side Button" = "Zijknop";
+"Two Fingers" = "Twee vingers";
+/* Cursor Gestures editor: picker that limits a trigger to the mouse, the trackpad or both */
+"Device" = "Apparaat";
+"Mouse" = "Muis";
+"Trackpad" = "Trackpad";
+"Both" = "Beide";
+/* Cursor Gestures editor: the device a trigger works on, shown after its keys or button in the Trigger step, when it works on both */
+"Mouse or Trackpad" = "Muis of trackpad";
+/* Cursor Gestures editor: button that adds another way to start the same gesture, and the accessibility label of the button that removes one */
+"Add Trigger" = "Trigger toevoegen";
+"Remove Trigger" = "Trigger verwijderen";
+/* Cursor Gestures editor: button that opens a box where you draw a shape of your own */
+"Draw New" = "Nieuwe vorm tekenen";
+/* Cursor Gestures editor: help tag of a shape tile another gesture already uses */
+"Another gesture uses this shape with the same trigger." = "Een ander gebaar gebruikt deze vorm met dezelfde trigger.";
+/* Cursor Gestures editor: name field of the gesture */
+"Name" = "Naam";
+/* Cursor Gestures editor: choice of the apps a gesture works in */
+"Works In" = "Werkt in";
+"Chosen Apps" = "Gekozen apps";
+/* Cursor Gestures editor: note under the Actions step's title, always shown */
+"Click an action to add it. Add more to run them in order." = "Klik op een actie om die toe te voegen. Voeg er meer toe om ze op volgorde uit te voeren.";
+/* Cursor Gestures editor: pause before a step runs; %@ is a length of time such as 150 ms */
+"Wait %@" = "%@ wachten";
+/* Cursor Gestures editor: accessibility label of the button that removes a step */
+"Remove Step" = "Stap verwijderen";
+/* Cursor Gestures editor: warning when another gesture has the same shape and trigger; %@ is that gesture's name */
+"“%@” already uses this shape and trigger." = "“%@” gebruikt deze vorm en trigger al.";
+/* Cursor Gestures editor: button in that warning; the other gesture gives up the trigger */
+"Replace" = "Vervang";
+
+/* Cursor Gestures settings: switches; each row gets a reset button once it differs from its default */
+"Show the Line While You Draw" = "Toon de lijn tijdens het tekenen";
+"Turn the Line Green When a Shape Matches" = "Maak de lijn groen als een vorm overeenkomt";
+"Show the Shape Name While You Draw" = "Toon de naam van de vorm tijdens het tekenen";
+"Repeat with a Left Click on a Mouse" = "Herhaal met een linkerklik op een muis";
+"Repeat with a Left Click on a Trackpad" = "Herhaal met een linkerklik op een trackpad";
+/* Cursor Gestures settings: help tag of the two repeat switches */
+"Keep holding the trigger after a gesture and left-click to run it again." = "Blijf na een gebaar de trigger ingedrukt houden en klik met links om het opnieuw uit te voeren.";
+/* Cursor Gestures settings: switch; drawing a new shape while repeating changes the action that repeats */
+"A New Shape Changes What Repeats" = "Een nieuwe vorm verandert wat herhaalt";
+/* Cursor Gestures settings: colour well and slider of the line you see while you draw */
+"Line Color" = "Lijnkleur";
+"Line Width" = "Lijndikte";
+/* Cursor Gestures settings: switch; when on, clicks that other software sends never act as triggers */
+"Use Only Clicks from Your Mouse or Trackpad" = "Gebruik alleen klikken van je muis of trackpad";
+/* Cursor Gestures settings: help tag and accessibility label of the button that puts one row back to its default */
+"Reset to Default" = "Zet terug naar standaard";
+/* Cursor Gestures settings: picker of what an ignored app blocks: every trigger, only mouse-button triggers, or only held-key triggers */
+"Triggers to Ignore" = "Te negeren triggers";
+"Every Trigger" = "Elke trigger";
+"Mouse Buttons" = "Muisknoppen";
+/* Cursor Gestures settings: picker of when an ignored app counts: only while it is in front, or whenever one of its windows is on screen */
+"Ignore When" = "Negeer wanneer";
+"In Front" = "Vooraan";
+"While It Has a Window" = "Zolang er een venster is";
+/* Cursor Gestures settings: button and title of the alert that adds back the ready-made gestures */
+"Restore Ready-Made Gestures" = "Herstel kant-en-klare gebaren";
+"Ready-made gestures you deleted come back, unless one of your gestures already uses the same shape and trigger." = "Kant-en-klare gebaren die je hebt verwijderd komen terug, tenzij een van je gebaren al dezelfde vorm en trigger gebruikt.";
+/* Cursor Gestures Shapes sheet: menu item on a shape you drew */
+"Rename or Redraw…" = "Wijzig naam of teken opnieuw…";
+/* Cursor Gestures: hint when the name of a drawn shape is taken */
+"Another shape has this name." = "Een andere vorm heeft deze naam.";
+/* Cursor Gestures: button of the alert shown when you open another gesture while the editor has unsaved changes; it keeps the editor as it is */
+"Keep Editing" = "Ga door met wijzigen";
+/* Cursor Gestures: alert before deleting a shape or an action that a gesture uses; %@ is its name */
+"Delete It?" = "Verwijderen?";
+"Gestures that use “%@” stop working until you pick something else for them." = "Gebaren die “%@” gebruiken werken niet meer tot je er iets anders voor kiest.";
+/* Cursor Gestures action sheet: its title when you edit an action of your own */
+"Edit Your Action" = "Bewerk je actie";
+/* Cursor Gestures action sheet: picker of what your action does: press a shortcut, type text, open an app or open a website */
+"What It Does" = "Wat het doet";
+"Keyboard Shortcut" = "Toetscombinatie";
+"Typed Text" = "Te typen tekst";
+"Website" = "Website";
+"Pick an App…" = "Kies een app…";
+"Website Address" = "Websiteadres";
+/* Cursor Gestures action sheet: limit of the text an action types */
+"Up to 500 characters." = "Maximaal 500 tekens.";
+/* Cursor Gestures action sheet: shown next to the shortcut button while it records */
+"Esc cancels." = "Esc annuleert.";
+/* Cursor Gestures: names of the two side buttons a mouse usually has */
+"Back Button" = "Terugknop";
+"Forward Button" = "Vooruitknop";
+/* Cursor Gestures editor: hint under the field that learns which side button you use */
+"Point here and click the side button you want." = "Wijs hier en klik met de zijknop die je wilt gebruiken.";
+/* Cursor Gestures settings: one-line description under the page title */
+"Draw a shape with the pointer to run an action." = "Teken een vorm met de aanwijzer om een actie uit te voeren.";
+/* Cursor Gestures settings: the tab that shows every gesture as a card */
+"Gestures" = "Gebaren";
+/* Cursor Gestures settings: notes under the titles of the General, Gestures, Shapes and Actions tabs */
+"Choose how the line looks, how closely a shape must match, and where gestures stay off." = "Kies hoe de lijn eruitziet, hoe nauwkeurig een vorm moet overeenkomen en waar gebaren uit blijven.";
+"Click a gesture to edit it. Right-click it to duplicate or delete it." = "Klik op een gebaar om het te wijzigen. Klik er met rechts op om het te dupliceren of te verwijderen.";
+"Shapes you can draw. Right-click a shape you drew to rename, redraw or delete it." = "Vormen die je kunt tekenen. Klik met rechts op een vorm die je zelf hebt getekend om de naam te wijzigen, deze opnieuw te tekenen of te verwijderen.";
+"What a gesture can do. Right-click an action you made to edit or delete it." = "Wat een gebaar kan doen. Klik met rechts op een actie die je zelf hebt gemaakt om deze te wijzigen of te verwijderen.";
+/* Cursor Gestures Actions tab: button and title of the sheet that makes an action of your own */
+"New Custom Action" = "Nieuwe eigen actie";
+/* Cursor Gestures editor: notes under the titles of the Shape, Trigger and Details steps */
+"Draw it with the pointer while you hold the trigger." = "Teken de vorm met de aanwijzer terwijl je de trigger ingedrukt houdt.";
+"Hold these keys or this button while you draw. Add another trigger for a second way to start it." = "Houd deze toetsen of deze knop ingedrukt terwijl je tekent. Voeg nog een trigger toe om het gebaar ook op een andere manier te starten.";
+"Name the gesture and choose the apps it works in." = "Geef het gebaar een naam en kies de apps waarin het werkt.";
+/* Cursor Gestures editor: button that opens the next step; %@ is that step's title, such as Trigger */
+"Next: %@" = "Volgende: %@";
+/* Cursor Gestures editor: label on a shape another gesture already uses with the same trigger */
+"In use" = "In gebruik";

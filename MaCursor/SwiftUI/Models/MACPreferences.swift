@@ -33,12 +33,15 @@ enum MACPreferences {
     static let appOverrideKey            = "MACAutoSwitchAppOverride"
     static let appOverrideBaseKey        = "MACAutoSwitchAppOverrideBase"
     static let focusFollowsMouseKey      = "MACFocusFollowsMouse"
+    static let cursorTrailsKey           = "MACCursorTrails"
+    static let cursorGesturesKey         = "MACCursorGestures"
     static let ffmAccessibilityTrustedKey = "MACFFMAccessibilityTrusted"
     static let showMenuBarIconKey        = "MACShowMenuBarIcon"
     static let menuBarPanelBackgroundKey = "MACMenuBarPanelBackground"
     static let favoriteThemesKey         = "MACFavoriteThemes"
     static let pendingOpenSettingsKey    = "MACPendingOpenSettings"
     static let pendingFFMAccessWindowKey = "MACPendingFFMAccessWindow"
+    static let pendingGesturesAccessWindowKey = "MACPendingGesturesAccessWindow"
     static let fullDiskAccessAskedKey    = "MACFullDiskAccessAsked"
     static let helperBuildKey            = "MACHelperBuild"
 
@@ -58,6 +61,8 @@ enum MACPreferences {
         appOverrideKey,
         appOverrideBaseKey,
         focusFollowsMouseKey,
+        cursorTrailsKey,
+        cursorGesturesKey,
         showMenuBarIconKey,
         menuBarPanelBackgroundKey,
         favoriteThemesKey,

@@ -1,6 +1,7 @@
 import AppKit
 import Carbon
 import Darwin
+import SwiftUI
 
 let MACHelperBundleIdentifier = "com.writronic.macursor.helper"
 let MACHelperBundleName = "MaCursorHelper"
@@ -13,6 +14,7 @@ extension Notification.Name {
     static let MACMenuBarDidChange = Notification.Name("MACMenuBarDidChange")
     static let MACOpenSettingsRequested = Notification.Name("MACOpenSettingsRequested")
     static let MACFocusFollowsMouseShowAccessWindow = Notification.Name("MACFocusFollowsMouseShowAccessWindow")
+    static let MACCursorGesturesShowAccessWindow = Notification.Name("MACCursorGesturesShowAccessWindow")
     static let MACCursorPreferencesDidChange = Notification.Name("MACCursorPreferencesDidChange")
 }
 
@@ -259,13 +261,17 @@ private func shortcutModifiers(_ rawValue: UInt) -> NSEvent.ModifierFlags {
     NSEvent.ModifierFlags(rawValue: rawValue).intersection([.command, .option, .control, .shift])
 }
 
-private func shortcutLayout() -> Data? {
+extension Notification.Name {
+    nonisolated static let inputSourceChanged = Notification.Name(kTISNotifySelectedKeyboardInputSourceChanged as String)
+}
+
+func shortcutLayout() -> Data? {
     guard let source = TISCopyCurrentASCIICapableKeyboardLayoutInputSource()?.takeRetainedValue(),
           let property = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData) else { return nil }
     return Unmanaged<CFData>.fromOpaque(property).takeUnretainedValue() as Data
 }
 
-private func shortcutKey(_ keyCode: UInt16, _ modifiers: NSEvent.ModifierFlags, _ layout: Data) -> String? {
+func shortcutKey(_ keyCode: UInt16, _ modifiers: NSEvent.ModifierFlags, _ layout: Data) -> String? {
     let state = modifiers.contains(.command) ? UInt32(cmdKey >> 8) : 0
     var deadKeyState: UInt32 = 0
     var length = 0
@@ -300,4 +306,61 @@ func MACShortcutIsAllowed(_ modifierFlagsRaw: UInt, _ keyCode: UInt16, _ layout:
 func MACShortcutsCollide(_ keyCode: UInt16, _ modifierFlagsRaw: UInt,
                          _ otherKeyCode: UInt16, _ otherModifierFlagsRaw: UInt) -> Bool {
     keyCode == otherKeyCode && shortcutModifiers(modifierFlagsRaw) == shortcutModifiers(otherModifierFlagsRaw)
+}
+
+struct ThemeCard<Preview: View>: View {
+    let name: String
+    let isApplied: Bool
+    let help: String?
+    let action: () -> Void
+    let preview: Preview
+
+    @State private var hovering = false
+
+    init(name: String, isApplied: Bool, help: String? = nil, action: @escaping () -> Void, @ViewBuilder preview: () -> Preview) {
+        self.name = name
+        self.isApplied = isApplied
+        self.help = help
+        self.action = action
+        self.preview = preview()
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                preview
+                Text(name)
+                    .font(.system(size: 10.5))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 4)
+            .frame(maxWidth: .infinity, minHeight: 72, maxHeight: .infinity, alignment: .top)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(isApplied ? Color.accentColor.opacity(0.14) : Color.primary.opacity(hovering ? 0.09 : 0.045))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(isApplied ? Color.accentColor : Color.clear, lineWidth: 1.5)
+            )
+            .overlay(alignment: .topTrailing) {
+                if isApplied {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.accentColor)
+                        .padding(4)
+                }
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .animation(.easeOut(duration: 0.12), value: hovering)
+        .help(help ?? name)
+        .accessibilityLabel(name)
+        .accessibilityAddTraits(isApplied ? .isSelected : [])
+    }
 }

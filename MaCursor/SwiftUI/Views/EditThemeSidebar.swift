@@ -116,17 +116,20 @@ final class TextEditingFocusCoordinator {
 final class EditorTextShortcutCoordinator {
     static let shared = EditorTextShortcutCoordinator()
 
-    private struct WeakEditorWindow {
-        weak var window: NSWindow?
-    }
-
-    private var registeredWindows: [WeakEditorWindow] = []
     private var eventMonitor: Any?
+    private static var recorders: [AnyObject] = []
 
     var isMonitoring: Bool { eventMonitor != nil }
 
-    var registeredWindowCount: Int {
-        registeredWindows.compactMap(\.window).count
+    static func addRecorder(_ handler: @escaping (NSEvent) -> NSEvent?) -> Any? {
+        let monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: handler)
+        if let monitor { recorders.append(monitor as AnyObject) }
+        return monitor
+    }
+
+    static func removeRecorder(_ monitor: Any) {
+        NSEvent.removeMonitor(monitor)
+        recorders.removeAll { $0 === monitor as AnyObject }
     }
 
     static func editingSelector(
@@ -149,47 +152,7 @@ final class EditorTextShortcutCoordinator {
         }
     }
 
-    func register(_ window: NSWindow) {
-        pruneReleasedWindows()
-        guard !isRegistered(window) else { return }
-        registeredWindows.append(WeakEditorWindow(window: window))
-        startMonitoring()
-    }
-
-    func isRegistered(_ window: NSWindow) -> Bool {
-        registeredWindows.contains { $0.window === window }
-    }
-
-    func stop() {
-        if let eventMonitor {
-            NSEvent.removeMonitor(eventMonitor)
-        }
-        eventMonitor = nil
-    }
-
-    @discardableResult
-    func performEditingSelector(_ selector: Selector, in window: NSWindow) -> Bool {
-        guard isRegistered(window),
-              let fieldEditor = window.firstResponder as? NSTextView,
-              fieldEditor.isFieldEditor else { return false }
-        return NSApp.sendAction(selector, to: fieldEditor, from: nil)
-    }
-
-    func handle(_ event: NSEvent, in window: NSWindow?) -> Bool {
-        pruneReleasedWindows()
-        guard !registeredWindows.isEmpty else {
-            stop()
-            return false
-        }
-        guard let window,
-              let selector = Self.editingSelector(
-                  forCharacters: event.characters(byApplyingModifiers: .command),
-                  modifiers: event.modifierFlags)
-        else { return false }
-        return performEditingSelector(selector, in: window)
-    }
-
-    private func startMonitoring() {
+    func start() {
         guard eventMonitor == nil else { return }
         eventMonitor = NSEvent.addLocalMonitorForEvents(
             matching: NSEvent.EventTypeMask([.keyDown])
@@ -202,8 +165,28 @@ final class EditorTextShortcutCoordinator {
         }
     }
 
-    private func pruneReleasedWindows() {
-        registeredWindows.removeAll { $0.window == nil }
+    func stop() {
+        if let eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
+        }
+        eventMonitor = nil
+    }
+
+    @discardableResult
+    func performEditingSelector(_ selector: Selector, in window: NSWindow) -> Bool {
+        guard let fieldEditor = window.firstResponder as? NSTextView,
+              fieldEditor.isFieldEditor else { return false }
+        return NSApp.sendAction(selector, to: fieldEditor, from: nil)
+    }
+
+    func handle(_ event: NSEvent, in window: NSWindow?) -> Bool {
+        guard Self.recorders.isEmpty,
+              let window,
+              let selector = Self.editingSelector(
+                  forCharacters: event.characters(byApplyingModifiers: .command),
+                  modifiers: event.modifierFlags)
+        else { return false }
+        return performEditingSelector(selector, in: window)
     }
 }
 

@@ -347,6 +347,7 @@ struct CursorSettingsView: View {
                                              trusted: ffmUsable)
             },
             set: { _ in
+                guard helperManager.isRunning else { return }
                 switch FocusFollowsMouseConfig.toggleAction(enabled: focusFollowsMouse.enabled,
                                                             helperInstalled: helperManager.isInstalled,
                                                             trusted: ffmUsable) {
@@ -475,13 +476,7 @@ struct CursorSettingsView: View {
     }
 
     private func presentAppPicker() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = [.applicationBundle]
-        panel.directoryURL = URL(fileURLWithPath: "/Applications")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let url = NSOpenPanel.choose(applications: true) else { return }
         guard let bundle = Bundle(url: url), let bundleID = bundle.bundleIdentifier else { return }
 
         if autoSwitch.appRule(forBundleIdentifier: bundleID) != nil {
@@ -547,6 +542,227 @@ struct CursorSettingsView: View {
         MACPreferences.set(NSNumber(value: clamped), forKey: MACPreferences.cursorScaleKey)
         CursorService.setScale(Float(max(1.0, clamped)))
         reapplyForCursorScale()
+    }
+}
+
+extension NSOpenPanel {
+    static func choose(applications: Bool) -> URL? {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = !applications
+        panel.allowsMultipleSelection = false
+        if applications {
+            panel.allowedContentTypes = [.applicationBundle]
+            panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        }
+        guard panel.runModal() == .OK else { return nil }
+        return panel.url
+    }
+}
+
+extension CursorTrailsPalette {
+    var title: String {
+        switch self {
+        case .match: return String(localized: "Match Cursor Theme")
+        case .blaze: return String(localized: "Blaze")
+        case .lime: return String(localized: "Lime")
+        case .jade: return String(localized: "Jade")
+        case .lagoon: return String(localized: "Lagoon")
+        case .cobalt: return String(localized: "Cobalt")
+        case .orchid: return String(localized: "Orchid")
+        case .cherry: return String(localized: "Cherry")
+        case .electric: return String(localized: "Electric")
+        case .twilight: return String(localized: "Twilight")
+        case .prism: return String(localized: "Prism")
+        case .graphite: return String(localized: "Graphite")
+        }
+    }
+}
+
+extension CursorTrailsStyle {
+    var title: String {
+        switch self {
+        case .line: return String(localized: "Line")
+        case .softDots: return String(localized: "Soft Dots")
+        }
+    }
+}
+
+struct CursorTrailsSettingsView: View {
+    @ObservedObject private var helperManager = HelperToolManager.shared
+    @State private var trails = CursorTrailsConfig.load()
+
+    private var cursorTrailsOn: Bool {
+        CursorTrailsConfig.isOn(enabled: trails.enabled, running: helperManager.isRunning)
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                Group {
+                    Toggle("Cursor Trails", isOn: Binding(
+                        get: { cursorTrailsOn },
+                        set: { _ in
+                            guard let enabled = CursorTrailsConfig.toggledValue(enabled: trails.enabled,
+                                                                                helperInstalled: helperManager.isInstalled,
+                                                                                running: helperManager.isRunning) else { return }
+                            trails.enabled = enabled
+                            trails.save()
+                        }
+                    ))
+                }
+                .disabled(!helperManager.isInstalled)
+
+                if !helperManager.isInstalled {
+                    HStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.yellow)
+
+                        Text("Cursor Trails requires the Helper Tool. You can install it from General → Helper Tool.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Text("A trail follows the cursor as it moves and fades when it stops. The trail stays hidden while Reduce motion is on.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            if cursorTrailsOn {
+                Section {
+                    Picker("Style", selection: Binding(
+                        get: { trails.style },
+                        set: {
+                            trails.style = $0
+                            trails.save()
+                        }
+                    )) {
+                        ForEach(CursorTrailsStyle.allCases, id: \.self) { style in
+                            Text(style.title).tag(style)
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    Slider(value: setting(\.length),
+                           in: Double(CursorTrailsConfig.lengths.lowerBound)...Double(CursorTrailsConfig.lengths.upperBound),
+                           step: 1) {
+                        Text("Length")
+                    } minimumValueLabel: {
+                        Text("Short")
+                    } maximumValueLabel: {
+                        Text("Long")
+                    }
+
+                    Slider(value: setting(\.width),
+                           in: Double(CursorTrailsConfig.widths.lowerBound)...Double(CursorTrailsConfig.widths.upperBound),
+                           step: 1) {
+                        Text("Width")
+                    } minimumValueLabel: {
+                        Text("Thin")
+                    } maximumValueLabel: {
+                        Text("Wide")
+                    }
+
+                    Toggle("Glow when still", isOn: Binding(
+                        get: { trails.glow },
+                        set: {
+                            trails.glow = $0
+                            trails.save()
+                        }
+                    ))
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Colors")
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
+                            ForEach(CursorTrailsPalette.allCases, id: \.self) { palette in
+                                ThemeCard(name: palette.title, isApplied: trails.palette == palette) {
+                                    trails.palette = palette
+                                    trails.save()
+                                } preview: {
+                                    swatch(palette)
+                                }
+                            }
+                        }
+                    }
+                } header: {
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 10) {
+                            GroupBox {
+                                Toggle(isOn: Binding(
+                                    get: { trails.useGPU && CursorTrailsConfig.hasMetal },
+                                    set: {
+                                        trails.useGPU = $0
+                                        trails.save()
+                                    }
+                                )) {
+                                    Text("Use Graphics Hardware").frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .disabled(!CursorTrailsConfig.hasMetal)
+                                .padding(5)
+                            }
+
+                            GroupBox {
+                                Toggle(isOn: Binding(
+                                    get: { trails.fade },
+                                    set: {
+                                        trails.fade = $0
+                                        trails.save()
+                                    }
+                                )) {
+                                    Text("Fade").frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .padding(5)
+                            }
+                        }
+                        .toggleStyle(.switch)
+                        .font(.body)
+                        .padding(.horizontal, -10)
+
+                        if !CursorTrailsConfig.hasMetal {
+                            Text("This Mac has no Metal graphics, so the processor draws the trail.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .disabled(!helperManager.isInstalled)
+            }
+        }
+        .formStyle(.grouped)
+        .navigationTitle("Cursor Trails")
+        .onAppear {
+            helperManager.refreshStatus()
+        }
+        .onReceive(DistributedNotificationCenter.default().publisher(for: .MACCursorTrailsDidChange)) { _ in
+            trails = CursorTrailsConfig.load()
+        }
+    }
+
+    private func setting(_ key: WritableKeyPath<CursorTrailsConfig, Int>) -> Binding<Double> {
+        Binding(
+            get: { Double(trails[keyPath: key]) },
+            set: { newValue in
+                let value = Int(newValue.rounded())
+                guard value != trails[keyPath: key] else { return }
+                trails[keyPath: key] = value
+                trails.save()
+            }
+        )
+    }
+
+    @ViewBuilder
+    private func swatch(_ palette: CursorTrailsPalette) -> some View {
+        if palette.colors.isEmpty {
+            Image(systemName: "cursorarrow")
+                .font(.system(size: 20))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, minHeight: 32)
+        } else {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(LinearGradient(colors: palette.colors.map { Color(cgColor: $0) }, startPoint: .leading, endPoint: .trailing))
+                .frame(height: 32)
+        }
     }
 }
 

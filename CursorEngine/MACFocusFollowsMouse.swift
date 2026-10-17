@@ -28,6 +28,7 @@ struct MACFFMDecisionInputs: Sendable {
     var candidateAlreadyFocused = false
     var candidateIsChildOfFocused = false
     var sameWindowRecentlyRaised = false
+    var strokeInProgress = false
 }
 
 enum MACFFMTrustAction: Sendable {
@@ -119,14 +120,15 @@ func MACFFMTrustActionFor(_ enabled: Bool, _ running: Bool, _ trusted: Bool) -> 
     return .keep
 }
 
-func MACFFMShouldPollForTrust(_ enabled: Bool, _ trusted: Bool) -> Bool {
-    enabled
+func MACFFMShouldPollForTrust(_ enabled: Bool, _ strokesEnabled: Bool, _ trusted: Bool) -> Bool {
+    enabled || strokesEnabled
 }
 
 func MACFFMShouldSkip(_ inputs: MACFFMDecisionInputs) -> Bool {
     inputs.disableModifierHeld || inputs.mouseButtonDown || inputs.spaceChangeCooldownActive ||
     inputs.gestureCooldownActive || inputs.frontmostIsDock || inputs.frontmostIsStayFocused ||
-    inputs.candidateAlreadyFocused || inputs.candidateIsChildOfFocused || inputs.sameWindowRecentlyRaised
+    inputs.candidateAlreadyFocused || inputs.candidateIsChildOfFocused || inputs.sameWindowRecentlyRaised ||
+    inputs.strokeInProgress
 }
 
 func MACFFMShouldRaise(_ inputs: MACFFMDecisionInputs, retrying: Bool) -> Bool {
@@ -191,6 +193,10 @@ final class MACFocusFollowsMouseController {
     private var lastRaiseTime: TimeInterval = 0
     private var lastRaiseBundleID: String?
     private var configEnabled = false
+    private(set) var lastTrusted = false
+    var strokesEnabled: @MainActor () -> Bool = { false }
+    var strokeInProgress: @MainActor () -> Bool = { false }
+    var trustSynced: @MainActor (Bool) -> Void = { _ in }
 
     init(trustCheck: @escaping @MainActor () -> Bool, effects: Effects = Effects()) {
         self.trustCheck = trustCheck
@@ -232,7 +238,7 @@ final class MACFocusFollowsMouseController {
     }
 
     private func updateTrustPoll(_ trusted: Bool) {
-        guard MACFFMShouldPollForTrust(configEnabled, trusted) else {
+        guard MACFFMShouldPollForTrust(configEnabled, strokesEnabled(), trusted) else {
             stopTrustPoll()
             return
         }
@@ -247,12 +253,15 @@ final class MACFocusFollowsMouseController {
 
     func syncTrust() {
         let trusted = trustCheck()
+        lastTrusted = trusted
         effects.persistTrust(trusted)
+        trustSynced(trusted)
         switch MACFFMTrustActionFor(configEnabled, isRunning, trusted) {
         case .start: start()
         case .stop: stop()
         case .keep: break
         }
+        if trusted, strokesEnabled(), systemWideElement == nil { systemWideElement = effects.createSystemWide() }
         updateTrustPoll(trusted)
     }
 
@@ -361,6 +370,27 @@ final class MACFocusFollowsMouseController {
         return CGRect(origin: origin, size: dimensions)
     }
 
+    func windowUnderPointer() -> (window: AXUIElement, owner: NSRunningApplication, frame: CGRect?)? {
+        guard let systemWideElement, let primary = NSScreen.screens.first else { return nil }
+        let point = MACFFMConvertToAXPoint(NSEvent.mouseLocation, primary.frame.height)
+        var hit: AXUIElement?
+        var pid: pid_t = 0
+        guard AXUIElementCopyElementAtPosition(systemWideElement, Float(point.x), Float(point.y), &hit) == .success, let hit,
+              let window = copyContainingWindow(hit), AXUIElementGetPid(window, &pid) == .success, pid > 0,
+              pid != ProcessInfo.processInfo.processIdentifier,
+              let owner = NSRunningApplication(processIdentifier: pid),
+              !MACFFMBundleListContains(MACFFMBuiltInIgnoreBundleIdentifiers(), owner.bundleIdentifier) else { return nil }
+        return (window, owner, copyWindowFrame(window))
+    }
+
+    func raiseWindowUnderPointer() -> Bool {
+        guard let target = windowUnderPointer() else { return false }
+        let switching = target.owner.processIdentifier != NSWorkspace.shared.frontmostApplication?.processIdentifier
+        AXUIElementPerformAction(target.window, kAXRaiseAction as CFString)
+        target.owner.activate(options: [])
+        return switching
+    }
+
     private func attemptRaise(retrying: Bool) -> Bool {
         guard let config = activeConfig else { return false }
         let now = effects.now()
@@ -375,7 +405,8 @@ final class MACFocusFollowsMouseController {
                 MACFFMWithinInterval(lastSpaceChangeTime, now, MACFFMSpaceChangeCooldown),
             gestureCooldownActive: MACFFMWithinInterval(lastGestureTime, now, MACFFMGestureCooldown),
             frontmostIsDock: frontBundle == "com.apple.dock",
-            frontmostIsStayFocused: MACFFMBundleListContains(MACFFMStayFocusedBundleIdentifiers(config), frontBundle)
+            frontmostIsStayFocused: MACFFMBundleListContains(MACFFMStayFocusedBundleIdentifiers(config), frontBundle),
+            strokeInProgress: strokeInProgress()
         )
         guard !MACFFMShouldSkip(inputs), let primary = NSScreen.screens.first else { return false }
         let point = MACFFMConvertToAXPoint(NSEvent.mouseLocation, primary.frame.height)

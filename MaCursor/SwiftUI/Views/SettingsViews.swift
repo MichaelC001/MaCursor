@@ -11,6 +11,8 @@ private class SettingsPanel: NSWindow {
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general  = "General"
     case cursor   = "Cursor Control"
+    case cursorGestures = "Cursor Gestures"
+    case cursorTrails = "Cursor Trails"
     case rightClickMenu   = "Right-Click Menu"
     case shortcut = "Shortcut"
     case about    = "About"
@@ -21,6 +23,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:  return String(localized: "General")
         case .cursor:   return String(localized: "Cursor Control")
+        case .cursorGestures: return String(localized: "Cursor Gestures")
+        case .cursorTrails: return String(localized: "Cursor Trails")
         case .rightClickMenu:   return String(localized: "Right-Click Menu")
         case .shortcut: return String(localized: "Shortcut")
         case .about:    return String(localized: "About")
@@ -31,6 +35,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:  return "gear"
         case .cursor:   return "cursorarrow"
+        case .cursorGestures: return "scribble.variable"
+        case .cursorTrails: return "cursorarrow.motionlines"
         case .rightClickMenu:   return "contextualmenu.and.cursorarrow"
         case .shortcut: return "star"
         case .about:    return "info.circle"
@@ -200,6 +206,10 @@ final class SettingsWindowController: NSWindowController, NSToolbarDelegate {
             detailView = AnyView(GeneralSettingsView(updater: updater))
         case .cursor:
             detailView = AnyView(CursorSettingsView())
+        case .cursorGestures:
+            detailView = AnyView(CursorGesturesSettingsView())
+        case .cursorTrails:
+            detailView = AnyView(CursorTrailsSettingsView())
         case .shortcut:
             detailView = AnyView(ShortcutSettingsView())
         case .rightClickMenu:
@@ -406,6 +416,9 @@ struct GeneralSettingsView: View {
         }
         AutoSwitchConfig.notifyHelper()
         FocusFollowsMouseConfig.notifyHelper()
+        CursorTrailsConfig.notifyHelper()
+        CursorGesturesConfig.notifyHelper()
+        ShortcutManager.shared.notifyConfigChanged()
 
         do {
             try FinderExtensionManager.shared.resetSettings()

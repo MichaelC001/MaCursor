@@ -42,6 +42,10 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         }
     }
 
+    func refreshTrails() {
+        if popover != nil { MenuBarPanelModel.shared.reloadTrails() }
+    }
+
     @objc private func statusItemClicked(_ sender: Any?) {
         if let event = NSApp.currentEvent, MACMenuBarClickIsSecondary(event.type, event.modifierFlags) {
             showContextMenu()

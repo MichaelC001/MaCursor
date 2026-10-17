@@ -42,6 +42,11 @@ The optional Focus on Hover feature uses macOS Accessibility APIs so the helper 
 - Window information is read at the moment of activation and never stored
 - Nothing is logged or transmitted
 
+The optional Cursor Gestures feature uses the same Accessibility access:
+
+- Requested only when you turn the feature on, and used only while it stays on
+- Nothing is logged or transmitted
+
 ---
 
 ## Finder Extension

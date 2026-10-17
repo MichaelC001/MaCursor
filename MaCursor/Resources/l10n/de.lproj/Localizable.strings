@@ -880,3 +880,415 @@
 
 /* Warning when the saved Right-Click Menu switch is on but MaCursor has no Full Disk Access. */
 "Full Disk Access is turned off." = "Der Festplattenvollzugriff ist ausgeschaltet.";
+
+/* Settings tab name and its switch; the feature draws a fading trail behind the pointer */
+"Cursor Trails" = "Cursorspuren";
+
+/* Warning under the Cursor Trails switch when the helper is missing */
+"Cursor Trails requires the Helper Tool. You can install it from General → Helper Tool." = "Für „Cursorspuren“ ist das Hilfsprogramm erforderlich. Sie können es über „Allgemein“ → „Hilfsprogramm“ installieren.";
+
+/* Caption under the Cursor Trails switch; "Reduce motion" is the macOS Accessibility → Display setting, use the system's own name */
+"A trail follows the cursor as it moves and fades when it stops. The trail stays hidden while Reduce motion is on." = "Eine Spur folgt dem Cursor, während er sich bewegt, und verblasst, wenn er anhält. Solange „Bewegung reduzieren“ aktiviert ist, bleibt die Spur ausgeblendet.";
+
+/* Label of the slider that sets how long the cursor trail is */
+"Length" = "Länge";
+
+/* Left end of the trail Length slider */
+"Short" = "Kurz";
+
+/* Right end of the trail Length slider */
+"Long" = "Lang";
+
+/* Heading above the grid of trail colour cards */
+"Colors" = "Farben";
+
+/* First colour card; the trail takes its colours from the theme's arrow */
+"Match Cursor Theme" = "Passend zum Cursor-Thema";
+
+/* Name of a trail colour card (amber, orange, red) */
+"Blaze" = "Flamme";
+
+/* Trail colour card (yellow, lime, green) */
+"Lime" = "Limette";
+
+/* Trail colour card (green, teal, blue) */
+"Jade" = "Jade";
+
+/* Trail colour card (teal, sky blue, blue) */
+"Lagoon" = "Lagune";
+
+/* Trail colour card (blue, indigo, violet) */
+"Cobalt" = "Kobalt";
+
+/* Trail colour card (violet, magenta, pink) */
+"Orchid" = "Orchidee";
+
+/* Trail colour card (pink, rose, red) */
+"Cherry" = "Kirsche";
+
+/* Trail colour card (cyan, violet, magenta) */
+"Electric" = "Elektrisch";
+
+/* Trail colour card (orange, magenta, indigo) */
+"Twilight" = "Dämmerung";
+
+/* Trail colour card (red, yellow, green, blue, violet) */
+"Prism" = "Prisma";
+
+/* Trail colour card (light to dark grey) */
+"Graphite" = "Graphit";
+
+/* Label of the slider that sets how wide the cursor trail is */
+"Width" = "Breite";
+
+/* Left end of the trail Width slider */
+"Thin" = "Schmal";
+
+/* Right end of the trail Width slider */
+"Wide" = "Breit";
+
+/* Switch under Cursor Trails, also a row in the menu bar panel: on, the graphics hardware draws the trail; off, the processor draws it. Use Apple's own term for graphics hardware in your language, and keep the label short enough for the menu bar row */
+"Use Graphics Hardware" = "Grafikhardware verwenden";
+
+/* Switch under Cursor Trails: on, the trail grows more see-through toward its old end; off, it keeps one solid colour */
+"Fade" = "Verblassen";
+
+/* Grey note under the greyed-out Use Graphics Hardware switch on a Mac without Metal graphics */
+"This Mac has no Metal graphics, so the processor draws the trail." = "Dieser Mac hat keine Metal-Grafik, daher zeichnet der Prozessor die Spur.";
+
+/* Label of the pop-up menu above the trail Length slider; it picks how the trail is drawn: Line or Soft Dots */
+"Style" = "Stil";
+
+/* Trail style: one smooth line that follows the pointer */
+"Line" = "Linie";
+
+/* Trail style: soft round dots that drift behind the pointer */
+"Soft Dots" = "Weiche Punkte";
+
+/* Switch under the trail Width slider: while the pointer rests, a soft round glow in the card's colours stays under it until the pointer moves */
+"Glow when still" = "Im Stillstand leuchten";
+
+/* Settings tab and switch: hold keys, draw a shape with the pointer, let go and an action runs */
+"Cursor Gestures" = "Cursorgesten";
+
+"Cursor Gestures requires the Helper Tool. You can install it from General → Helper Tool." = "Für „Cursorgesten“ ist das Hilfsprogramm erforderlich. Sie können es über „Allgemein“ → „Hilfsprogramm“ installieren.";
+
+"Hold the trigger keys or button, draw a shape with the pointer and let go to run its action. Esc or any other key cancels the gesture, and so does a left click when repeat is off. With repeat on, left-click while you still hold the trigger to run the last gesture again." = "Halten Sie die Auslösetasten oder die Maustaste gedrückt, zeichnen Sie mit dem Zeiger eine Form und lassen Sie los, um die Aktion auszuführen. Esc oder eine andere Taste bricht die Geste ab, ebenso ein Linksklick, wenn Wiederholen deaktiviert ist. Ist Wiederholen aktiviert, klicken Sie mit links, während Sie den Auslöser noch gedrückt halten, um die letzte Geste erneut auszuführen.";
+
+/* Cursor Gestures editor: heading over the shape pictures */
+"Shape" = "Form";
+
+"Add a gesture, then pick its shape and what it does." = "Fügen Sie eine Geste hinzu und wählen Sie dann ihre Form und was sie tut.";
+
+/* Cursor Gestures action: applies the favorite theme after the current one */
+"Next Favorite Theme" = "Nächstes Favoritenthema";
+
+/* Cursor Gestures action: puts back the macOS cursors, keeping size, hand and shadow settings */
+"Use System Cursors" = "Systemcursor verwenden";
+
+"MaCursorHelper needs Accessibility access to see the keys you hold, to hold back the mouse buttons and two-finger scrolls that draw a gesture, and to run its action. Choose Allow for Accessibility, then turn on MaCursorHelper in Privacy & Security → Accessibility." = "MaCursorHelper benötigt den Bedienungshilfen-Zugriff, um die gehaltenen Tasten zu erkennen, die Maustasten und Zwei-Finger-Scrollbewegungen zurückzuhalten, mit denen Sie eine Geste zeichnen, und deren Aktion auszuführen. Wählen Sie „Bedienungshilfen erlauben“ und aktivieren Sie MaCursorHelper anschließend unter „Datenschutz & Sicherheit“ → „Bedienungshilfen“.";
+
+/* Cursor Gestures: system actions, sent as the macOS default keyboard shortcuts */
+"Mission Control" = "Mission Control";
+"App Exposé" = "App-Exposé";
+"Move Left a Space" = "Einen Space nach links";
+"Move Right a Space" = "Einen Space nach rechts";
+"Show Desktop" = "Schreibtisch anzeigen";
+"Spotlight" = "Spotlight";
+"Lock Screen" = "Bildschirm sperren";
+"Force Quit Window" = "Fenster „Sofort beenden“";
+"Screenshot of the Screen" = "Bildschirmfoto des ganzen Bildschirms";
+"Screenshot of an Area" = "Bildschirmfoto eines Bereichs";
+"Screenshot Options" = "Bildschirmfoto-Optionen";
+
+/* Cursor Gestures: switch that raises the window under the pointer before a shortcut or text is sent */
+"Bring the Window Under the Pointer Forward First" = "Zuerst das Fenster unter dem Zeiger nach vorne holen";
+
+/* Cursor Gestures: actions on the window under the pointer */
+"Left Half" = "Linke Hälfte";
+"Right Half" = "Rechte Hälfte";
+"Top Half" = "Obere Hälfte";
+"Bottom Half" = "Untere Hälfte";
+"Top Left Quarter" = "Viertel oben links";
+"Top Right Quarter" = "Viertel oben rechts";
+"Bottom Left Quarter" = "Viertel unten links";
+"Bottom Right Quarter" = "Viertel unten rechts";
+"Left Third" = "Linkes Drittel";
+"Center Third" = "Mittleres Drittel";
+"Right Third" = "Rechtes Drittel";
+"Left Two Thirds" = "Linke zwei Drittel";
+"Right Two Thirds" = "Rechte zwei Drittel";
+"Maximize" = "Maximieren";
+"Center" = "Zentrieren";
+"Next Display" = "Nächster Bildschirm";
+"Restore Size" = "Größe wiederherstellen";
+"Minimize" = "Im Dock ablegen";
+"Close Window" = "Fenster schließen";
+"Full Screen" = "Vollbild";
+"Hide App" = "App ausblenden";
+
+/* Cursor Gestures: system actions for sound, brightness, sleep and the screen saver */
+"Volume Up" = "Lauter";
+"Volume Down" = "Leiser";
+"Mute" = "Ton aus";
+"Brightness Up" = "Heller";
+"Brightness Down" = "Dunkler";
+"Sleep" = "Ruhezustand";
+"Start Screen Saver" = "Bildschirmschoner starten";
+
+/* Cursor Gestures: slider for how closely a stroke must follow a shape to run its action */
+"Strictness" = "Strenge";
+/* Cursor Gestures: slider for the smallest stroke that runs an action */
+"Minimum Size" = "Mindestgröße";
+/* Cursor Gestures: hint inside the box where you draw a shape */
+"Draw the shape here in one stroke." = "Zeichnen Sie die Form hier in einem Zug.";
+/* Cursor Gestures: placeholder of the name field of a recorded shape */
+"Shape Name" = "Name der Form";
+/* Cursor Gestures: switch; when on, the shape drawn the other way round is a different shape */
+"Direction Counts" = "Richtung beachten";
+
+/* Cursor Gestures: filter chip and choice for the gestures that work in every app */
+"All Apps" = "Alle Apps";
+/* Cursor Gestures: row with the menu of apps where no gesture runs */
+"Ignored Apps" = "Ignorierte Apps";
+/* Cursor Gestures: help tag of the Ignored Apps row */
+"Cursor Gestures stay off in these apps for the triggers you pick." = "Cursorgesten bleiben in diesen Apps für die gewählten Auslöser aus.";
+/* Menu bar panel: switch in the Active App card that turns Cursor Gestures off for the app in front */
+"Ignore Cursor Gestures" = "Cursorgesten ignorieren";
+
+/* Cursor Gestures: action categories */
+"Apps" = "Apps";
+"Browser and Tabs" = "Browser und Tabs";
+"Clipboard" = "Zwischenablage";
+"Windows" = "Fenster";
+"Custom" = "Eigene";
+
+/* Cursor Gestures: shape families */
+"Lines" = "Linien";
+"Diagonals" = "Diagonalen";
+"Corners" = "Ecken";
+"Returns" = "Hin und zurück";
+"Curves" = "Kurven";
+"Letters" = "Buchstaben";
+
+/* Cursor Gestures: shape names; the stroke starts where the name starts */
+"Line Up" = "Linie nach oben";
+"Line Down" = "Linie nach unten";
+"Line Left" = "Linie nach links";
+"Line Right" = "Linie nach rechts";
+"Slant Up Right" = "Schräg nach rechts oben";
+"Slant Up Left" = "Schräg nach links oben";
+"Slant Down Right" = "Schräg nach rechts unten";
+"Slant Down Left" = "Schräg nach links unten";
+"Right, Then Down" = "Rechts, dann nach unten";
+"Right, Then Up" = "Rechts, dann nach oben";
+"Left, Then Down" = "Links, dann nach unten";
+"Left, Then Up" = "Links, dann nach oben";
+"Down, Then Right" = "Nach unten, dann rechts";
+"Down, Then Left" = "Nach unten, dann links";
+"Up, Then Right" = "Nach oben, dann rechts";
+"Up, Then Left" = "Nach oben, dann links";
+"Up and Back" = "Hoch und zurück";
+"Down and Back" = "Runter und zurück";
+"Left and Back" = "Nach links und zurück";
+"Right and Back" = "Nach rechts und zurück";
+"Up Right and Back" = "Nach rechts oben und zurück";
+"Up Left and Back" = "Nach links oben und zurück";
+"Down Right and Back" = "Nach rechts unten und zurück";
+"Down Left and Back" = "Nach links unten und zurück";
+"Backward C" = "Umgedrehtes C";
+"U, Right to Left" = "U, von rechts nach links";
+"Arch" = "Bogen";
+"Arch, Right to Left" = "Bogen, von rechts nach links";
+"Circle" = "Kreis";
+"V, Right to Left" = "V, von rechts nach links";
+"Peak" = "Spitze";
+
+/* Cursor Gestures: built-in actions; menu names follow each language's own Apple menus */
+"Undo" = "Widerrufen";
+"Redo" = "Wiederholen";
+"Switch to Last App" = "Zur letzten App wechseln";
+"Back" = "Zurück";
+"Forward" = "Vorwärts";
+"Top of Page" = "Seitenanfang";
+"Bottom of Page" = "Seitenende";
+"New Tab" = "Neuer Tab";
+"Close Tab" = "Tab schließen";
+"Reload Page" = "Seite neu laden";
+"Reopen Last Closed Tab" = "Zuletzt geschlossenen Tab wieder öffnen";
+"Show Next Tab" = "Nächsten Tab anzeigen";
+"Show Previous Tab" = "Vorherigen Tab anzeigen";
+"Copy" = "Kopieren";
+"Cut" = "Ausschneiden";
+"Paste" = "Einsetzen";
+
+/* Cursor Gestures: the short line under each action's name */
+"Take back your last change" = "Macht Ihre letzte Änderung rückgängig";
+"Bring back what you took back" = "Stellt Widerrufenes wieder her";
+"Go to the app you used before this one" = "Wechselt zur zuvor benutzten App";
+"Go to the page you saw before" = "Zeigt die vorherige Seite";
+"Go to the page you saw after this one" = "Zeigt die nächste Seite";
+"Jump to the start of the page" = "Springt an den Seitenanfang";
+"Jump to the end of the page" = "Springt an das Seitenende";
+"Open an empty tab" = "Öffnet einen leeren Tab";
+"Close the tab you are on" = "Schließt den aktuellen Tab";
+"Load the page again" = "Lädt die Seite neu";
+"Bring back the tab you closed" = "Holt den geschlossenen Tab zurück";
+"Move one tab to the right" = "Wechselt einen Tab nach rechts";
+"Move one tab to the left" = "Wechselt einen Tab nach links";
+"Put the selection on the clipboard" = "Legt die Auswahl in die Zwischenablage";
+"Move the selection to the clipboard" = "Verschiebt die Auswahl in die Zwischenablage";
+"Insert what is on the clipboard" = "Fügt den Inhalt der Zwischenablage ein";
+"Fit the window under the pointer to this place" = "Passt das Fenster unter dem Zeiger an diese Stelle an";
+"Move the window to the next display" = "Bewegt das Fenster auf den nächsten Bildschirm";
+"Put the window back where it was" = "Setzt das Fenster an seine alte Stelle zurück";
+"Send the window to the Dock" = "Legt das Fenster im Dock ab";
+"Close the window under the pointer" = "Schließt das Fenster unter dem Zeiger";
+"Fill the screen with the window, or go back" = "Zeigt das Fenster im Vollbild oder kehrt zurück";
+"Hide every window of the app" = "Blendet alle Fenster der App aus";
+"See all open windows at once" = "Zeigt alle offenen Fenster auf einmal";
+"See the windows of the app in front" = "Zeigt die Fenster der App im Vordergrund";
+"Go to the Space on the left" = "Wechselt zum Space links";
+"Go to the Space on the right" = "Wechselt zum Space rechts";
+"Move every window aside" = "Schiebt alle Fenster beiseite";
+"Search your Mac" = "Durchsucht Ihren Mac";
+"Lock the Mac right away" = "Sperrt den Mac sofort";
+"Choose an app that is not responding" = "Lässt Sie eine App wählen, die nicht reagiert";
+"Save a picture of the whole screen" = "Sichert ein Bild des ganzen Bildschirms";
+"Save a picture of the part you choose" = "Sichert ein Bild des gewählten Bereichs";
+"Open the screenshot tools" = "Öffnet die Bildschirmfoto-Werkzeuge";
+"Make the sound louder" = "Macht den Ton lauter";
+"Make the sound quieter" = "Macht den Ton leiser";
+"Turn the sound off or on" = "Schaltet den Ton aus oder ein";
+"Make the display brighter" = "Macht den Bildschirm heller";
+"Make the display darker" = "Macht den Bildschirm dunkler";
+"Put the Mac to sleep" = "Versetzt den Mac in den Ruhezustand";
+"Show the screen saver now" = "Zeigt sofort den Bildschirmschoner";
+"Apply the next theme in your favorites" = "Wendet das nächste Thema aus Ihren Favoriten an";
+"Go back to the standard macOS cursors" = "Kehrt zu den Standardcursorn von macOS zurück";
+"Apply this theme" = "Wendet dieses Thema an";
+
+/* Cursor Gestures: buttons above the gesture cards; New Gesture is also the title of the editor window for a new gesture */
+"New Gesture" = "Neue Geste";
+"Shapes" = "Formen";
+/* Cursor Gestures: filter chip that shows every gesture, or every action */
+"All" = "Alle";
+/* Cursor Gestures: heading over the shapes you drew yourself */
+"Your Shapes" = "Ihre Formen";
+/* Cursor Gestures: title of the window that edits a gesture */
+"Edit Gesture" = "Geste bearbeiten";
+/* Cursor Gestures editor: column headings */
+"Trigger" = "Auslöser";
+"Details" = "Details";
+/* Cursor Gestures editor: picker of how you draw: while holding keys, with a mouse button held, or with two fingers on the trackpad */
+"Draw With" = "Zeichnen mit";
+"Held Keys" = "Gehaltene Tasten";
+"Right Button" = "Rechte Taste";
+"Middle Button" = "Mittlere Taste";
+/* Cursor Gestures: a mouse button other than the left, right and middle ones */
+"Side Button" = "Seitentaste";
+"Two Fingers" = "Zwei Finger";
+/* Cursor Gestures editor: picker that limits a trigger to the mouse, the trackpad or both */
+"Device" = "Gerät";
+"Mouse" = "Maus";
+"Trackpad" = "Trackpad";
+"Both" = "Beide";
+/* Cursor Gestures editor: the device a trigger works on, shown after its keys or button in the Trigger step, when it works on both */
+"Mouse or Trackpad" = "Maus oder Trackpad";
+/* Cursor Gestures editor: button that adds another way to start the same gesture, and the accessibility label of the button that removes one */
+"Add Trigger" = "Auslöser hinzufügen";
+"Remove Trigger" = "Auslöser entfernen";
+/* Cursor Gestures editor: button that opens a box where you draw a shape of your own */
+"Draw New" = "Neue Form zeichnen";
+/* Cursor Gestures editor: help tag of a shape tile another gesture already uses */
+"Another gesture uses this shape with the same trigger." = "Eine andere Geste verwendet diese Form mit demselben Auslöser.";
+/* Cursor Gestures editor: name field of the gesture */
+"Name" = "Name";
+/* Cursor Gestures editor: choice of the apps a gesture works in */
+"Works In" = "Gilt in";
+"Chosen Apps" = "Ausgewählte Apps";
+/* Cursor Gestures editor: note under the Actions step's title, always shown */
+"Click an action to add it. Add more to run them in order." = "Klicken Sie auf eine Aktion, um sie hinzuzufügen. Fügen Sie weitere hinzu, damit sie nacheinander ausgeführt werden.";
+/* Cursor Gestures editor: pause before a step runs; %@ is a length of time such as 150 ms */
+"Wait %@" = "%@ warten";
+/* Cursor Gestures editor: accessibility label of the button that removes a step */
+"Remove Step" = "Schritt entfernen";
+/* Cursor Gestures editor: warning when another gesture has the same shape and trigger; %@ is that gesture's name */
+"“%@” already uses this shape and trigger." = "„%@“ verwendet diese Form und diesen Auslöser bereits.";
+/* Cursor Gestures editor: button in that warning; the other gesture gives up the trigger */
+"Replace" = "Ersetzen";
+
+/* Cursor Gestures settings: switches; each row gets a reset button once it differs from its default */
+"Show the Line While You Draw" = "Linie beim Zeichnen zeigen";
+"Turn the Line Green When a Shape Matches" = "Linie grün färben, wenn eine Form passt";
+"Show the Shape Name While You Draw" = "Namen der Form beim Zeichnen zeigen";
+"Repeat with a Left Click on a Mouse" = "Mit Linksklick auf der Maus wiederholen";
+"Repeat with a Left Click on a Trackpad" = "Mit Linksklick auf dem Trackpad wiederholen";
+/* Cursor Gestures settings: help tag of the two repeat switches */
+"Keep holding the trigger after a gesture and left-click to run it again." = "Halten Sie den Auslöser nach einer Geste weiter gedrückt und klicken Sie mit links, um sie erneut auszuführen.";
+/* Cursor Gestures settings: switch; drawing a new shape while repeating changes the action that repeats */
+"A New Shape Changes What Repeats" = "Neue Form ändert, was wiederholt wird";
+/* Cursor Gestures settings: colour well and slider of the line you see while you draw */
+"Line Color" = "Linienfarbe";
+"Line Width" = "Linienbreite";
+/* Cursor Gestures settings: switch; when on, clicks that other software sends never act as triggers */
+"Use Only Clicks from Your Mouse or Trackpad" = "Nur Klicks von Maus oder Trackpad verwenden";
+/* Cursor Gestures settings: help tag and accessibility label of the button that puts one row back to its default */
+"Reset to Default" = "Auf Standard zurücksetzen";
+/* Cursor Gestures settings: picker of what an ignored app blocks: every trigger, only mouse-button triggers, or only held-key triggers */
+"Triggers to Ignore" = "Zu ignorierende Auslöser";
+"Every Trigger" = "Alle Auslöser";
+"Mouse Buttons" = "Maustasten";
+/* Cursor Gestures settings: picker of when an ignored app counts: only while it is in front, or whenever one of its windows is on screen */
+"Ignore When" = "Ignorieren, wenn";
+"In Front" = "Im Vordergrund";
+"While It Has a Window" = "Solange ein Fenster offen ist";
+/* Cursor Gestures settings: button and title of the alert that adds back the ready-made gestures */
+"Restore Ready-Made Gestures" = "Fertige Gesten wiederherstellen";
+"Ready-made gestures you deleted come back, unless one of your gestures already uses the same shape and trigger." = "Gelöschte fertige Gesten kommen zurück, außer eine Ihrer Gesten verwendet bereits dieselbe Form und denselben Auslöser.";
+/* Cursor Gestures Shapes sheet: menu item on a shape you drew */
+"Rename or Redraw…" = "Umbenennen oder neu zeichnen …";
+/* Cursor Gestures: hint when the name of a drawn shape is taken */
+"Another shape has this name." = "Eine andere Form hat diesen Namen.";
+/* Cursor Gestures: button of the alert shown when you open another gesture while the editor has unsaved changes; it keeps the editor as it is */
+"Keep Editing" = "Weiter bearbeiten";
+/* Cursor Gestures: alert before deleting a shape or an action that a gesture uses; %@ is its name */
+"Delete It?" = "Wirklich löschen?";
+"Gestures that use “%@” stop working until you pick something else for them." = "Gesten, die „%@“ verwenden, funktionieren nicht mehr, bis Sie etwas anderes für sie wählen.";
+/* Cursor Gestures action sheet: its title when you edit an action of your own */
+"Edit Your Action" = "Ihre Aktion bearbeiten";
+/* Cursor Gestures action sheet: picker of what your action does: press a shortcut, type text, open an app or open a website */
+"What It Does" = "Was sie tut";
+"Keyboard Shortcut" = "Tastaturkurzbefehl";
+"Typed Text" = "Einzugebender Text";
+"Website" = "Website";
+"Pick an App…" = "App auswählen …";
+"Website Address" = "Website-Adresse";
+/* Cursor Gestures action sheet: limit of the text an action types */
+"Up to 500 characters." = "Bis zu 500 Zeichen.";
+/* Cursor Gestures action sheet: shown next to the shortcut button while it records */
+"Esc cancels." = "Esc bricht ab.";
+/* Cursor Gestures: names of the two side buttons a mouse usually has */
+"Back Button" = "Zurück-Taste";
+"Forward Button" = "Vorwärts-Taste";
+/* Cursor Gestures editor: hint under the field that learns which side button you use */
+"Point here and click the side button you want." = "Zeigen Sie hierher und klicken Sie mit der gewünschten Seitentaste.";
+/* Cursor Gestures settings: one-line description under the page title */
+"Draw a shape with the pointer to run an action." = "Zeichnen Sie mit dem Zeiger eine Form, um eine Aktion auszuführen.";
+/* Cursor Gestures settings: the tab that shows every gesture as a card */
+"Gestures" = "Gesten";
+/* Cursor Gestures settings: notes under the titles of the General, Gestures, Shapes and Actions tabs */
+"Choose how the line looks, how closely a shape must match, and where gestures stay off." = "Wählen Sie, wie die Linie aussieht, wie genau eine Form passen muss und wo Gesten ausgeschaltet bleiben.";
+"Click a gesture to edit it. Right-click it to duplicate or delete it." = "Klicken Sie auf eine Geste, um sie zu bearbeiten. Klicken Sie mit der rechten Maustaste darauf, um sie zu duplizieren oder zu löschen.";
+"Shapes you can draw. Right-click a shape you drew to rename, redraw or delete it." = "Formen, die Sie zeichnen können. Klicken Sie mit der rechten Maustaste auf eine selbst gezeichnete Form, um sie umzubenennen, neu zu zeichnen oder zu löschen.";
+"What a gesture can do. Right-click an action you made to edit or delete it." = "Was eine Geste tun kann. Klicken Sie mit der rechten Maustaste auf eine eigene Aktion, um sie zu bearbeiten oder zu löschen.";
+/* Cursor Gestures Actions tab: button and title of the sheet that makes an action of your own */
+"New Custom Action" = "Neue eigene Aktion";
+/* Cursor Gestures editor: notes under the titles of the Shape, Trigger and Details steps */
+"Draw it with the pointer while you hold the trigger." = "Zeichnen Sie sie mit dem Zeiger, während Sie den Auslöser halten.";
+"Hold these keys or this button while you draw. Add another trigger for a second way to start it." = "Halten Sie beim Zeichnen diese Tasten oder diese Maustaste gedrückt. Fügen Sie einen weiteren Auslöser hinzu, um die Geste auch auf andere Weise zu starten.";
+"Name the gesture and choose the apps it works in." = "Geben Sie der Geste einen Namen und wählen Sie die Apps, in denen sie gilt.";
+/* Cursor Gestures editor: button that opens the next step; %@ is that step's title, such as Trigger */
+"Next: %@" = "Weiter: %@";
+/* Cursor Gestures editor: label on a shape another gesture already uses with the same trigger */
+"In use" = "Belegt";

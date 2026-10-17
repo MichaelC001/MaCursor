@@ -14,6 +14,7 @@ private enum PanelMetrics {
 
 struct MenuBarPanelView: View {
     @ObservedObject var model: MenuBarPanelModel
+    @AppStorage("MACMenuBarCursorTrailsExpanded") private var trailsExpanded = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: PanelMetrics.sectionSpacing) {
@@ -21,6 +22,7 @@ struct MenuBarPanelView: View {
             themesSection
             activeAppSection
             quickControlsSection
+            cursorTrailsSection
         }
         .padding(PanelMetrics.padding)
         .frame(width: PanelMetrics.width)
@@ -116,10 +118,21 @@ struct MenuBarPanelView: View {
                                  count: PanelMetrics.gridColumns),
                   spacing: PanelMetrics.gridSpacing) {
             ForEach(model.favoriteThemes) { theme in
-                ThemeCard(name: theme.name,
-                          image: model.thumbnail(forTheme: theme.id),
-                          isApplied: model.visibleIdentifier == theme.id) {
+                ThemeCard(name: theme.name, isApplied: model.visibleIdentifier == theme.id) {
                     model.apply(theme: theme.id)
+                } preview: {
+                    ZStack {
+                        if let image = model.thumbnail(forTheme: theme.id) {
+                            Image(nsImage: image)
+                                .resizable()
+                                .scaledToFit()
+                        } else {
+                            Image(systemName: "cursorarrow.rays")
+                                .font(.system(size: 20, weight: .regular))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(width: PanelMetrics.thumbnail, height: PanelMetrics.thumbnail)
                 }
             }
         }
@@ -178,6 +191,14 @@ struct MenuBarPanelView: View {
                         .pickerStyle(.menu)
                         .controlSize(.small)
                         .font(.system(size: 11))
+                    }
+                    if model.cursorGestures.enabled && model.accessibilityTrusted {
+                        Toggle(isOn: binding(model.ignoresFrontApp, model.ignoreFrontApp)) {
+                            Text(MenuBarL("Ignore Cursor Gestures")).frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                            .font(.system(size: 12))
                     }
                 } else {
                     Text(MenuBarL("No app in front"))
@@ -238,7 +259,10 @@ struct MenuBarPanelView: View {
                 Toggle(isOn: focusFollowsMouseBinding) {
                     Text(MenuBarL("Focus on Hover")).frame(maxWidth: .infinity, alignment: .leading)
                 }
-                if model.focusFollowsMouse && !model.accessibilityTrusted {
+                Toggle(isOn: cursorGesturesBinding) {
+                    Text(MenuBarL("Cursor Gestures")).frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if (model.focusFollowsMouse || model.cursorGestures.enabled) && !model.accessibilityTrusted {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
@@ -257,6 +281,60 @@ struct MenuBarPanelView: View {
             .font(.system(size: 12))
             .panelCard()
         }
+    }
+
+    private var cursorTrailsSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                withAnimation(.easeOut(duration: 0.15)) { trailsExpanded.toggle() }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 8.5, weight: .bold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(trailsExpanded ? 90 : 0))
+                        .accessibilityHidden(true)
+                    sectionTitle(MenuBarL("Cursor Trails"))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            if trailsExpanded {
+                VStack(spacing: 0) {
+                    trailsRow(MenuBarL("Cursor Trails"), icon: "cursorarrow.motionlines", key: \.enabled, isOn: model.cursorTrails.enabled)
+                    Divider().padding(.leading, 41).padding(.trailing, 10)
+                    trailsRow(MenuBarL("Use Graphics Hardware"), icon: "cpu", key: \.useGPU, isOn: model.cursorTrails.useGPU && CursorTrailsConfig.hasMetal)
+                    Divider().padding(.leading, 41).padding(.trailing, 10)
+                    trailsRow(MenuBarL("Fade"), icon: "circle.lefthalf.filled", key: \.fade, isOn: model.cursorTrails.fade)
+                    Divider().padding(.leading, 41).padding(.trailing, 10)
+                    trailsRow(MenuBarL("Glow when still"), icon: "sun.max", key: \.glow, isOn: model.cursorTrails.glow)
+                }
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .panelCard(padding: 0)
+            }
+        }
+    }
+
+    private func trailsRow(_ title: String, icon: String, key: WritableKeyPath<CursorTrailsConfig, Bool>, isOn: Bool) -> some View {
+        let enabled = model.cursorTrails.canSet(key)
+        return Toggle(isOn: binding(isOn) { model.setCursorTrails(key, $0) }) {
+            HStack(spacing: 9) {
+                Image(systemName: icon)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color(nsColor: !enabled ? .tertiaryLabelColor : isOn ? .controlAccentColor : .secondaryLabelColor))
+                    .frame(width: 22)
+                    .accessibilityHidden(true)
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(enabled ? .primary : .tertiary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .disabled(!enabled)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
     }
 
     private var scaleBinding: Binding<Double> {
@@ -288,71 +366,21 @@ struct MenuBarPanelView: View {
             set: { _ in model.toggleFocusFollowsMouse() }
         )
     }
-}
 
-private struct ThemeCard: View {
-    let name: String
-    let image: NSImage?
-    let isApplied: Bool
-    let action: () -> Void
-
-    @State private var hovering = false
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                ZStack {
-                    if let image {
-                        Image(nsImage: image)
-                            .resizable()
-                            .scaledToFit()
-                    } else {
-                        Image(systemName: "cursorarrow.rays")
-                            .font(.system(size: 20, weight: .regular))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .frame(width: PanelMetrics.thumbnail, height: PanelMetrics.thumbnail)
-                Text(name)
-                    .font(.system(size: 10.5))
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 4)
-            .frame(maxWidth: .infinity, minHeight: 72, maxHeight: .infinity, alignment: .top)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(isApplied ? Color.accentColor.opacity(0.14) : Color.primary.opacity(hovering ? 0.09 : 0.045))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(isApplied ? Color.accentColor : Color.clear, lineWidth: 1.5)
-            )
-            .overlay(alignment: .topTrailing) {
-                if isApplied {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.accentColor)
-                        .padding(4)
-                }
-            }
-            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
-        .animation(.easeOut(duration: 0.12), value: hovering)
-        .help(name)
-        .accessibilityLabel(name)
-        .accessibilityAddTraits(isApplied ? .isSelected : [])
+    private var cursorGesturesBinding: Binding<Bool> {
+        Binding(
+            get: { model.cursorGestures.enabled && model.accessibilityTrusted },
+            set: { _ in model.toggleCursorGestures() }
+        )
     }
 }
 
 private struct PanelCard: ViewModifier {
+    let padding: CGFloat
+
     func body(content: Content) -> some View {
         content
-            .padding(10)
+            .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: PanelMetrics.cardRadius, style: .continuous)
@@ -366,7 +394,7 @@ private struct PanelCard: ViewModifier {
 }
 
 private extension View {
-    func panelCard() -> some View {
-        modifier(PanelCard())
+    func panelCard(padding: CGFloat = 10) -> some View {
+        modifier(PanelCard(padding: padding))
     }
 }

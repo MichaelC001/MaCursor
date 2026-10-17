@@ -5,6 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private(set) var pendingImportURLs: [URL] = []
     private var accessRequestObserver: NSObjectProtocol?
+    private var gesturesAccessRequestObserver: NSObjectProtocol?
 
     var isViewReady = false
 
@@ -15,7 +16,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         ModalWindowCoordinator.shared.start()
         TextEditingFocusCoordinator.shared.start()
+        EditorTextShortcutCoordinator.shared.start()
         startFocusFollowsMouseAccessRequests()
+        startCursorGesturesAccessRequests()
 
         let systemDefaultPath = MACCursorCapture.systemDefaultPath
         if !FileManager.default.fileExists(atPath: systemDefaultPath) {
@@ -108,6 +111,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard MACPreferences.flag(MACPreferences.pendingFFMAccessWindowKey) else { return }
         MACPreferences.setFlag(false, forKey: MACPreferences.pendingFFMAccessWindowKey)
         AccessWindowController.focusFollowsMouse.present()
+    }
+
+    private func startCursorGesturesAccessRequests() {
+        gesturesAccessRequestObserver = DistributedNotificationCenter.default().addObserver(
+            forName: .MACCursorGesturesShowAccessWindow,
+            object: nil,
+            queue: .main
+        ) { _ in
+            AccessWindowController.cursorGestures.present()
+        }
+        guard MACPreferences.flag(MACPreferences.pendingGesturesAccessWindowKey) else { return }
+        MACPreferences.setFlag(false, forKey: MACPreferences.pendingGesturesAccessWindowKey)
+        AccessWindowController.cursorGestures.present()
     }
 
 }

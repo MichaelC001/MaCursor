@@ -223,7 +223,7 @@ class LibraryController: @unchecked Sendable {
 
     @MainActor
     func restoreTheme() {
-        try? MACCursorActions.shared.resetAllCursors()
+        CursorService.restoreAll()
         appliedTheme = nil
     }
 

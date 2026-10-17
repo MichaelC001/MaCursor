@@ -15,6 +15,8 @@ enum MenuBarService {
         let cursorShadow: Bool
         let focusFollowsMouse: Bool
         let accessibilityTrusted: Bool
+        let cursorTrails: CursorTrailsConfig
+        let cursorGestures: CursorGesturesConfig
         let cursorScale: Double
         let panelBackdropAlpha: Double
     }
@@ -106,6 +108,8 @@ enum MenuBarService {
             cursorShadow: MACPreferences.flag(MACPreferences.cursorShadowKey),
             focusFollowsMouse: MACFFMEnabled(MACFFMReadConfig()),
             accessibilityTrusted: HelperTrustProbe.isTrusted(),
+            cursorTrails: CursorTrailsConfig.load(),
+            cursorGestures: CursorGesturesConfig.load(),
             cursorScale: scale.map { MACMenuBarClampCursorScale($0.doubleValue) } ?? 1,
             panelBackdropAlpha: MACMenuBarPanelBackdropAlpha(panelBackgroundLevel())
         )
@@ -130,6 +134,12 @@ enum MenuBarService {
         try? MACCursorActions.shared.resetAllCursors()
         postDistributed(.MACAutoSwitchAppliedThemeDidChange)
         postDistributed(.MACCursorPreferencesDidChange)
+    }
+
+    static func resetCursorsOnly() {
+        MACAutoSwitchEffects.shared.clearAppOverride()
+        try? MACCursorActions.shared.resetAllCursors()
+        postDistributed(.MACAutoSwitchAppliedThemeDidChange)
     }
 
     static func setSwitchByApp(_ enabled: Bool) {
@@ -175,6 +185,18 @@ enum MenuBarService {
         postDistributed(.MACFocusFollowsMouseDidChange)
     }
 
+    static func setCursorTrails(_ key: WritableKeyPath<CursorTrailsConfig, Bool>, _ value: Bool) {
+        var config = CursorTrailsConfig.load()
+        config[keyPath: key] = value
+        config.save()
+    }
+
+    static func setCursorGestures(_ change: (inout CursorGesturesConfig) -> Void) {
+        var config = CursorGesturesConfig.load()
+        change(&config)
+        config.save()
+    }
+
     static func openAccessibilitySettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             NSWorkspace.shared.open(url)
@@ -198,6 +220,15 @@ enum MenuBarService {
             MACPreferences.setFlag(true, forKey: MACPreferences.pendingFFMAccessWindowKey)
         } else {
             postDistributed(.MACFocusFollowsMouseShowAccessWindow)
+        }
+        launchParentAppThenPost(nil)
+    }
+
+    static func requestCursorGesturesAccess() {
+        if NSRunningApplication.runningApplications(withBundleIdentifier: MACAppBundleIdentifier).isEmpty {
+            MACPreferences.setFlag(true, forKey: MACPreferences.pendingGesturesAccessWindowKey)
+        } else {
+            postDistributed(.MACCursorGesturesShowAccessWindow)
         }
         launchParentAppThenPost(nil)
     }

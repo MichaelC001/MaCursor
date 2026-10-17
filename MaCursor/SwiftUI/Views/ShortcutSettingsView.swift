@@ -254,20 +254,7 @@ private struct SlotCardView: View {
             }
             .fixedSize(horizontal: true, vertical: false)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isSelected ? Color.accentColor.opacity(0.1) : Color(nsColor: .controlBackgroundColor))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(
-                            isSelected ? Color.accentColor.opacity(0.5) : Color(nsColor: .separatorColor).opacity(0.5),
-                            lineWidth: 1
-                        )
-                }
-        }
-        .contentShape(Rectangle())
+        .shortcutCard(selected: isSelected)
     }
 
     private var themeSelection: Binding<String?> {
@@ -275,6 +262,25 @@ private struct SlotCardView: View {
             get: { themes.contains { $0.id == slot.themeIdentifier } ? slot.themeIdentifier : nil },
             set: { slot.themeIdentifier = $0 }
         )
+    }
+}
+
+private extension View {
+    func shortcutCard(selected: Bool) -> some View {
+        padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(selected ? Color.accentColor.opacity(0.1) : Color(nsColor: .controlBackgroundColor))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(
+                                selected ? Color.accentColor.opacity(0.5) : Color(nsColor: .separatorColor).opacity(0.5),
+                                lineWidth: 1
+                            )
+                    }
+            }
+            .contentShape(Rectangle())
     }
 }
 
@@ -343,7 +349,7 @@ private struct KeyRecorderView: View {
     private func startRecording() {
         isRecording = true
 
-        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
+        eventMonitor = EditorTextShortcutCoordinator.addRecorder { event in
             let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
 
             if event.keyCode == 53 {
@@ -378,7 +384,7 @@ private struct KeyRecorderView: View {
     private func stopRecording() {
         isRecording = false
         if let eventMonitor {
-            NSEvent.removeMonitor(eventMonitor)
+            EditorTextShortcutCoordinator.removeRecorder(eventMonitor)
         }
         eventMonitor = nil
     }

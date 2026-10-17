@@ -880,3 +880,415 @@
 
 /* Warning when the saved Right-Click Menu switch is on but MaCursor has no Full Disk Access. */
 "Full Disk Access is turned off." = "完全磁盘访问权限已关闭。";
+
+/* Settings tab name and its switch; the feature draws a fading trail behind the pointer */
+"Cursor Trails" = "指针轨迹";
+
+/* Warning under the Cursor Trails switch when the helper is missing */
+"Cursor Trails requires the Helper Tool. You can install it from General → Helper Tool." = "“指针轨迹”需要“辅助工具”。你可以从“通用”→“辅助工具”中安装。";
+
+/* Caption under the Cursor Trails switch; "Reduce motion" is the macOS Accessibility → Display setting, use the system's own name */
+"A trail follows the cursor as it moves and fades when it stops. The trail stays hidden while Reduce motion is on." = "指针移动时会留下轨迹，停止后轨迹会淡出。开启“减弱动态效果”时不显示轨迹。";
+
+/* Label of the slider that sets how long the cursor trail is */
+"Length" = "长度";
+
+/* Left end of the trail Length slider */
+"Short" = "短";
+
+/* Right end of the trail Length slider */
+"Long" = "长";
+
+/* Heading above the grid of trail colour cards */
+"Colors" = "颜色";
+
+/* First colour card; the trail takes its colours from the theme's arrow */
+"Match Cursor Theme" = "与指针主题一致";
+
+/* Name of a trail colour card (amber, orange, red) */
+"Blaze" = "烈焰";
+
+/* Trail colour card (yellow, lime, green) */
+"Lime" = "青柠";
+
+/* Trail colour card (green, teal, blue) */
+"Jade" = "翡翠";
+
+/* Trail colour card (teal, sky blue, blue) */
+"Lagoon" = "潟湖";
+
+/* Trail colour card (blue, indigo, violet) */
+"Cobalt" = "钴蓝";
+
+/* Trail colour card (violet, magenta, pink) */
+"Orchid" = "兰紫";
+
+/* Trail colour card (pink, rose, red) */
+"Cherry" = "樱桃";
+
+/* Trail colour card (cyan, violet, magenta) */
+"Electric" = "电光";
+
+/* Trail colour card (orange, magenta, indigo) */
+"Twilight" = "暮光";
+
+/* Trail colour card (red, yellow, green, blue, violet) */
+"Prism" = "棱镜";
+
+/* Trail colour card (light to dark grey) */
+"Graphite" = "石墨";
+
+/* Label of the slider that sets how wide the cursor trail is */
+"Width" = "宽度";
+
+/* Left end of the trail Width slider */
+"Thin" = "细";
+
+/* Right end of the trail Width slider */
+"Wide" = "粗";
+
+/* Switch under Cursor Trails, also a row in the menu bar panel: on, the graphics hardware draws the trail; off, the processor draws it. Use Apple's own term for graphics hardware in your language, and keep the label short enough for the menu bar row */
+"Use Graphics Hardware" = "使用图形硬件";
+
+/* Switch under Cursor Trails: on, the trail grows more see-through toward its old end; off, it keeps one solid colour */
+"Fade" = "淡出";
+
+/* Grey note under the greyed-out Use Graphics Hardware switch on a Mac without Metal graphics */
+"This Mac has no Metal graphics, so the processor draws the trail." = "这台 Mac 不支持 Metal 图形，因此由处理器绘制轨迹。";
+
+/* Label of the pop-up menu above the trail Length slider; it picks how the trail is drawn: Line or Soft Dots */
+"Style" = "样式";
+
+/* Trail style: one smooth line that follows the pointer */
+"Line" = "线条";
+
+/* Trail style: soft round dots that drift behind the pointer */
+"Soft Dots" = "柔和圆点";
+
+/* Switch under the trail Width slider: while the pointer rests, a soft round glow in the card's colours stays under it until the pointer moves */
+"Glow when still" = "静止时发光";
+
+/* Settings tab and switch: hold keys, draw a shape with the pointer, let go and an action runs */
+"Cursor Gestures" = "指针手势";
+
+"Cursor Gestures requires the Helper Tool. You can install it from General → Helper Tool." = "“指针手势”需要“辅助工具”。你可以从“通用”→“辅助工具”中安装。";
+
+"Hold the trigger keys or button, draw a shape with the pointer and let go to run its action. Esc or any other key cancels the gesture, and so does a left click when repeat is off. With repeat on, left-click while you still hold the trigger to run the last gesture again." = "按住触发键或按钮，用指针画出一个形状，然后松开即可执行其操作。按下 Esc 或其他任意键会取消手势；关闭重复时，左键点按也会取消。打开重复后，在仍按住触发键时左键点按，即可再次执行上一个手势。";
+
+/* Cursor Gestures editor: heading over the shape pictures */
+"Shape" = "形状";
+
+"Add a gesture, then pick its shape and what it does." = "添加一个手势，然后选择它的形状和要执行的操作。";
+
+/* Cursor Gestures action: applies the favorite theme after the current one */
+"Next Favorite Theme" = "下一个收藏的主题";
+
+/* Cursor Gestures action: puts back the macOS cursors, keeping size, hand and shadow settings */
+"Use System Cursors" = "使用系统指针";
+
+"MaCursorHelper needs Accessibility access to see the keys you hold, to hold back the mouse buttons and two-finger scrolls that draw a gesture, and to run its action. Choose Allow for Accessibility, then turn on MaCursorHelper in Privacy & Security → Accessibility." = "MaCursorHelper 需要辅助功能权限，才能识别你按住的按键，暂时拦截用来绘制手势的鼠标按键和双指滚动，并执行手势的操作。请选择“允许辅助功能”，然后在“隐私与安全性”→“辅助功能”中允许 MaCursorHelper。";
+
+/* Cursor Gestures: system actions, sent as the macOS default keyboard shortcuts */
+"Mission Control" = "调度中心";
+"App Exposé" = "应用程序窗口";
+"Move Left a Space" = "向左移动一个空间";
+"Move Right a Space" = "向右移动一个空间";
+"Show Desktop" = "显示桌面";
+"Spotlight" = "聚焦搜索";
+"Lock Screen" = "锁定屏幕";
+"Force Quit Window" = "“强制退出”窗口";
+"Screenshot of the Screen" = "整个屏幕的截屏";
+"Screenshot of an Area" = "所选区域的截屏";
+"Screenshot Options" = "截屏选项";
+
+/* Cursor Gestures: switch that raises the window under the pointer before a shortcut or text is sent */
+"Bring the Window Under the Pointer Forward First" = "先将指针下方的窗口移到前面";
+
+/* Cursor Gestures: actions on the window under the pointer */
+"Left Half" = "左半边";
+"Right Half" = "右半边";
+"Top Half" = "上半边";
+"Bottom Half" = "下半边";
+"Top Left Quarter" = "左上四分之一";
+"Top Right Quarter" = "右上四分之一";
+"Bottom Left Quarter" = "左下四分之一";
+"Bottom Right Quarter" = "右下四分之一";
+"Left Third" = "左侧三分之一";
+"Center Third" = "中间三分之一";
+"Right Third" = "右侧三分之一";
+"Left Two Thirds" = "左侧三分之二";
+"Right Two Thirds" = "右侧三分之二";
+"Maximize" = "最大化";
+"Center" = "居中";
+"Next Display" = "下一个显示器";
+"Restore Size" = "恢复大小";
+"Minimize" = "最小化";
+"Close Window" = "关闭窗口";
+"Full Screen" = "全屏幕";
+"Hide App" = "隐藏应用";
+
+/* Cursor Gestures: system actions for sound, brightness, sleep and the screen saver */
+"Volume Up" = "调高音量";
+"Volume Down" = "调低音量";
+"Mute" = "静音";
+"Brightness Up" = "调高亮度";
+"Brightness Down" = "调低亮度";
+"Sleep" = "睡眠";
+"Start Screen Saver" = "启动屏幕保护程序";
+
+/* Cursor Gestures: slider for how closely a stroke must follow a shape to run its action */
+"Strictness" = "严格度";
+/* Cursor Gestures: slider for the smallest stroke that runs an action */
+"Minimum Size" = "最小尺寸";
+/* Cursor Gestures: hint inside the box where you draw a shape */
+"Draw the shape here in one stroke." = "在此处一笔画出形状。";
+/* Cursor Gestures: placeholder of the name field of a recorded shape */
+"Shape Name" = "形状名称";
+/* Cursor Gestures: switch; when on, the shape drawn the other way round is a different shape */
+"Direction Counts" = "区分方向";
+
+/* Cursor Gestures: filter chip and choice for the gestures that work in every app */
+"All Apps" = "所有应用";
+/* Cursor Gestures: row with the menu of apps where no gesture runs */
+"Ignored Apps" = "忽略的应用";
+/* Cursor Gestures: help tag of the Ignored Apps row */
+"Cursor Gestures stay off in these apps for the triggers you pick." = "对于你选择的触发方式，指针手势在这些应用中保持关闭。";
+/* Menu bar panel: switch in the Active App card that turns Cursor Gestures off for the app in front */
+"Ignore Cursor Gestures" = "忽略指针手势";
+
+/* Cursor Gestures: action categories */
+"Apps" = "应用";
+"Browser and Tabs" = "浏览器和标签页";
+"Clipboard" = "剪贴板";
+"Windows" = "窗口";
+"Custom" = "自定";
+
+/* Cursor Gestures: shape families */
+"Lines" = "直线";
+"Diagonals" = "斜线";
+"Corners" = "拐角";
+"Returns" = "往返";
+"Curves" = "曲线";
+"Letters" = "字母";
+
+/* Cursor Gestures: shape names; the stroke starts where the name starts */
+"Line Up" = "向上直线";
+"Line Down" = "向下直线";
+"Line Left" = "向左直线";
+"Line Right" = "向右直线";
+"Slant Up Right" = "向右上斜线";
+"Slant Up Left" = "向左上斜线";
+"Slant Down Right" = "向右下斜线";
+"Slant Down Left" = "向左下斜线";
+"Right, Then Down" = "先向右再向下";
+"Right, Then Up" = "先向右再向上";
+"Left, Then Down" = "先向左再向下";
+"Left, Then Up" = "先向左再向上";
+"Down, Then Right" = "先向下再向右";
+"Down, Then Left" = "先向下再向左";
+"Up, Then Right" = "先向上再向右";
+"Up, Then Left" = "先向上再向左";
+"Up and Back" = "向上再返回";
+"Down and Back" = "向下再返回";
+"Left and Back" = "向左再返回";
+"Right and Back" = "向右再返回";
+"Up Right and Back" = "向右上再返回";
+"Up Left and Back" = "向左上再返回";
+"Down Right and Back" = "向右下再返回";
+"Down Left and Back" = "向左下再返回";
+"Backward C" = "反向 C";
+"U, Right to Left" = "U（从右到左）";
+"Arch" = "拱形";
+"Arch, Right to Left" = "拱形（从右到左）";
+"Circle" = "圆圈";
+"V, Right to Left" = "V（从右到左）";
+"Peak" = "尖峰";
+
+/* Cursor Gestures: built-in actions; menu names follow each language's own Apple menus */
+"Undo" = "撤销";
+"Redo" = "重做";
+"Switch to Last App" = "切换到上一个应用";
+"Back" = "返回";
+"Forward" = "前进";
+"Top of Page" = "页面顶部";
+"Bottom of Page" = "页面底部";
+"New Tab" = "新建标签页";
+"Close Tab" = "关闭标签页";
+"Reload Page" = "重新载入页面";
+"Reopen Last Closed Tab" = "重新打开上次关闭的标签页";
+"Show Next Tab" = "显示下一个标签页";
+"Show Previous Tab" = "显示上一个标签页";
+"Copy" = "拷贝";
+"Cut" = "剪切";
+"Paste" = "粘贴";
+
+/* Cursor Gestures: the short line under each action's name */
+"Take back your last change" = "撤销上一次更改";
+"Bring back what you took back" = "恢复已撤销的更改";
+"Go to the app you used before this one" = "切换到之前使用的应用";
+"Go to the page you saw before" = "前往上一个页面";
+"Go to the page you saw after this one" = "前往下一个页面";
+"Jump to the start of the page" = "跳到页面开头";
+"Jump to the end of the page" = "跳到页面末尾";
+"Open an empty tab" = "打开空白标签页";
+"Close the tab you are on" = "关闭当前标签页";
+"Load the page again" = "重新载入页面";
+"Bring back the tab you closed" = "恢复你关闭的标签页";
+"Move one tab to the right" = "切换到右侧标签页";
+"Move one tab to the left" = "切换到左侧标签页";
+"Put the selection on the clipboard" = "将所选内容放到剪贴板";
+"Move the selection to the clipboard" = "将所选内容移到剪贴板";
+"Insert what is on the clipboard" = "插入剪贴板中的内容";
+"Fit the window under the pointer to this place" = "将指针下方的窗口放到此位置";
+"Move the window to the next display" = "将窗口移到下一个显示器";
+"Put the window back where it was" = "将窗口放回原处";
+"Send the window to the Dock" = "将窗口放入程序坞";
+"Close the window under the pointer" = "关闭指针下方的窗口";
+"Fill the screen with the window, or go back" = "让窗口全屏显示，或者退出全屏";
+"Hide every window of the app" = "隐藏该应用的所有窗口";
+"See all open windows at once" = "一次显示所有打开的窗口";
+"See the windows of the app in front" = "显示前台应用的窗口";
+"Go to the Space on the left" = "前往左侧的空间";
+"Go to the Space on the right" = "前往右侧的空间";
+"Move every window aside" = "将所有窗口移到一边";
+"Search your Mac" = "搜索你的 Mac";
+"Lock the Mac right away" = "立即锁定 Mac";
+"Choose an app that is not responding" = "选择没有响应的应用";
+"Save a picture of the whole screen" = "保存整个屏幕的图片";
+"Save a picture of the part you choose" = "保存所选部分的图片";
+"Open the screenshot tools" = "打开截屏工具";
+"Make the sound louder" = "调高音量";
+"Make the sound quieter" = "调低音量";
+"Turn the sound off or on" = "关闭或打开声音";
+"Make the display brighter" = "调亮显示器";
+"Make the display darker" = "调暗显示器";
+"Put the Mac to sleep" = "让 Mac 进入睡眠";
+"Show the screen saver now" = "立即显示屏幕保护程序";
+"Apply the next theme in your favorites" = "应用收藏中的下一个主题";
+"Go back to the standard macOS cursors" = "恢复为标准 macOS 指针";
+"Apply this theme" = "应用此主题";
+
+/* Cursor Gestures: buttons above the gesture cards; New Gesture is also the title of the editor window for a new gesture */
+"New Gesture" = "新建手势";
+"Shapes" = "形状";
+/* Cursor Gestures: filter chip that shows every gesture, or every action */
+"All" = "全部";
+/* Cursor Gestures: heading over the shapes you drew yourself */
+"Your Shapes" = "我的形状";
+/* Cursor Gestures: title of the window that edits a gesture */
+"Edit Gesture" = "编辑手势";
+/* Cursor Gestures editor: column headings */
+"Trigger" = "触发方式";
+"Details" = "详细信息";
+/* Cursor Gestures editor: picker of how you draw: while holding keys, with a mouse button held, or with two fingers on the trackpad */
+"Draw With" = "绘制方式";
+"Held Keys" = "按住的按键";
+"Right Button" = "右键";
+"Middle Button" = "中键";
+/* Cursor Gestures: a mouse button other than the left, right and middle ones */
+"Side Button" = "侧键";
+"Two Fingers" = "双指";
+/* Cursor Gestures editor: picker that limits a trigger to the mouse, the trackpad or both */
+"Device" = "设备";
+"Mouse" = "鼠标";
+"Trackpad" = "触控板";
+"Both" = "两者";
+/* Cursor Gestures editor: the device a trigger works on, shown after its keys or button in the Trigger step, when it works on both */
+"Mouse or Trackpad" = "鼠标或触控板";
+/* Cursor Gestures editor: button that adds another way to start the same gesture, and the accessibility label of the button that removes one */
+"Add Trigger" = "添加触发方式";
+"Remove Trigger" = "移除触发方式";
+/* Cursor Gestures editor: button that opens a box where you draw a shape of your own */
+"Draw New" = "绘制新形状";
+/* Cursor Gestures editor: help tag of a shape tile another gesture already uses */
+"Another gesture uses this shape with the same trigger." = "另一个手势已用相同的触发方式使用此形状。";
+/* Cursor Gestures editor: name field of the gesture */
+"Name" = "名称";
+/* Cursor Gestures editor: choice of the apps a gesture works in */
+"Works In" = "适用于";
+"Chosen Apps" = "所选应用";
+/* Cursor Gestures editor: note under the Actions step's title, always shown */
+"Click an action to add it. Add more to run them in order." = "点按操作即可添加。添加多个操作后将按顺序运行。";
+/* Cursor Gestures editor: pause before a step runs; %@ is a length of time such as 150 ms */
+"Wait %@" = "等待 %@";
+/* Cursor Gestures editor: accessibility label of the button that removes a step */
+"Remove Step" = "移除步骤";
+/* Cursor Gestures editor: warning when another gesture has the same shape and trigger; %@ is that gesture's name */
+"“%@” already uses this shape and trigger." = "“%@”已在使用此形状和触发方式。";
+/* Cursor Gestures editor: button in that warning; the other gesture gives up the trigger */
+"Replace" = "替换";
+
+/* Cursor Gestures settings: switches; each row gets a reset button once it differs from its default */
+"Show the Line While You Draw" = "绘制时显示线条";
+"Turn the Line Green When a Shape Matches" = "形状匹配时将线条变为绿色";
+"Show the Shape Name While You Draw" = "绘制时显示形状名称";
+"Repeat with a Left Click on a Mouse" = "在鼠标上左键点按以重复";
+"Repeat with a Left Click on a Trackpad" = "在触控板上左键点按以重复";
+/* Cursor Gestures settings: help tag of the two repeat switches */
+"Keep holding the trigger after a gesture and left-click to run it again." = "完成手势后继续按住触发键，然后左键点按即可再次执行。";
+/* Cursor Gestures settings: switch; drawing a new shape while repeating changes the action that repeats */
+"A New Shape Changes What Repeats" = "新形状会切换要重复的操作";
+/* Cursor Gestures settings: colour well and slider of the line you see while you draw */
+"Line Color" = "线条颜色";
+"Line Width" = "线条粗细";
+/* Cursor Gestures settings: switch; when on, clicks that other software sends never act as triggers */
+"Use Only Clicks from Your Mouse or Trackpad" = "仅使用来自鼠标或触控板的点按";
+/* Cursor Gestures settings: help tag and accessibility label of the button that puts one row back to its default */
+"Reset to Default" = "恢复默认值";
+/* Cursor Gestures settings: picker of what an ignored app blocks: every trigger, only mouse-button triggers, or only held-key triggers */
+"Triggers to Ignore" = "要忽略的触发方式";
+"Every Trigger" = "所有触发方式";
+"Mouse Buttons" = "鼠标按键";
+/* Cursor Gestures settings: picker of when an ignored app counts: only while it is in front, or whenever one of its windows is on screen */
+"Ignore When" = "忽略时机";
+"In Front" = "位于最前面时";
+"While It Has a Window" = "有窗口时";
+/* Cursor Gestures settings: button and title of the alert that adds back the ready-made gestures */
+"Restore Ready-Made Gestures" = "恢复预设手势";
+"Ready-made gestures you deleted come back, unless one of your gestures already uses the same shape and trigger." = "你删除的预设手势会恢复，除非你的某个手势已使用相同的形状和触发方式。";
+/* Cursor Gestures Shapes sheet: menu item on a shape you drew */
+"Rename or Redraw…" = "重命名或重新绘制…";
+/* Cursor Gestures: hint when the name of a drawn shape is taken */
+"Another shape has this name." = "已有其他形状使用此名称。";
+/* Cursor Gestures: button of the alert shown when you open another gesture while the editor has unsaved changes; it keeps the editor as it is */
+"Keep Editing" = "继续编辑";
+/* Cursor Gestures: alert before deleting a shape or an action that a gesture uses; %@ is its name */
+"Delete It?" = "要删除吗？";
+"Gestures that use “%@” stop working until you pick something else for them." = "使用“%@”的手势将停止工作，直到你为它们选择其他内容。";
+/* Cursor Gestures action sheet: its title when you edit an action of your own */
+"Edit Your Action" = "编辑你的操作";
+/* Cursor Gestures action sheet: picker of what your action does: press a shortcut, type text, open an app or open a website */
+"What It Does" = "作用";
+"Keyboard Shortcut" = "键盘快捷键";
+"Typed Text" = "要输入的文本";
+"Website" = "网站";
+"Pick an App…" = "选择应用…";
+"Website Address" = "网站地址";
+/* Cursor Gestures action sheet: limit of the text an action types */
+"Up to 500 characters." = "最多 500 个字符。";
+/* Cursor Gestures action sheet: shown next to the shortcut button while it records */
+"Esc cancels." = "按 Esc 取消。";
+/* Cursor Gestures: names of the two side buttons a mouse usually has */
+"Back Button" = "后退键";
+"Forward Button" = "前进键";
+/* Cursor Gestures editor: hint under the field that learns which side button you use */
+"Point here and click the side button you want." = "将指针移到此处，然后按下想要使用的侧键。";
+/* Cursor Gestures settings: one-line description under the page title */
+"Draw a shape with the pointer to run an action." = "用指针画出一个形状即可执行操作。";
+/* Cursor Gestures settings: the tab that shows every gesture as a card */
+"Gestures" = "手势";
+/* Cursor Gestures settings: notes under the titles of the General, Gestures, Shapes and Actions tabs */
+"Choose how the line looks, how closely a shape must match, and where gestures stay off." = "选择线条的外观、形状需要多精确地匹配，以及手势在哪里保持关闭。";
+"Click a gesture to edit it. Right-click it to duplicate or delete it." = "点按手势即可编辑。右键点按即可复制或删除。";
+"Shapes you can draw. Right-click a shape you drew to rename, redraw or delete it." = "你可以画的形状。右键点按你画的形状即可重命名、重新绘制或删除。";
+"What a gesture can do. Right-click an action you made to edit or delete it." = "手势可以执行的操作。右键点按你创建的操作即可编辑或删除。";
+/* Cursor Gestures Actions tab: button and title of the sheet that makes an action of your own */
+"New Custom Action" = "新建自定操作";
+/* Cursor Gestures editor: notes under the titles of the Shape, Trigger and Details steps */
+"Draw it with the pointer while you hold the trigger." = "按住触发方式，用指针画出形状。";
+"Hold these keys or this button while you draw. Add another trigger for a second way to start it." = "绘制时按住这些键或这个按钮。添加其他触发方式，即可用另一种方式启动手势。";
+"Name the gesture and choose the apps it works in." = "为手势命名，并选择它适用的应用。";
+/* Cursor Gestures editor: button that opens the next step; %@ is that step's title, such as Trigger */
+"Next: %@" = "下一步：%@";
+/* Cursor Gestures editor: label on a shape another gesture already uses with the same trigger */
+"In use" = "已使用";

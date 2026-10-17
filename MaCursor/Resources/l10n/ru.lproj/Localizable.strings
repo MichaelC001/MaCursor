@@ -880,3 +880,415 @@
 
 /* Warning when the saved Right-Click Menu switch is on but MaCursor has no Full Disk Access. */
 "Full Disk Access is turned off." = "Полный доступ к диску выключен.";
+
+/* Settings tab name and its switch; the feature draws a fading trail behind the pointer */
+"Cursor Trails" = "След курсора";
+
+/* Warning under the Cursor Trails switch when the helper is missing */
+"Cursor Trails requires the Helper Tool. You can install it from General → Helper Tool." = "Для функции «След курсора» требуется Вспомогательный инструмент. Его можно установить в разделе «Основные» → «Вспомогательный инструмент».";
+
+/* Caption under the Cursor Trails switch; "Reduce motion" is the macOS Accessibility → Display setting, use the system's own name */
+"A trail follows the cursor as it moves and fades when it stops. The trail stays hidden while Reduce motion is on." = "За движущимся курсором тянется след, который исчезает, когда курсор останавливается. Пока включён параметр «Уменьшить движение», след скрыт.";
+
+/* Label of the slider that sets how long the cursor trail is */
+"Length" = "Длина";
+
+/* Left end of the trail Length slider */
+"Short" = "Короткий";
+
+/* Right end of the trail Length slider */
+"Long" = "Длинный";
+
+/* Heading above the grid of trail colour cards */
+"Colors" = "Цвета";
+
+/* First colour card; the trail takes its colours from the theme's arrow */
+"Match Cursor Theme" = "Как тема курсора";
+
+/* Name of a trail colour card (amber, orange, red) */
+"Blaze" = "Пламя";
+
+/* Trail colour card (yellow, lime, green) */
+"Lime" = "Лайм";
+
+/* Trail colour card (green, teal, blue) */
+"Jade" = "Нефрит";
+
+/* Trail colour card (teal, sky blue, blue) */
+"Lagoon" = "Лагуна";
+
+/* Trail colour card (blue, indigo, violet) */
+"Cobalt" = "Кобальт";
+
+/* Trail colour card (violet, magenta, pink) */
+"Orchid" = "Орхидея";
+
+/* Trail colour card (pink, rose, red) */
+"Cherry" = "Вишня";
+
+/* Trail colour card (cyan, violet, magenta) */
+"Electric" = "Электрик";
+
+/* Trail colour card (orange, magenta, indigo) */
+"Twilight" = "Сумерки";
+
+/* Trail colour card (red, yellow, green, blue, violet) */
+"Prism" = "Призма";
+
+/* Trail colour card (light to dark grey) */
+"Graphite" = "Графит";
+
+/* Label of the slider that sets how wide the cursor trail is */
+"Width" = "Ширина";
+
+/* Left end of the trail Width slider */
+"Thin" = "Тонкий";
+
+/* Right end of the trail Width slider */
+"Wide" = "Широкий";
+
+/* Switch under Cursor Trails, also a row in the menu bar panel: on, the graphics hardware draws the trail; off, the processor draws it. Use Apple's own term for graphics hardware in your language, and keep the label short enough for the menu bar row */
+"Use Graphics Hardware" = "Использовать видеокарту";
+
+/* Switch under Cursor Trails: on, the trail grows more see-through toward its old end; off, it keeps one solid colour */
+"Fade" = "Затухание";
+
+/* Grey note under the greyed-out Use Graphics Hardware switch on a Mac without Metal graphics */
+"This Mac has no Metal graphics, so the processor draws the trail." = "На этом Mac нет графики Metal, поэтому след рисует процессор.";
+
+/* Label of the pop-up menu above the trail Length slider; it picks how the trail is drawn: Line or Soft Dots */
+"Style" = "Стиль";
+
+/* Trail style: one smooth line that follows the pointer */
+"Line" = "Линия";
+
+/* Trail style: soft round dots that drift behind the pointer */
+"Soft Dots" = "Мягкие точки";
+
+/* Switch under the trail Width slider: while the pointer rests, a soft round glow in the card's colours stays under it until the pointer moves */
+"Glow when still" = "Свечение в покое";
+
+/* Settings tab and switch: hold keys, draw a shape with the pointer, let go and an action runs */
+"Cursor Gestures" = "Жесты курсора";
+
+"Cursor Gestures requires the Helper Tool. You can install it from General → Helper Tool." = "Для функции «Жесты курсора» требуется Вспомогательный инструмент. Его можно установить в разделе «Основные» → «Вспомогательный инструмент».";
+
+"Hold the trigger keys or button, draw a shape with the pointer and let go to run its action. Esc or any other key cancels the gesture, and so does a left click when repeat is off. With repeat on, left-click while you still hold the trigger to run the last gesture again." = "Удерживайте клавиши или кнопку запуска, нарисуйте фигуру указателем и отпустите, чтобы выполнить действие. Esc или любая другая клавиша отменяет жест, как и щелчок левой кнопкой, если повтор выключен. Если повтор включён, щелкните левой кнопкой, продолжая удерживать триггер, чтобы снова выполнить последний жест.";
+
+/* Cursor Gestures editor: heading over the shape pictures */
+"Shape" = "Фигура";
+
+"Add a gesture, then pick its shape and what it does." = "Добавьте жест, затем выберите его фигуру и действие.";
+
+/* Cursor Gestures action: applies the favorite theme after the current one */
+"Next Favorite Theme" = "Следующая избранная тема";
+
+/* Cursor Gestures action: puts back the macOS cursors, keeping size, hand and shadow settings */
+"Use System Cursors" = "Использовать системные курсоры";
+
+"MaCursorHelper needs Accessibility access to see the keys you hold, to hold back the mouse buttons and two-finger scrolls that draw a gesture, and to run its action. Choose Allow for Accessibility, then turn on MaCursorHelper in Privacy & Security → Accessibility." = "Программе MaCursorHelper нужен «Универсальный доступ», чтобы видеть удерживаемые клавиши, задерживать нажатия кнопок мыши и прокрутку двумя пальцами, которыми рисуется жест, и выполнять его действие. Выберите «Разрешить Универсальный доступ», затем включите MaCursorHelper в разделе «Конфиденциальность и безопасность» → «Универсальный доступ».";
+
+/* Cursor Gestures: system actions, sent as the macOS default keyboard shortcuts */
+"Mission Control" = "Mission Control";
+"App Exposé" = "App Exposé";
+"Move Left a Space" = "Рабочий стол слева";
+"Move Right a Space" = "Рабочий стол справа";
+"Show Desktop" = "Показать рабочий стол";
+"Spotlight" = "Spotlight";
+"Lock Screen" = "Заблокировать экран";
+"Force Quit Window" = "Окно «Принудительно завершить»";
+"Screenshot of the Screen" = "Снимок всего экрана";
+"Screenshot of an Area" = "Снимок области";
+"Screenshot Options" = "Параметры снимка экрана";
+
+/* Cursor Gestures: switch that raises the window under the pointer before a shortcut or text is sent */
+"Bring the Window Under the Pointer Forward First" = "Сначала выводить вперед окно под указателем";
+
+/* Cursor Gestures: actions on the window under the pointer */
+"Left Half" = "Левая половина";
+"Right Half" = "Правая половина";
+"Top Half" = "Верхняя половина";
+"Bottom Half" = "Нижняя половина";
+"Top Left Quarter" = "Верхняя левая четверть";
+"Top Right Quarter" = "Верхняя правая четверть";
+"Bottom Left Quarter" = "Нижняя левая четверть";
+"Bottom Right Quarter" = "Нижняя правая четверть";
+"Left Third" = "Левая треть";
+"Center Third" = "Средняя треть";
+"Right Third" = "Правая треть";
+"Left Two Thirds" = "Левые две трети";
+"Right Two Thirds" = "Правые две трети";
+"Maximize" = "Развернуть";
+"Center" = "Разместить по центру";
+"Next Display" = "Следующий дисплей";
+"Restore Size" = "Восстановить размер";
+"Minimize" = "Свернуть";
+"Close Window" = "Закрыть окно";
+"Full Screen" = "Полноэкранный режим";
+"Hide App" = "Скрыть приложение";
+
+/* Cursor Gestures: system actions for sound, brightness, sleep and the screen saver */
+"Volume Up" = "Увеличить громкость";
+"Volume Down" = "Уменьшить громкость";
+"Mute" = "Выключить звук";
+"Brightness Up" = "Увеличить яркость";
+"Brightness Down" = "Уменьшить яркость";
+"Sleep" = "Перевести в режим сна";
+"Start Screen Saver" = "Запустить заставку";
+
+/* Cursor Gestures: slider for how closely a stroke must follow a shape to run its action */
+"Strictness" = "Строгость";
+/* Cursor Gestures: slider for the smallest stroke that runs an action */
+"Minimum Size" = "Минимальный размер";
+/* Cursor Gestures: hint inside the box where you draw a shape */
+"Draw the shape here in one stroke." = "Нарисуйте фигуру здесь одним движением.";
+/* Cursor Gestures: placeholder of the name field of a recorded shape */
+"Shape Name" = "Название фигуры";
+/* Cursor Gestures: switch; when on, the shape drawn the other way round is a different shape */
+"Direction Counts" = "Учитывать направление";
+
+/* Cursor Gestures: filter chip and choice for the gestures that work in every app */
+"All Apps" = "Все приложения";
+/* Cursor Gestures: row with the menu of apps where no gesture runs */
+"Ignored Apps" = "Игнорируемые приложения";
+/* Cursor Gestures: help tag of the Ignored Apps row */
+"Cursor Gestures stay off in these apps for the triggers you pick." = "В этих приложениях жесты курсора не работают для выбранных триггеров.";
+/* Menu bar panel: switch in the Active App card that turns Cursor Gestures off for the app in front */
+"Ignore Cursor Gestures" = "Игнорировать жесты курсора";
+
+/* Cursor Gestures: action categories */
+"Apps" = "Приложения";
+"Browser and Tabs" = "Браузер и вкладки";
+"Clipboard" = "Буфер обмена";
+"Windows" = "Окна";
+"Custom" = "Свои";
+
+/* Cursor Gestures: shape families */
+"Lines" = "Линии";
+"Diagonals" = "Диагонали";
+"Corners" = "Углы";
+"Returns" = "Туда и обратно";
+"Curves" = "Кривые";
+"Letters" = "Буквы";
+
+/* Cursor Gestures: shape names; the stroke starts where the name starts */
+"Line Up" = "Линия вверх";
+"Line Down" = "Линия вниз";
+"Line Left" = "Линия влево";
+"Line Right" = "Линия вправо";
+"Slant Up Right" = "Наискосок вверх вправо";
+"Slant Up Left" = "Наискосок вверх влево";
+"Slant Down Right" = "Наискосок вниз вправо";
+"Slant Down Left" = "Наискосок вниз влево";
+"Right, Then Down" = "Вправо, затем вниз";
+"Right, Then Up" = "Вправо, затем вверх";
+"Left, Then Down" = "Влево, затем вниз";
+"Left, Then Up" = "Влево, затем вверх";
+"Down, Then Right" = "Вниз, затем вправо";
+"Down, Then Left" = "Вниз, затем влево";
+"Up, Then Right" = "Вверх, затем вправо";
+"Up, Then Left" = "Вверх, затем влево";
+"Up and Back" = "Вверх и обратно";
+"Down and Back" = "Вниз и обратно";
+"Left and Back" = "Влево и обратно";
+"Right and Back" = "Вправо и обратно";
+"Up Right and Back" = "Вверх вправо и обратно";
+"Up Left and Back" = "Вверх влево и обратно";
+"Down Right and Back" = "Вниз вправо и обратно";
+"Down Left and Back" = "Вниз влево и обратно";
+"Backward C" = "Обратная C";
+"U, Right to Left" = "U, справа налево";
+"Arch" = "Арка";
+"Arch, Right to Left" = "Арка, справа налево";
+"Circle" = "Круг";
+"V, Right to Left" = "V, справа налево";
+"Peak" = "Пик";
+
+/* Cursor Gestures: built-in actions; menu names follow each language's own Apple menus */
+"Undo" = "Отменить";
+"Redo" = "Повторить";
+"Switch to Last App" = "Перейти к предыдущему приложению";
+"Back" = "Назад";
+"Forward" = "Вперед";
+"Top of Page" = "В начало страницы";
+"Bottom of Page" = "В конец страницы";
+"New Tab" = "Новая вкладка";
+"Close Tab" = "Закрыть вкладку";
+"Reload Page" = "Обновить страницу";
+"Reopen Last Closed Tab" = "Открыть последнюю закрытую вкладку";
+"Show Next Tab" = "Показать следующую вкладку";
+"Show Previous Tab" = "Показать предыдущую вкладку";
+"Copy" = "Скопировать";
+"Cut" = "Вырезать";
+"Paste" = "Вставить";
+
+/* Cursor Gestures: the short line under each action's name */
+"Take back your last change" = "Отменяет последнее изменение";
+"Bring back what you took back" = "Возвращает отмененное";
+"Go to the app you used before this one" = "Переключает на предыдущее приложение";
+"Go to the page you saw before" = "Открывает предыдущую страницу";
+"Go to the page you saw after this one" = "Открывает следующую страницу";
+"Jump to the start of the page" = "Переходит в начало страницы";
+"Jump to the end of the page" = "Переходит в конец страницы";
+"Open an empty tab" = "Открывает пустую вкладку";
+"Close the tab you are on" = "Закрывает текущую вкладку";
+"Load the page again" = "Загружает страницу заново";
+"Bring back the tab you closed" = "Возвращает закрытую вкладку";
+"Move one tab to the right" = "Переходит на вкладку правее";
+"Move one tab to the left" = "Переходит на вкладку левее";
+"Put the selection on the clipboard" = "Помещает выделенное в буфер обмена";
+"Move the selection to the clipboard" = "Перемещает выделенное в буфер обмена";
+"Insert what is on the clipboard" = "Вставляет содержимое буфера обмена";
+"Fit the window under the pointer to this place" = "Размещает окно под указателем в этой области";
+"Move the window to the next display" = "Перемещает окно на следующий дисплей";
+"Put the window back where it was" = "Возвращает окно на прежнее место";
+"Send the window to the Dock" = "Убирает окно в Dock";
+"Close the window under the pointer" = "Закрывает окно под указателем";
+"Fill the screen with the window, or go back" = "Разворачивает окно на весь экран или возвращает обратно";
+"Hide every window of the app" = "Скрывает все окна приложения";
+"See all open windows at once" = "Показывает все открытые окна сразу";
+"See the windows of the app in front" = "Показывает окна активного приложения";
+"Go to the Space on the left" = "Переходит на рабочий стол слева";
+"Go to the Space on the right" = "Переходит на рабочий стол справа";
+"Move every window aside" = "Убирает все окна в сторону";
+"Search your Mac" = "Ищет на Mac";
+"Lock the Mac right away" = "Сразу блокирует Mac";
+"Choose an app that is not responding" = "Позволяет выбрать зависшее приложение";
+"Save a picture of the whole screen" = "Сохраняет снимок всего экрана";
+"Save a picture of the part you choose" = "Сохраняет снимок выбранной области";
+"Open the screenshot tools" = "Открывает инструменты снимка экрана";
+"Make the sound louder" = "Делает звук громче";
+"Make the sound quieter" = "Делает звук тише";
+"Turn the sound off or on" = "Выключает или включает звук";
+"Make the display brighter" = "Делает экран ярче";
+"Make the display darker" = "Делает экран темнее";
+"Put the Mac to sleep" = "Переводит Mac в режим сна";
+"Show the screen saver now" = "Сразу показывает заставку";
+"Apply the next theme in your favorites" = "Применяет следующую тему из избранного";
+"Go back to the standard macOS cursors" = "Возвращает стандартные курсоры macOS";
+"Apply this theme" = "Применяет эту тему";
+
+/* Cursor Gestures: buttons above the gesture cards; New Gesture is also the title of the editor window for a new gesture */
+"New Gesture" = "Новый жест";
+"Shapes" = "Фигуры";
+/* Cursor Gestures: filter chip that shows every gesture, or every action */
+"All" = "Все";
+/* Cursor Gestures: heading over the shapes you drew yourself */
+"Your Shapes" = "Ваши фигуры";
+/* Cursor Gestures: title of the window that edits a gesture */
+"Edit Gesture" = "Изменить жест";
+/* Cursor Gestures editor: column headings */
+"Trigger" = "Триггер";
+"Details" = "Подробности";
+/* Cursor Gestures editor: picker of how you draw: while holding keys, with a mouse button held, or with two fingers on the trackpad */
+"Draw With" = "Рисовать с помощью";
+"Held Keys" = "Удерживаемые клавиши";
+"Right Button" = "Правая кнопка";
+"Middle Button" = "Средняя кнопка";
+/* Cursor Gestures: a mouse button other than the left, right and middle ones */
+"Side Button" = "Боковая кнопка";
+"Two Fingers" = "Два пальца";
+/* Cursor Gestures editor: picker that limits a trigger to the mouse, the trackpad or both */
+"Device" = "Устройство";
+"Mouse" = "Мышь";
+"Trackpad" = "Трекпад";
+"Both" = "Оба";
+/* Cursor Gestures editor: the device a trigger works on, shown after its keys or button in the Trigger step, when it works on both */
+"Mouse or Trackpad" = "Мышь или трекпад";
+/* Cursor Gestures editor: button that adds another way to start the same gesture, and the accessibility label of the button that removes one */
+"Add Trigger" = "Добавить триггер";
+"Remove Trigger" = "Удалить триггер";
+/* Cursor Gestures editor: button that opens a box where you draw a shape of your own */
+"Draw New" = "Нарисовать фигуру";
+/* Cursor Gestures editor: help tag of a shape tile another gesture already uses */
+"Another gesture uses this shape with the same trigger." = "Другой жест уже использует эту фигуру с тем же триггером.";
+/* Cursor Gestures editor: name field of the gesture */
+"Name" = "Название";
+/* Cursor Gestures editor: choice of the apps a gesture works in */
+"Works In" = "Работает в";
+"Chosen Apps" = "Выбранные приложения";
+/* Cursor Gestures editor: note under the Actions step's title, always shown */
+"Click an action to add it. Add more to run them in order." = "Нажмите на действие, чтобы добавить его. Добавьте ещё, чтобы они выполнялись по порядку.";
+/* Cursor Gestures editor: pause before a step runs; %@ is a length of time such as 150 ms */
+"Wait %@" = "Пауза %@";
+/* Cursor Gestures editor: accessibility label of the button that removes a step */
+"Remove Step" = "Удалить шаг";
+/* Cursor Gestures editor: warning when another gesture has the same shape and trigger; %@ is that gesture's name */
+"“%@” already uses this shape and trigger." = "«%@» уже использует эту фигуру и этот триггер.";
+/* Cursor Gestures editor: button in that warning; the other gesture gives up the trigger */
+"Replace" = "Заменить";
+
+/* Cursor Gestures settings: switches; each row gets a reset button once it differs from its default */
+"Show the Line While You Draw" = "Показывать линию при рисовании";
+"Turn the Line Green When a Shape Matches" = "Окрашивать линию в зеленый при совпадении фигуры";
+"Show the Shape Name While You Draw" = "Показывать название фигуры при рисовании";
+"Repeat with a Left Click on a Mouse" = "Повтор левым щелчком мыши";
+"Repeat with a Left Click on a Trackpad" = "Повтор левым щелчком на трекпаде";
+/* Cursor Gestures settings: help tag of the two repeat switches */
+"Keep holding the trigger after a gesture and left-click to run it again." = "После жеста продолжайте удерживать триггер и щелкните левой кнопкой, чтобы выполнить его снова.";
+/* Cursor Gestures settings: switch; drawing a new shape while repeating changes the action that repeats */
+"A New Shape Changes What Repeats" = "Новая фигура меняет повторяемое действие";
+/* Cursor Gestures settings: colour well and slider of the line you see while you draw */
+"Line Color" = "Цвет линии";
+"Line Width" = "Толщина линии";
+/* Cursor Gestures settings: switch; when on, clicks that other software sends never act as triggers */
+"Use Only Clicks from Your Mouse or Trackpad" = "Использовать только щелчки мыши или трекпада";
+/* Cursor Gestures settings: help tag and accessibility label of the button that puts one row back to its default */
+"Reset to Default" = "Вернуть значение по умолчанию";
+/* Cursor Gestures settings: picker of what an ignored app blocks: every trigger, only mouse-button triggers, or only held-key triggers */
+"Triggers to Ignore" = "Игнорируемые триггеры";
+"Every Trigger" = "Все триггеры";
+"Mouse Buttons" = "Кнопки мыши";
+/* Cursor Gestures settings: picker of when an ignored app counts: only while it is in front, or whenever one of its windows is on screen */
+"Ignore When" = "Когда игнорировать";
+"In Front" = "На переднем плане";
+"While It Has a Window" = "Пока у него есть окно";
+/* Cursor Gestures settings: button and title of the alert that adds back the ready-made gestures */
+"Restore Ready-Made Gestures" = "Восстановить готовые жесты";
+"Ready-made gestures you deleted come back, unless one of your gestures already uses the same shape and trigger." = "Удаленные готовые жесты вернутся, если только один из ваших жестов уже не использует ту же фигуру и тот же триггер.";
+/* Cursor Gestures Shapes sheet: menu item on a shape you drew */
+"Rename or Redraw…" = "Переименовать или перерисовать…";
+/* Cursor Gestures: hint when the name of a drawn shape is taken */
+"Another shape has this name." = "Это название уже есть у другой фигуры.";
+/* Cursor Gestures: button of the alert shown when you open another gesture while the editor has unsaved changes; it keeps the editor as it is */
+"Keep Editing" = "Продолжить редактирование";
+/* Cursor Gestures: alert before deleting a shape or an action that a gesture uses; %@ is its name */
+"Delete It?" = "Удалить?";
+"Gestures that use “%@” stop working until you pick something else for them." = "Жесты, использующие «%@», перестанут работать, пока вы не выберете для них что-то другое.";
+/* Cursor Gestures action sheet: its title when you edit an action of your own */
+"Edit Your Action" = "Изменить ваше действие";
+/* Cursor Gestures action sheet: picker of what your action does: press a shortcut, type text, open an app or open a website */
+"What It Does" = "Что делает";
+"Keyboard Shortcut" = "Сочетание клавиш";
+"Typed Text" = "Вводимый текст";
+"Website" = "Веб-сайт";
+"Pick an App…" = "Выбрать приложение…";
+"Website Address" = "Адрес веб-сайта";
+/* Cursor Gestures action sheet: limit of the text an action types */
+"Up to 500 characters." = "Не более 500 символов.";
+/* Cursor Gestures action sheet: shown next to the shortcut button while it records */
+"Esc cancels." = "Esc — отмена.";
+/* Cursor Gestures: names of the two side buttons a mouse usually has */
+"Back Button" = "Кнопка «Назад»";
+"Forward Button" = "Кнопка «Вперед»";
+/* Cursor Gestures editor: hint under the field that learns which side button you use */
+"Point here and click the side button you want." = "Наведите указатель сюда и нажмите нужную боковую кнопку.";
+/* Cursor Gestures settings: one-line description under the page title */
+"Draw a shape with the pointer to run an action." = "Нарисуйте фигуру указателем, чтобы выполнить действие.";
+/* Cursor Gestures settings: the tab that shows every gesture as a card */
+"Gestures" = "Жесты";
+/* Cursor Gestures settings: notes under the titles of the General, Gestures, Shapes and Actions tabs */
+"Choose how the line looks, how closely a shape must match, and where gestures stay off." = "Выберите, как выглядит линия, насколько точно должна совпадать фигура и где жесты не работают.";
+"Click a gesture to edit it. Right-click it to duplicate or delete it." = "Нажмите на жест, чтобы изменить его. Щелкните его правой кнопкой, чтобы дублировать или удалить.";
+"Shapes you can draw. Right-click a shape you drew to rename, redraw or delete it." = "Фигуры, которые можно нарисовать. Щелкните правой кнопкой фигуру, которую вы нарисовали, чтобы переименовать, перерисовать или удалить её.";
+"What a gesture can do. Right-click an action you made to edit or delete it." = "Что может делать жест. Щелкните правой кнопкой созданное вами действие, чтобы изменить или удалить его.";
+/* Cursor Gestures Actions tab: button and title of the sheet that makes an action of your own */
+"New Custom Action" = "Новое своё действие";
+/* Cursor Gestures editor: notes under the titles of the Shape, Trigger and Details steps */
+"Draw it with the pointer while you hold the trigger." = "Нарисуйте её указателем, удерживая триггер.";
+"Hold these keys or this button while you draw. Add another trigger for a second way to start it." = "Удерживайте эти клавиши или эту кнопку, пока рисуете. Добавьте ещё один триггер, чтобы запускать жест другим способом.";
+"Name the gesture and choose the apps it works in." = "Назовите жест и выберите приложения, в которых он работает.";
+/* Cursor Gestures editor: button that opens the next step; %@ is that step's title, such as Trigger */
+"Next: %@" = "Далее: %@";
+/* Cursor Gestures editor: label on a shape another gesture already uses with the same trigger */
+"In use" = "Занята";

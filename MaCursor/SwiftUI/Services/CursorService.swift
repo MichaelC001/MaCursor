@@ -7,7 +7,9 @@ enum CursorService {
             NSLog("MaCursor: refusing to apply %@ — no cursor in it has both an image and a known cursor type", path)
             return false
         }
-        return MACCursorActions.shared.applyTheme(atPath: path)
+        guard MACCursorActions.shared.applyTheme(atPath: path) else { return false }
+        MACAutoSwitchEffects.shared.postAppliedThemeChange()
+        return true
     }
 
     nonisolated static func themeFileHasApplicableCursor(atPath path: String) -> Bool {
@@ -31,7 +33,9 @@ enum CursorService {
 
     @discardableResult
     static func restoreAll() -> Bool {
-        return (try? MACCursorActions.shared.resetAllCursors()) != nil
+        guard (try? MACCursorActions.shared.resetAllCursors()) != nil else { return false }
+        MACAutoSwitchEffects.shared.postAppliedThemeChange()
+        return true
     }
 
     static func currentScale() -> Float {

@@ -27,10 +27,12 @@ Requires **macOS 13 Ventura** or later.
 ## Features
 
 - **80+ Ready-to-Apply Themes** — Browse and download curated cursor themes from the Theme Gallery
-- **Menu Bar Panel** — Your favorite themes, the cursor for the app in front, and the cursor scale, Cursor Shadow and Focus on Hover controls, all in the menu bar without opening the window
+- **Menu Bar Panel** — Your favorite themes, the cursor for the app in front, and the cursor scale, Cursor Shadow, Focus on Hover, Cursor Gestures and Cursor Trails controls, all in the menu bar without opening the window
 - **Right-Click Menu** — Get more from your right-click in Finder and on the Desktop: copy a path, make a new file, open files in the app you choose, and more
+- **Focus on Hover** — The window under your pointer becomes active after a short pause, without clicking
+- **Cursor Gestures** — Hold modifier keys or a mouse button and draw a shape to run an action, such as a keyboard shortcut, typed text, an app, a website or a window action
+- **Cursor Trails** — A smooth line follows your pointer and shrinks back into it when you stop, in ready-to-use styles
 - **Per-App Themes** — Each app can have its own cursor theme, and MaCursor switches to it when that app comes to the front
-- **Focus on Hover** — The window under your pointer becomes active after a short pause, without clicking; it needs Accessibility access for the helper
 - **Convert Windows, Linux & Mousecape Themes** — A Windows cursor folder (`.cur` / `.ani`), a Linux Xcursor theme folder or a Mousecape `.cape` file becomes a native `.cursor` theme, with every mapped cursor listed for review before it reaches your library
 - **Full Theme Editor** — A split-pane editor for building and refining themes: metadata, cursor list, per-cursor image slots, hotspot editing, and animated cursor preview
 - **Cursor Scale** — Adjust cursor size from 0.50× to 4.00× with a precision slider (0.1× steps), or type any custom value and press Enter to apply
@@ -115,11 +117,10 @@ Click the **Restore** button (↺) in the toolbar to reset all cursors to macOS 
 
 ### Using the Menu Bar Panel
 
-The menu bar panel puts the everyday controls one click away. It belongs to the Helper Tool, so it keeps working while MaCursor itself is closed.
+Keep the everyday controls one click away in the menu bar:
 
-1. Open **MaCursor → Settings → General** and install the **Helper Tool**. Until you do, **Show Menu Bar Icon** stays greyed out and reads *The menu bar icon is provided by the Helper Tool. Install it above to use it.*
-2. Turn on **Show Menu Bar Icon**. A MaCursor pointer appears in the menu bar. If it does not, open System Settings and look in the **Menu Bar** section.
-3. Star the themes you want to reach from the panel: select a theme and click the star (**Add to Favorites**) in the toolbar, or right-click it in the sidebar and choose the same command. The panel shows favorites only.
+1. Open **MaCursor → Settings → General** and turn on **Show Menu Bar Icon**. A MaCursor pointer appears in the menu bar. If it does not, open System Settings and look in the **Menu Bar** section.
+2. Star the themes you want to reach from the panel: select a theme and click the star (**Add to Favorites**) in the toolbar, or right-click it in the sidebar and choose the same command. The panel shows favorites only.
 
 Click the menu bar icon to open the panel:
 
@@ -128,9 +129,11 @@ Click the menu bar icon to open the panel:
 | **Header**         | **Current Cursor** and the theme in use, plus a ↺ button                                                                                                                             |
 | **Cursor Themes**  | Your favorites as thumbnails. Click one to apply it. The applied theme is outlined and check-marked                                                                                  |
 | **Active App**     | The app in front, with a **Cursor for this app** menu. Pick a theme there and that app gets its own cursor; if **Per-App Themes** was off, choosing a theme turns it on for you       |
-| **Quick Controls** | **Cursor Scale**, **Cursor Shadow** and **Focus on Hover**, applied as you change them                                                                                                |
+| **Quick Controls** | **Cursor Scale**, **Cursor Shadow**, **Focus on Hover** and **Cursor Gestures**, applied as you change them                                                                          |
+| **Cursor Gestures** | The **Cursor Gestures** switch in Quick Controls turns gestures on or off. While they are on, **Ignore Cursor Gestures** in Active App turns them off for the app in front |
+| **Cursor Trails**  | The **Cursor Trails**, **Use Graphics Hardware**, **Fade** and **Glow when still** switches. Click the section title to show or hide them |
 
-Right-click the menu bar icon for **Open MaCursor**, **Settings...** and **Quit MaCursor**. **Quit MaCursor** quits the app and the Helper Tool together, so the menu bar icon disappears and global shortcuts stop until you open MaCursor again.
+Right-click the menu bar icon for **Open MaCursor**, **Settings…** and **Quit MaCursor**. **Quit MaCursor** quits the app and the Helper Tool together, so the menu bar icon disappears and the features that need the Helper Tool stop until you open MaCursor again.
 
 Once the icon is showing, the **Panel Background** slider in **Settings → General → Menu Bar** sets how see-through the panel is: the middle of the slider is the standard frosted glass, the minimum is clear, the maximum is solid.
 
@@ -161,7 +164,27 @@ Each item shows when you right-click a file or folder, when you right-click empt
 
 To change the menu, use the tabs in **MaCursor → Settings → Right-Click Menu**. You can switch each item on or off, add your own apps with **+**, move an item out of its submenu with **Show in**, and drag rows in **Main Menu** to change the order.
 
-You can also add a **MaCursor** button to the Finder toolbar. In Finder, choose **View → Customize Toolbar…** and drag the button in. Click it to get the items you see when you right-click empty space, for the folder you are in. Inside iCloud Drive folders, use this button: it works there through the Helper Tool.
+You can also add a **MaCursor** button to the Finder toolbar. In Finder, choose **View → Customize Toolbar…** and drag the button in. Click it to get the items you see when you right-click empty space, for the folder you are in. Inside iCloud Drive folders, use this button.
+
+### Using Cursor Gestures
+
+Hold a trigger, draw a shape with your pointer and let go to run an action:
+
+1. Open **MaCursor → Settings → Cursor Gestures** and turn on **Cursor Gestures**.
+
+The first time you turn it on, MaCursor adds five ready-made gestures. Hold **⌥** and draw a line left for Back, right for Forward, up for the top of the page or down for the bottom. Draw a **C** with **⌥** or the right mouse button to copy. Because that gesture uses the right button, a right-click menu opens when you let go of the button, and a right-drag draws a gesture.
+
+A trigger is modifier keys, the right, middle or a side mouse button, or modifier keys with a two-finger swipe on a trackpad.
+
+In the **Gestures** tab, **New Gesture** makes your own gesture, and a click on a gesture edits it. **Draw New** in the **Shapes** tab adds a shape you draw yourself, and **New Custom Action** in the **Actions** tab adds a shortcut, text, app or website action. To keep gestures off in one app, add it under **Ignored Apps** in the **General** tab, or use **Ignore Cursor Gestures** in the menu bar panel.
+
+### Using Cursor Trails
+
+Add a trail that follows your pointer and goes away soon after you stop:
+
+1. Open **MaCursor → Settings → Cursor Trails** and turn on **Cursor Trails**.
+
+Pick a **Style** (**Line** or **Soft Dots**), set the **Length** and **Width**, and choose the **Colors**: **Match Cursor Theme** takes its colors from the arrow of the theme in use, or pick one of 11 color blends. **Glow when still** puts a soft glow under the pointer once you stop and the trail is gone, and **Fade** fades the trail out toward its end. **Use Graphics Hardware** lets the GPU draw the trail. Turn it off and the CPU draws it instead. The trail stays hidden while **Reduce motion** is on in **System Settings → Accessibility**.
 
 ### Adjusting Cursor Scale
 
@@ -186,7 +209,7 @@ Change either one and MaCursor reapplies your theme straight away.
 
 Let MaCursor change your cursor theme on its own, either on a schedule or with your Mac's appearance:
 
-1. Open **MaCursor → Settings → Cursor Control** and turn on **Theme Automation**. This needs the Helper Tool, which you can install from **General → Helper Tool**.
+1. Open **MaCursor → Settings → Cursor Control** and turn on **Theme Automation**.
 2. **To switch on a schedule**, leave **Match system appearance** off. Pick **AM/PM** or **24 hours** as your time format, then set a start time and a theme for **Day mode** and for **Night mode**. MaCursor switches at those times and keeps that theme until the next one. The two modes must start at different times.
 3. **To follow your Mac instead of the clock**, turn on **Match system appearance**, then pick a theme for **Light Appearance** and for **Dark Appearance**. Your cursor changes whenever the system appearance does.
 
@@ -196,23 +219,16 @@ Steps 2 and 3 are alternatives, not both: turning on **Match system appearance**
 
 Give individual apps their own cursor:
 
-1. Open **MaCursor → Settings → Cursor Control** and turn on **Per-App Themes**. This needs the Helper Tool too.
+1. Open **MaCursor → Settings → Cursor Control** and turn on **Per-App Themes**.
 2. Click **Add App…**, choose an app, and pick the theme it should use.
 
 Whenever that app comes to the front, MaCursor applies its theme, and puts your usual theme back when you leave it. You can also set the theme for the app in front straight from the menu bar panel.
 
 ### Turning On Focus on Hover
 
-Focus on Hover brings the window under your pointer to the front and hands it the keyboard focus after a short pause, so you can type into a window without clicking it first. The Helper Tool does the work, and macOS only lets it move windows once you grant **MaCursorHelper** Accessibility access.
+Bring the window under your pointer to the front and give it the keyboard focus after a short pause, so you can type into it without clicking first:
 
-1. Open **MaCursor → Settings → General** and install the **Helper Tool**. Without it the switch is greyed out and reads *Focus on Hover requires the Helper Tool. You can install it from General → Helper Tool.*
-2. Switch to the **Cursor Control** tab and turn on **Focus on Hover**.
-3. The **Allow Accessibility Access** window appears. Click **Allow for Accessibility** and MaCursor opens **System Settings → Privacy & Security → Accessibility**.
-4. Turn on **MaCursorHelper** in that list. Look for **MaCursorHelper**, not MaCursor: the helper is the part that needs the access.
-5. The window notices on its own and shows **Access granted**. Click **Let's Go!**.
-
-> [!IMPORTANT]
-> The switch reads on only while Focus on Hover is enabled, MaCursorHelper is allowed, and the helper is running. If it flips straight back off, check all three.
+1. Open **MaCursor → Settings → Cursor Control** and turn on **Focus on Hover**.
 
 ### Importing Themes
 
@@ -291,16 +307,46 @@ Open **Settings → Cursor Control** and turn off **Hide Tahoe cursors** if you'
 
 ### Global Shortcuts
 
-1. Open **Settings → General → Helper Tool** and install the helper.
-2. Switch to the **Shortcut** tab.
-3. Add slots, assign a theme and a key combination to each.
-4. Press your shortcut from any app to switch cursors instantly.
+1. Open **MaCursor → Settings → Shortcut**.
+2. Add slots, assign a theme and a key combination to each.
+3. Press your shortcut from any app to switch cursors instantly.
 
 Every shortcut needs **⌃**, or **⌘** together with **⌥**. MaCursor beeps and refuses a plain **⌘** or **⌘⇧** combination, a common macOS shortcut, or one another slot already uses. If a shortcut you saved earlier breaks these rules, its slot shows **Record Shortcut** until you record a new one.
 
+### Features That Need the Helper Tool
+
+These features need the Helper Tool (`MaCursorHelper`), which keeps them working while MaCursor is closed:
+
+- Menu Bar Panel
+- The MaCursor button in the Finder toolbar, inside iCloud Drive folders
+- Cursor Gestures
+- Cursor Trails
+- Theme Automation
+- Per-App Themes
+- Focus on Hover
+- Global Shortcuts
+
+Install it in **MaCursor → Settings → General → Helper Tool**. Until you do, their settings are greyed out, and inside iCloud Drive folders the toolbar button shows *Not available in this location.*
+
+### Features That Need Accessibility Access
+
+These features also need Accessibility access for **MaCursorHelper**:
+
+- Cursor Gestures
+- Focus on Hover
+
+When you turn one on and MaCursorHelper is not allowed yet, the **Allow Accessibility Access** window appears:
+
+1. Click **Allow for Accessibility** and MaCursor opens **System Settings → Privacy & Security → Accessibility**.
+2. Turn on **MaCursorHelper** in that list. Look for **MaCursorHelper**, not MaCursor: the helper is the part that needs the access.
+3. The window notices on its own and shows **Access granted**. Click **Let’s Go!**.
+
+> [!IMPORTANT]
+> A switch reads on only while its feature is enabled, MaCursorHelper is allowed, and the helper is running. If it flips straight back off, check all three.
+
 ### Checking the Helper Tool
 
-Theme Automation, Per-App Themes, Focus on Hover, the menu bar panel and global shortcuts all need the Helper Tool, and it is what keeps them running while MaCursor is closed. When one of them is greyed out or quietly stops working, open **MaCursor → Settings → General → Helper Tool** and read the status next to the dot:
+When a feature that needs the Helper Tool is greyed out or quietly stops working, open **MaCursor → Settings → General → Helper Tool** and read the status next to the dot:
 
 | Status                                   | What to do                                                                                                          |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |

@@ -27,6 +27,7 @@ final class MenuBarPanelModel: ObservableObject {
     @Published private(set) var thumbnails: [String: NSImage] = [:]
     @Published private(set) var panelBackdropAlpha: Double = 0.0
     @Published var cursorScale: Double = 1.0
+    @Published var ffmDelayMs: Double = 100
 
     let brandImage: NSImage? = MenuBarService.brandImage()
 
@@ -92,6 +93,7 @@ final class MenuBarPanelModel: ObservableObject {
         cursorTrails = snapshot.cursorTrails
         cursorGestures = snapshot.cursorGestures
         cursorScale = snapshot.cursorScale
+        ffmDelayMs = Double(snapshot.ffmDelayMs)
         panelBackdropAlpha = snapshot.panelBackdropAlpha
         var wanted = favoriteThemes.map(\.id)
         if let visible = visibleIdentifier, !wanted.contains(visible) { wanted.append(visible) }
@@ -143,6 +145,11 @@ final class MenuBarPanelModel: ObservableObject {
 
     func commitCursorScale() {
         MenuBarService.commitCursorScale(cursorScale)
+        reload()
+    }
+
+    func commitFocusFollowsMouseDelay() {
+        MenuBarService.setFocusFollowsMouseDelay(Int(ffmDelayMs.rounded()))
         reload()
     }
 

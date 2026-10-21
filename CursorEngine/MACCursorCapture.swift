@@ -29,7 +29,15 @@ struct MACCursorCapture {
             } while descriptor == -1 && errno == EINTR
             guard descriptor != -1 else { return false }
             defer { close(descriptor) }
-            return FileManager.default.fileExists(atPath: url.path) || body()
+            return body()
+        }
+        var bootSession: () -> String? = {
+            var size = 0
+            guard sysctlbyname("kern.bootsessionuuid", nil, &size, nil, 0) == 0, size > 1 else { return nil }
+            var buffer = [UInt8](repeating: 0, count: size)
+            guard sysctlbyname("kern.bootsessionuuid", &buffer, &size, nil, 0) == 0 else { return nil }
+            let value = String(decoding: buffer.prefix { $0 != 0 }, as: UTF8.self)
+            return value.isEmpty ? nil : value
         }
     }
 
@@ -60,6 +68,11 @@ struct MACCursorCapture {
     nonisolated static var systemDefaultPath: String {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("MaCursor/SystemDefault.cursor").path
+    }
+
+    nonisolated static var systemDefaultName: String {
+        let os = ProcessInfo.processInfo.operatingSystemVersion
+        return "System Default (macOS \(os.majorVersion).\(os.minorVersion).\(os.patchVersion))"
     }
 
     func query(_ identifier: String, connection: CGSConnectionID) -> Images? {
@@ -126,6 +139,16 @@ struct MACCursorCapture {
     }
 
     private func captureLocked(to path: String) -> Bool {
+        let url = URL(fileURLWithPath: path)
+        let existing = operations.read(url)
+        if let existing {
+            let stampURL = url.appendingPathExtension("boot")
+            let stamp = operations.read(stampURL)
+            guard let boot = operations.bootSession().map({ Data($0.utf8) }), stamp != boot,
+                  (try? operations.write(boot, stampURL)) != nil, stamp != nil,
+                  (try? PropertyListSerialization.propertyList(from: existing, format: nil) as? NSDictionary)?[MACCursorDefinitions.themeNameKey] as? String != Self.systemDefaultName
+            else { return true }
+        }
         let connection = operations.connection()
         guard connection != 0 else { return false }
         _ = operations.unregister(connection)
@@ -154,10 +177,10 @@ struct MACCursorCapture {
             }
             return cursors
         }()
-        let os = ProcessInfo.processInfo.operatingSystemVersion
+        if existing != nil && cursors.isEmpty { return false }
         let theme: [String: Any] = [
             MACCursorDefinitions.creatorKey: "Apple, Inc.",
-            MACCursorDefinitions.themeNameKey: "System Default (macOS \(os.majorVersion).\(os.minorVersion).\(os.patchVersion))",
+            MACCursorDefinitions.themeNameKey: Self.systemDefaultName,
             MACCursorDefinitions.themeVersionKey: 1.0,
             MACCursorDefinitions.cursorsKey: cursors,
             MACCursorDefinitions.hiDPIKey: true,
@@ -166,7 +189,7 @@ struct MACCursorCapture {
         ]
         do {
             let data = try PropertyListSerialization.data(fromPropertyList: theme, format: .binary, options: 0)
-            try operations.write(data, URL(fileURLWithPath: path))
+            try operations.write(data, url)
             print("Captured \(cursors.count) cursors to \(path)")
             return true
         } catch {

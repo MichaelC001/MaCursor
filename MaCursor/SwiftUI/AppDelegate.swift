@@ -20,12 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         startFocusFollowsMouseAccessRequests()
         startCursorGesturesAccessRequests()
 
-        let systemDefaultPath = MACCursorCapture.systemDefaultPath
-        if !FileManager.default.fileExists(atPath: systemDefaultPath) {
-            NSLog("MaCursor: Capturing system default cursors...")
-            let success = MACCursorCapture.shared.capture(to: systemDefaultPath)
-            NSLog("MaCursor: System default capture %@", success ? "succeeded" : "failed")
-        }
+        MACCursorCapture.shared.capture(to: MACCursorCapture.systemDefaultPath)
 
         CursorService.assertPreferredScale()
 

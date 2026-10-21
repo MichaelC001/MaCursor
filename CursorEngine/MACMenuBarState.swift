@@ -143,6 +143,12 @@ func MACMenuBarFFMConfigBySettingEnabled(_ config: [AnyHashable: Any]?, _ enable
     return updated
 }
 
+func MACMenuBarFFMConfigBySettingDelay(_ config: [AnyHashable: Any]?, delayMs: Int) -> [AnyHashable: Any] {
+    var updated = config ?? [:]
+    updated["delayMs"] = min(max(delayMs, 0), MACFFMMaxDelayMs)
+    return updated
+}
+
 func MACMenuBarPanelBackgroundLevel(_ stored: Any?) -> Double {
     guard let number = stored as? NSNumber, number.doubleValue.isFinite else { return MACMenuBarPanelBackgroundDefault }
     return min(1, max(0, number.doubleValue))

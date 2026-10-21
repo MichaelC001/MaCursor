@@ -1292,3 +1292,7 @@
 "Next: %@" = "Sonraki: %@";
 /* Cursor Gestures editor: label on a shape another gesture already uses with the same trigger */
 "In use" = "Kullanımda";
+/* Focus on Hover, in Settings and the menu bar panel: label above the one delay slider, the wait before the hovered window comes to the front and gets the focus; %@ is a duration such as 100 ms */
+"Delay window focus for %@" = "Odağı %@ sonra ver";
+/* Menu bar panel: folded row under the Focus on Hover switch that holds the delay slider */
+"Focus Delay" = "Odak Gecikmesi";

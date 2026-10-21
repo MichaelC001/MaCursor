@@ -14,6 +14,7 @@ enum MenuBarService {
         let switchByApp: Bool
         let cursorShadow: Bool
         let focusFollowsMouse: Bool
+        let ffmDelayMs: Int
         let accessibilityTrusted: Bool
         let cursorTrails: CursorTrailsConfig
         let cursorGestures: CursorGesturesConfig
@@ -95,6 +96,7 @@ enum MenuBarService {
         let favorites = MACMenuBarFavoriteCatalog(catalog, MACPreferences.value(forKey: MACPreferences.favoriteThemesKey))
         let front = MACMenuBarState.shared.lastForegroundBundleID
         let scale = MACPreferences.value(forKey: MACPreferences.cursorScaleKey) as? NSNumber
+        let ffm = MACFFMReadConfig()
         return Snapshot(
             catalog: catalog,
             favorites: favorites,
@@ -106,7 +108,8 @@ enum MenuBarService {
             frontRuleThemeIdentifier: MACMenuBarRuleThemeForBundleID(config, front),
             switchByApp: (config?["switchByApp"] as? NSNumber)?.boolValue ?? false,
             cursorShadow: MACPreferences.flag(MACPreferences.cursorShadowKey),
-            focusFollowsMouse: MACFFMEnabled(MACFFMReadConfig()),
+            focusFollowsMouse: MACFFMEnabled(ffm),
+            ffmDelayMs: MACFFMDelayMs(ffm),
             accessibilityTrusted: HelperTrustProbe.isTrusted(),
             cursorTrails: CursorTrailsConfig.load(),
             cursorGestures: CursorGesturesConfig.load(),
@@ -179,6 +182,14 @@ enum MenuBarService {
 
     static func setFocusFollowsMouse(_ enabled: Bool) {
         let updated = MACMenuBarFFMConfigBySettingEnabled(MACFFMReadConfig(), enabled)
+        guard JSONSerialization.isValidJSONObject(updated),
+              let data = try? JSONSerialization.data(withJSONObject: updated) else { return }
+        MACPreferences.set(data, forKey: MACPreferences.focusFollowsMouseKey)
+        postDistributed(.MACFocusFollowsMouseDidChange)
+    }
+
+    static func setFocusFollowsMouseDelay(_ delayMs: Int) {
+        let updated = MACMenuBarFFMConfigBySettingDelay(MACFFMReadConfig(), delayMs: delayMs)
         guard JSONSerialization.isValidJSONObject(updated),
               let data = try? JSONSerialization.data(withJSONObject: updated) else { return }
         MACPreferences.set(data, forKey: MACPreferences.focusFollowsMouseKey)

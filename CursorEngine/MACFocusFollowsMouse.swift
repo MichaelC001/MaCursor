@@ -153,12 +153,18 @@ final class MACFocusFollowsMouseController {
             return element
         }
         var addMonitor: (@escaping @MainActor (Bool, CGPoint) -> Void) -> Any? = { handler in
-            NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .scrollWheel]) { event in
+            let events: NSEvent.EventTypeMask = [.mouseMoved, .scrollWheel]
+            let forward: (NSEvent) -> Void = { event in
                 let scrolling = event.type == .scrollWheel
                 MainActor.assumeIsolated { handler(scrolling, NSEvent.mouseLocation) }
             }
+            return [NSEvent.addGlobalMonitorForEvents(matching: events, handler: forward),
+                    NSEvent.addLocalMonitorForEvents(matching: events) { event in
+                        forward(event)
+                        return event
+                    }].compactMap { $0 }
         }
-        var removeMonitor: (Any) -> Void = { NSEvent.removeMonitor($0) }
+        var removeMonitor: (Any) -> Void = { ($0 as? [Any])?.forEach(NSEvent.removeMonitor) }
         var schedule: (TimeInterval, TimeInterval?, TimeInterval, @escaping @MainActor () -> Void) -> (() -> Void) = { delay, interval, leeway, handler in
             let timer = DispatchSource.makeTimerSource(queue: .main)
             timer.schedule(deadline: .now() + delay, repeating: interval.map { .nanoseconds(Int($0 * 1_000_000_000)) } ?? .never,

@@ -15,6 +15,7 @@ private enum PanelMetrics {
 struct MenuBarPanelView: View {
     @ObservedObject var model: MenuBarPanelModel
     @AppStorage("MACMenuBarCursorTrailsExpanded") private var trailsExpanded = true
+    @AppStorage("MACMenuBarFocusOnHoverExpanded") private var ffmDelayExpanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: PanelMetrics.sectionSpacing) {
@@ -259,6 +260,26 @@ struct MenuBarPanelView: View {
                 Toggle(isOn: focusFollowsMouseBinding) {
                     Text(MenuBarL("Focus on Hover")).frame(maxWidth: .infinity, alignment: .leading)
                 }
+                if model.focusFollowsMouse && model.accessibilityTrusted {
+                    Button {
+                        withAnimation(.easeOut(duration: 0.15)) { ffmDelayExpanded.toggle() }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 8.5, weight: .bold))
+                                .foregroundStyle(.secondary)
+                                .rotationEffect(.degrees(ffmDelayExpanded ? 90 : 0))
+                                .accessibilityHidden(true)
+                            Text(MenuBarL("Focus Delay"))
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    if ffmDelayExpanded {
+                        delaySlider
+                    }
+                }
                 Toggle(isOn: cursorGesturesBinding) {
                     Text(MenuBarL("Cursor Gestures")).frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -346,6 +367,23 @@ struct MenuBarPanelView: View {
 
     private var scaleLabel: String {
         model.cursorScale.formatted(.number.precision(.fractionLength(2)).grouping(.never)) + "×"
+    }
+
+    private func milliseconds(_ value: Double) -> String {
+        Duration.milliseconds(value).formatted(.units(allowed: [.milliseconds], width: .abbreviated))
+    }
+
+    private var delaySlider: some View {
+        let label = String(format: MenuBarL("Delay window focus for %@"), milliseconds(model.ffmDelayMs))
+        return VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+            Slider(value: $model.ffmDelayMs, in: 0...1000, step: 50) { editing in
+                if !editing { model.commitFocusFollowsMouseDelay() }
+            }
+            .accessibilityLabel(label)
+        }
     }
 
     private func sectionTitle(_ title: String) -> some View {

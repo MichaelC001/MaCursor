@@ -340,6 +340,19 @@ struct CursorSettingsView: View {
         ffmAccessibilityTrusted && helperManager.isRunning
     }
 
+    private var ffmOn: Bool { FocusFollowsMouseConfig.isOn(enabled: focusFollowsMouse.enabled, trusted: ffmUsable) }
+
+    private var ffmDelay: Binding<Double> {
+        Binding(
+            get: { Double(focusFollowsMouse.delayMs) },
+            set: { focusFollowsMouse.delayMs = Int($0.rounded()) }
+        )
+    }
+
+    private func ffmDuration(_ milliseconds: Int) -> String {
+        Duration.milliseconds(milliseconds).formatted(.units(allowed: [.milliseconds], width: .abbreviated))
+    }
+
     private var focusFollowsMouseBinding: Binding<Bool> {
         Binding(
             get: {
@@ -384,6 +397,16 @@ struct CursorSettingsView: View {
                         Button("Open System Settings") {
                             FocusFollowsMouseConfig.requestAccessibility()
                         }
+                    }
+                }
+
+                if ffmOn {
+                    VStack(alignment: .leading) {
+                        Text("Delay window focus for \(ffmDuration(focusFollowsMouse.delayMs))")
+                        Slider(value: ffmDelay, in: 0...1000, step: 50) {
+                            Text("Delay window focus for \(ffmDuration(focusFollowsMouse.delayMs))")
+                        } onEditingChanged: { if !$0 { focusFollowsMouse.save() } }
+                        .labelsHidden()
                     }
                 }
             }

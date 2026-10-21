@@ -222,10 +222,7 @@ final class HelperRuntime {
         displayRegistered = displayResult == .success
         if !displayRegistered { print("Failed to register display callback: \(displayResult.rawValue)") }
 
-        let systemDefaultPath = MACCursorCapture.systemDefaultPath
-        if !FileManager.default.fileExists(atPath: systemDefaultPath) {
-            MACCursorCapture.shared.capture(to: systemDefaultPath)
-        }
+        MACCursorCapture.shared.capture(to: MACCursorCapture.systemDefaultPath)
         MACAutoSwitchEffects.shared.recoverBaseThemeIfNeeded()
         applyStoredTheme(for: NSUserName())
         MACCursorActions.shared.assertPreferredCursorScale()
